@@ -781,3 +781,46 @@ footer i.rotate {
     gap: 1.5rem;
   }
 }
+
+/* ========================================== */
+/* HERO IMPROVEMENTS */
+
+.tagline {
+  font-size: 1.4rem !important;
+  font-weight: 300 !important;
+  color: var(--text-dark) !important;
+  margin: 0.5rem 0 1rem !important;
+  line-height: 1.4 !important;
+}
+
+.subtagline {
+  font-size: 1.1rem !important;
+  color: var(--text-light) !important;
+  margin: 1rem 0 2rem !important;
+  max-width: 600px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  line-height: 1.6 !important;
+}
+
+.cta-button {
+  display: inline-block;
+  padding: 0.9rem 2.5rem;
+  background: var(--primary-color);
+  color: #fff;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 1rem;
+  margin-top: 1.5rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+  text-decoration: none;
+}
+
+.cta-button:hover {
+  background: var(--accent-color);
+  box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+  transform: translateY(-2px);
+}
+
+/* ========================================== */
