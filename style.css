@@ -627,3 +627,96 @@ footer p {
     margin-bottom: 2rem;
   }
 }
+
+/* ========================================== */
+/* NEW SECTIONS - EXPERTISE & CTA */
+
+.expertise-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.expertise-item {
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  text-align: left;
+}
+
+.expertise-item h4 {
+  color: var(--primary);
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+}
+
+.expertise-item ul {
+  margin: 0;
+  padding-left: 1.5rem;
+  color: var(--gray);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.expertise-item li {
+  margin: 0.5rem 0;
+}
+
+.cta-section {
+  background: linear-gradient(135deg, var(--primary) 0%, #0052cc 100%);
+  color: #fff;
+  padding: 4rem 2rem;
+  border-radius: 8px;
+  text-align: center;
+  margin: 4rem auto;
+  max-width: 900px;
+}
+
+.cta-section h3 {
+  color: #fff;
+  font-size: 1.8rem;
+  margin: 0 0 1rem;
+}
+
+.cta-section p {
+  color: rgba(255,255,255,0.9);
+  font-size: 1rem;
+  line-height: 1.7;
+  margin: 0 0 2rem;
+}
+
+.cta-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2rem;
+  margin: 2rem 0;
+}
+
+.cta-stat {
+  text-align: center;
+}
+
+.cta-stat-number {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.cta-stat-label {
+  font-size: 0.85rem;
+  opacity: 0.9;
+}
+
+@media (max-width: 768px) {
+  .expertise-grid,
+  .cta-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .cta-section h3 {
+    font-size: 1.5rem;
+  }
+}
