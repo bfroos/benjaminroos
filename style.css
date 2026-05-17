@@ -507,6 +507,14 @@ section > h3 {
   padding-bottom: var(--space-16);
 }
 
+.company-logo span {
+  display: block;
+  font-size: var(--font-lg);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+  letter-spacing: -0.5px;
+}
+
 .company-logo img {
   max-width: 100%;
   max-height: 100%;
