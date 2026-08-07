@@ -1,7 +1,7 @@
 /* benjaminroos.de — interactions */
 (function(){
-  // ---- Web3Forms access key (routes submissions to mail@benjaminroos.de, address stays private) ----
-  var WEB3FORMS_KEY = "REPLACE_WITH_WEB3FORMS_ACCESS_KEY";
+  // ---- Web3Forms access key (routes submissions to the configured inbox, address stays private) ----
+  var WEB3FORMS_KEY = "fcd53624-33c2-4b4e-94c5-7588452f1dfd";
 
   var EN = (document.documentElement.lang || "de").toLowerCase().indexOf("en") === 0;
 
