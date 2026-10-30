@@ -70,6 +70,21 @@ const hobTex = canvasTex(512, 320, (g, w, h) => {      // Induktionsfeld mit Abz
   g.fillStyle = 'rgba(200,200,200,0.5)'; g.font = '16px sans-serif'; g.fillText('- 6 +', w / 2 - 20, h - 6);
 });
 
+const herringTex = canvasTex(512, 512, (g, w, h) => {   // Fischgrät Eiche, Stab 60 x 10 cm (Kachel 1,2 m)
+  g.fillStyle = '#b98d5c'; g.fillRect(0, 0, w, h);
+  const r = rnd(19), L = 256, B = 42.7;
+  for (let row = -2; row < 16; row++) for (let col = -2; col < 4; col++) for (const s of [0, 1]) {
+    const x0 = col * 2 * B * 3 + s * B * 3, y0 = row * B * 2 + s * B * 1.0;
+    g.save(); g.translate(x0, y0); g.rotate(s ? -Math.PI / 4 : Math.PI / 4);
+    const tone = 0.88 + r() * 0.2; g.fillStyle = `rgb(${185 * tone | 0},${141 * tone | 0},${92 * tone | 0})`;
+    g.fillRect(0, 0, L * 0.47, B * 0.72); g.strokeStyle = 'rgba(80,55,30,0.35)'; g.lineWidth = 1.2; g.strokeRect(0, 0, L * 0.47, B * 0.72);
+    g.restore();
+  }
+});
+function parquetMat(u, v) {
+  const t = herringTex.clone(); t.needsUpdate = true; t.repeat.set(u / 1.2, v / 1.2);
+  return new THREE.MeshStandardMaterial({ map: t, roughness: 0.6 });
+}
 function tileMat(u, v) {
   const t = tileTex.clone(); t.needsUpdate = true; t.repeat.set(u / 1.2, v / 0.6);
   return new THREE.MeshStandardMaterial({ map: t, roughness: 0.55 });
@@ -330,10 +345,14 @@ function stair(r) {    // Treppe neben der Küche, vereinfacht (18 Stufen 18,06 
 export function kitchen() {
   const r = new Room();
   // Böden: Küche, Erweiterung nach Westen und Süden (Essen)
+  // Steinzone unter Schrankwand und Insel (wie auf den Vorbildern), sonst Fischgrätparkett
   r.floor(0, 0, 3.883, 1.688);
-  r.floor(-1.251, 1.688, 5.40, 4.608);
-  r.floor(4.149, 1.688, 2.15, 1.75);
-  r.floor(4.149, 3.438, 2.15, 2.858, false);      // Luftraum OG über dem Wohnbereich
+  r.floor(0, 1.688, 3.883, 1.64);
+  r.floor(-1.251, 1.688, 1.251, 4.608, true, parquetMat(1.251, 4.608));
+  r.floor(0, 3.328, 4.149, 2.968, true, parquetMat(4.149, 2.968));
+  r.floor(3.883, 1.688, 0.266, 1.64, true, parquetMat(0.266, 1.64));
+  r.floor(4.149, 1.688, 2.15, 1.75, true, parquetMat(2.15, 1.75));
+  r.floor(4.149, 3.438, 2.15, 2.858, false, parquetMat(2.15, 2.858));      // Luftraum OG über dem Wohnbereich
   // Wände
   r.wall(0, -0.115, 3.883, 0.115, 'N', [r.gapO(2.482, 3.283, TALL)]);       // Abstellraum/Küche, Tür auf Küchenplanung abgestimmt
   r.wall(-0.365, -2.145, 4.73, 0.365, 'N');
