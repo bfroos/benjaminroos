@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,-apple-system,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Garten Montabaur Baustelle</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500&display=swap">
+<style>
+/* Für das Handy gebaut: eine Spalte, große Schrift, alles untereinander. Plan lässt sich im Vollbild vergrößern. */
+:root {
+  --bg: #f6f5f0; --karte: #ffffff; --fg: #23291f; --leise: #5f6858; --linie: #dedcd2; --akzent: #3f6b45; --akzent-fg: #fff; --rot: #c8352b; --chip: #ebeee4;
+  --kopf: "Jost", "Futura", "Avenir Next", system-ui, sans-serif; --text: "IBM Plex Sans", "Helvetica Neue", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #151a15; --karte: #1e241e; --fg: #e6ebe2; --leise: #a3ad9d; --linie: #333b32; --akzent: #8cbf8f; --akzent-fg: #10200f; --rot: #ff7a6e; --chip: #283027; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #151a15; --karte: #1e241e; --fg: #e6ebe2; --leise: #a3ad9d; --linie: #333b32; --akzent: #8cbf8f; --akzent-fg: #10200f; --rot: #ff7a6e; --chip: #283027; color-scheme: dark }
+[hidden] { display: none !important; }
+body { background: var(--bg); color: var(--fg); font: 16px/1.5 var(--text); }
+.rand { max-width: 860px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+header { padding-block: 22px 8px; }
+h1 { font: 600 1.7rem/1.15 var(--kopf); margin: 0 0 4px; text-wrap: balance; }
+.stand { color: var(--leise); font-size: .92rem; }
+nav { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); border-bottom: 1px solid var(--linie); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+nav .rand { display: flex; gap: 6px; overflow-x: auto; padding-block: 10px; scrollbar-width: none; }
+nav a { flex: none; text-decoration: none; color: var(--fg); background: var(--chip); border-radius: 999px; padding: 7px 14px; font: 500 .95rem var(--kopf); }
+nav a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px solid var(--akzent); outline-offset: 2px; }
+section { padding-block: 26px 6px; scroll-margin-top: 64px; }
+h2 { font: 600 1.35rem/1.2 var(--kopf); margin: 0 0 10px; }
+p { margin: 0 0 12px; }
+.leise { color: var(--leise); }
+.planbild { display: block; width: 100%; border: 1px solid var(--linie); border-radius: 10px; background: var(--karte); cursor: zoom-in; padding: 0; overflow: hidden; }
+.planbild img { display: block; width: 100%; height: auto; }
+.knopf { display: inline-flex; align-items: center; gap: 8px; font: 500 1rem var(--kopf); background: var(--akzent); color: var(--akzent-fg); border: 0; border-radius: 10px; padding: 12px 18px; cursor: pointer; margin-top: 10px; }
+.bilder { display: grid; gap: 16px; }
+figure { margin: 0; background: var(--karte); border: 1px solid var(--linie); border-radius: 10px; overflow: hidden; }
+figure img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; }
+figcaption { padding: 10px 14px 12px; }
+figcaption b { font: 600 1.05rem var(--kopf); display: block; }
+details { background: var(--karte); border: 1px solid var(--linie); border-radius: 10px; margin-bottom: 10px; }
+summary { cursor: pointer; padding: 14px 16px; font: 600 1.08rem var(--kopf); list-style: none; display: flex; justify-content: space-between; gap: 12px; }
+summary::-webkit-details-marker { display: none; }
+summary::after { content: "+"; color: var(--akzent); font-size: 1.3rem; line-height: 1; }
+details[open] summary::after { content: "–"; }
+summary .anz { color: var(--leise); font: 400 .9rem var(--text); margin-left: auto; }
+.liste { border-top: 1px solid var(--linie); }
+.pos { display: grid; grid-template-columns: 1fr auto; gap: 2px 14px; padding: 12px 16px; border-bottom: 1px solid var(--linie); }
+.pos:last-child { border-bottom: 0; }
+.pos .was { min-width: 0; }
+.pos .menge { font: 600 1rem var(--kopf); white-space: nowrap; text-align: right; }
+.pos .wo { grid-column: 1 / -1; color: var(--leise); font-size: .88rem; }
+.pos .nr { color: var(--leise); font-size: .8rem; margin-right: 6px; font-variant-numeric: tabular-nums; }
+.offen { background: var(--karte); border: 1px solid var(--linie); border-left: 4px solid var(--rot); border-radius: 8px; padding: 12px 14px; margin-bottom: 10px; }
+.offen b { font: 600 1.05rem var(--kopf); }
+.offen .wer { color: var(--leise); font-size: .88rem; margin-top: 4px; }
+footer { padding-block: 30px 40px; color: var(--leise); font-size: .88rem; }
+/* Vollbild-Plan */
+.voll { position: fixed; inset: 0; z-index: 20; background: #111; display: flex; flex-direction: column; }
+.voll .leiste { display: flex; gap: 8px; align-items: center; padding: calc(10px + env(safe-area-inset-top, 0px)) max(12px, env(safe-area-inset-right, 0px)) 10px max(12px, env(safe-area-inset-left, 0px)); background: #1b1b1b; color: #eee; }
+.voll .leiste span { margin-right: auto; font: 500 .95rem var(--kopf); }
+.voll button { font: 600 1.1rem var(--kopf); background: #333; color: #fff; border: 0; border-radius: 8px; min-width: 46px; height: 42px; padding: 0 12px; cursor: pointer; }
+.voll .flaeche { flex: 1; overflow: auto; -webkit-overflow-scrolling: touch; touch-action: pan-x pan-y; }
+.voll .flaeche img { display: block; max-width: none; height: auto; }
+@media (min-width: 720px) { .bilder { grid-template-columns: 1fr 1fr; } h1 { font-size: 2rem; } }
+</style>
+</head>
+<body>
+
+
+<header class="rand">
+  <h1>Garten Montabaur</h1>
+  <div class="stand">Gartenplanung · Planstand 06 vom 29.10.2026 · Entwurf zur Abstimmung</div>
+</header>
+<nav aria-label="Abschnitte"><div class="rand">
+  <a href="#plan">Plan</a><a href="#bilder">Bilder</a><a href="#mengen">Mengen</a><a href="#zaun">Zaun</a><a href="#pflanzen">Pflanzen</a><a href="#offen">Offene Punkte</a>
+</div></nav>
+
+<main class="rand">
+  <section id="plan">
+    <h2>Der Plan von oben</h2>
+    <p class="leise">Rote Linie = Grundstücksgrenze. Gestrichelt = Obergeschoss. Tipp auf den Plan, dann kannst du ihn groß ansehen und verschieben.</p>
+    <button class="planbild" id="plan-auf" aria-label="Plan groß öffnen"><img src="plan.jpg" alt="Gartenplan Planstand 06 von oben mit Beschriftung" width="3200" height="1989"></button>
+    <button class="knopf" id="plan-auf2">Plan groß ansehen</button>
+  </section>
+
+  <section id="bilder">
+    <h2>So sieht es aus</h2>
+    <p class="leise">Bilder aus dem 3D-Modell. Haus vereinfacht nach Grundriss vom 20.08.2026, Fassade nach Entwurf Variante 3.</p>
+    <div class="bilder" id="galerie"></div>
+  </section>
+
+  <section id="mengen">
+    <h2>Mengen je Gewerk</h2>
+    <p class="leise">Aus der Massenermittlung. Mengen ohne Verschnitt, bitte vor Ort prüfen.</p>
+    <div id="massen"></div>
+  </section>
+
+  <section id="zaun">
+    <h2>Zaun und Tore</h2>
+    <div id="zaeune"></div>
+  </section>
+
+  <section id="pflanzen">
+    <h2>Pflanzen</h2>
+    <p class="leise">Nach Beet sortiert. Beet-Codes stehen im Plan.</p>
+    <div id="pflanzliste"></div>
+  </section>
+
+  <section id="offen">
+    <h2>Offene Punkte</h2>
+    <p class="leise">Das muss vor oder während der Ausführung noch geklärt werden.</p>
+    <div id="offenliste"></div>
+  </section>
+</main>
+<footer class="rand">Fragen zum Plan bitte an Benjamin. Die PDFs und die Excel-Tabelle mit allen Mengen schickt er gern separat.</footer>
+
+<div class="voll" id="voll" hidden role="dialog" aria-label="Plan im Vollbild">
+  <div class="leiste"><span>Wischen zum Verschieben</span><button id="kleiner" aria-label="Kleiner">−</button><button id="groesser" aria-label="Größer">+</button><button id="zu">Schließen</button></div>
+  <div class="flaeche" id="flaeche"><img id="vollbild" src="plan.jpg" alt="Gartenplan groß"></div>
+</div>
+
+<script>
+const D = {"Massen": {"kopf": ["Pos.", "Gewerk", "Leistung", "Menge", "Einheit", "Grundlage", "Einheitspreis €", "Gesamt €"], "zeilen": [["1.1", "Erdbau", "Oberboden abtragen und seitlich lagern (nur falls nicht schon erfolgt)", 476, "m²", "Gartenfläche ohne Haus; Bestand vor Ort prüfen", null, null], ["1.2", "Erdbau", "Bodenaushub für Tragschichten, laden und abfahren", 78.5, "m³", "Fläche × Tragschicht je Belag (siehe unten); ohne Pool und Zisterne", null, null], ["1.3", "Erdbau", "Oberboden andecken in Pflanzflächen, 30 cm", 13.9, "m³", "46,5 m² Beete × 0,30 m", null, null], ["1.4", "Erdbau", "Rasentragschicht / Oberboden Feinplanum, 10 cm", 10.1, "m³", "101,1 m² Rasen × 0,10 m", null, null], ["2.1", "Wege und Flächen", "Sickerfugenpflaster Hof, befahrbar, 8 cm, inkl. Splittbett", 40.3, "m²", "H01", null, null], ["2.2", "Wege und Flächen", "Schottertragschicht 0/32 unter Hofpflaster, 35 cm", 14.1, "m³", "H01 × 0,35 m", null, null], ["2.3", "Wege und Flächen", "Pflasterweg zur Gartentür, 8 cm, inkl. Bettung + Tragschicht", 7.7, "m²", "H08, 1,1 m breit", null, null], ["2.4", "Wege und Flächen", "Ökopflaster mit Splittfuge, befahrbar, versickerungsfähig", 7.8, "m²", "H07 Vorplatz Fahrradhaus; kein Mähen", null, null], ["2.5", "Wege und Flächen", "Schottertragschicht unter Ökopflaster, 35 cm", 2.7, "m³", "× 0,35 m", null, null], ["2.6", "Wege und Flächen", "Gästeplätze: Schottertragschicht 0/32 befahrbar, 30 cm, ganze Fläche", 7.5, "m³", "ST1 + ST2 je 2,5 × 5,0 m; später Ökopflaster ohne neues Auskoffern", null, null], ["2.7", "Wege und Flächen", "Gästeplätze: Rasengittersteine (Betonstein mit Kammern) als Fahrstreifen, Kammern mit Splitt 2/5", 10, "m²", "4 Streifen SP1–SP4 à 0,5 × 5,0 m, Spurmitte 1,5 m", null, null], ["2.8", "Wege und Flächen", "Gästeplätze: Schotterrasen-Substrat 15 cm (Schotter + Oberboden 70/30)", 2.2, "m³", "15,0 m² zwischen und neben den Streifen", null, null], ["2.9", "Wege und Flächen", "Gästeplätze: Ansaat Kräuter-Schotterrasen RSM 5.1 + Pflanzung Thymian/Fetthenne", 15, "m²", "Pflanzen siehe Begleitblatt 2 (ST1)", null, null], ["2.10", "Wege und Flächen", "Ostweg Platten 0,9 m inkl. Bettung + Tragschicht", 14.1, "m²", "H03, Hauswand bis Pooldeck", null, null], ["2.11", "Wege und Flächen", "Spritzschutz Kies 16/32, 30 cm breit, auf Vlies", 25, "lfm", "Ostwand (KS) + alle Wände an Rasen/Beet", null, null], ["2.12", "Wege und Flächen", "Terrassenplatten inkl. Bettung", 59.1, "m²", "H04 Terrasse 39,3 + H05 Pooldeck 19,8", null, null], ["2.13", "Wege und Flächen", "Tragschicht unter Terrassenplatten, 20 cm", 11.8, "m³", "× 0,20 m", null, null], ["2.14", "Wege und Flächen", "Splittfläche Service Nord inkl. Schotter 15 cm", 17, "m²", "H02", null, null], ["2.15", "Wege und Flächen", "Trittplatten ca. 60 × 40 cm in der Naschecke", 4, "St.", "P03", null, null], ["2.16", "Wege und Flächen", "Einfassung befestigter Flächen (Tiefbord / Kantenstein)", 79, "lfm", "alle Ränder Pflaster/Platten/Splitt/Ökopflaster zu Rasen, Beet, Kunstrasen, Grenze", null, null], ["2.17", "Wege und Flächen", "Streifenfundament für Pooldach-Schienen", 23.1, "lfm", "2 × 11,55 m (Schiene liefert Poolbauer)", null, null], ["2.18", "Wege und Flächen", "Fundamentplatten für Sauna, Fahrradhaus, Müllbox, Pooltechnik, Dusche", 22, "m²", "G01–G04, AD", null, null], ["3.1", "Rasen", "Rollrasen Gebrauchsrasen inkl. Feinplanum und Startdünger", 101.1, "m²", "R01–R03; bei Bestellung + 5 % Verschnitt", null, null], ["3.2", "Rasen", "Mähkante bündig: 1 Reihe Pflaster 16 cm in Beton, zwischen Rasen und Beeten", 62, "lfm", "Roboter mäht bis an den Rand, kein Nachschneiden", null, null], ["3.3", "Rasen", "Mähroboter mit RTK-Navigation, ohne Begrenzungsdraht, inkl. Station + Antenne (Option)", 1, "St.", "Ladestation E12 am Ostweg; Kunstrasen und Beete als Sperrzonen in der App", null, null], ["4.1", "Kunstrasen", "Kunstrasen Fußball, ca. 40 mm, mit Füllung (Quarzsand/organisch)", 87.8, "m²", "K01, Kunstrasen ca. 12 × 7 m, Spielfeld-Linien ca. 10 × 6,45 m", null, null], ["4.2", "Kunstrasen", "Schottertragschicht 15 cm + Elastikschicht 3 cm, wasserdurchlässig", 87.8, "m²", "wie K01", null, null], ["4.3", "Kunstrasen", "Randeinfassung Kunstrasen (Alu-/Kunststoffprofil)", 32, "lfm", "ohne Hauswand", null, null], ["4.4", "Kunstrasen", "Spielfeldlinien eingetuftet (optional)", 46, "lfm", "Rand, Mittellinie, Mittelkreis; Torlinien je ca. 1,1 m vor dem Feldende, dahinter stehen die Alu-Tore 3 × 2 m (1 m tief) auf dem Kunstrasen", null, null], ["5.1", "Zaun und Tür", "Z13 Gartenabschluss am Hobby, Doppelstabmatte, Höhe 1,83 m", 4.7, "lfm", "ca. 3 Pfosten", null, null], ["5.2", "Zaun und Tür", "GT3 Gartentür 1,0 m, selbstschließend", 1, "St.", "1,83 m", null, null], ["5.3", "Zaun und Tür", "Z09 West am Spielfeld, Doppelstabmatte (Ballfang), Höhe 2,43 m", 7.3, "lfm", "ca. 4 Pfosten", null, null], ["5.4", "Zaun und Tür", "Z14 Ost am Spielfeld, Doppelstabmatte dunkelgrün, Hainbuche davor, Höhe 1,83 m", 5.9, "lfm", "ca. 4 Pfosten", null, null], ["5.5", "Zaun und Tür", "Z08 Süd am Spielfeld, Doppelstabmatte auf L-Steinen, Höhe 1,43 m", 12.2, "lfm", "ca. 6 Pfosten", null, null], ["5.6", "Zaun und Tür", "Z06 Süd, Glaselemente (Blickachse Wohnen/Essen), Höhe 1,00–1,20 m", 17, "lfm", "ca. 15 Elemente à 1,2 m", null, null], ["5.7", "Zaun und Tür", "Z05 Süd-Ost, Metall niedrig, Höhe 1,03 m", 3.2, "lfm", "ca. 3 Pfosten", null, null], ["5.8", "Zaun und Tür", "Z04 Ost, Doppelstabmatte, Höhe 1,83 m", 23.7, "lfm", "ca. 11 Pfosten", null, null], ["5.9", "Zaun und Tür", "Z03 Nord, Doppelstabmatte, Höhe 1,83 m", 9.5, "lfm", "ca. 5 Pfosten", null, null], ["5.10", "Zaun und Tür", "Z02 Nord, Bad-Sichtschutz Alulamellen, Höhe 1,80 m", 4.5, "lfm", "ca. 3 Pfosten", null, null], ["5.11", "Zaun und Tür", "L-Steine Südkante (bereits geplant), Höhe nach Aufmaß", 32.5, "lfm", "Z08 + Z06 + Z05 stehen darauf", null, null], ["6.1", "Pflanzen", "Solitärgehölze mit Ballen", 3, "St.", "Arten und Größen: Begleitblatt 2 / Excel 'Pflanzen'", null, null], ["6.2", "Pflanzen", "Heckenpflanzen", 27, "St.", "Arten und Größen: Begleitblatt 2 / Excel 'Pflanzen'", null, null], ["6.3", "Pflanzen", "Kleingehölze und große Gräser", 7, "St.", "Arten und Größen: Begleitblatt 2 / Excel 'Pflanzen'", null, null], ["6.4", "Pflanzen", "Beerensträucher und Obst", 14, "St.", "Arten und Größen: Begleitblatt 2 / Excel 'Pflanzen'", null, null], ["6.5", "Pflanzen", "Stauden, Gräser, Erdbeeren", 231, "St.", "Arten und Größen: Begleitblatt 2 / Excel 'Pflanzen'", null, null], ["6.6", "Pflanzen", "Zwiebeln und Knollen", 460, "St.", "Arten und Größen: Begleitblatt 2 / Excel 'Pflanzen'", null, null], ["6.7", "Pflanzen", "Kompost 5 cm einarbeiten", 2.3, "m³", "alle Pflanzflächen", null, null], ["6.8", "Pflanzen", "Mulch (Holzhäcksel) 5 cm", 2.1, "m³", "ohne Hochbeet, Kübel, Zisternenbeet", null, null], ["6.9", "Pflanzen", "Hochbeet 2,9 × 0,9 m (Holz/Cortenstahl) inkl. Befüllung", 1, "St.", "P04A", null, null], ["6.10", "Pflanzen", "Kübel 60 l (2) und 80 l (2) inkl. Moorbeet-/Kübelerde", 4, "St.", "P04C", null, null], ["6.11", "Pflanzen", "Drahtspalier Himbeeren, 2 Reihen à 1,8 m", 2, "St.", "P04B; Rhizomsperre 6 m", null, null], ["6.12", "Pflanzen", "Baumverankerung Dreibock", 2, "St.", "Felsenbirne P09B, Säulen-Felsenbirne P10", null, null], ["7.1", "Bewässerung", "Druckleitung Regenwasser PE 32 von der Zisterne zu den Ventilboxen", 24.2, "lfm", "Trassen RW1, RW2 auf Blatt 03", null, null], ["7.2", "Bewässerung", "Versenkregner Rasen (V1 + V2)", 10, "St.", "Lage auf Blatt 03", null, null], ["7.3", "Bewässerung", "Streifendüsen Rasenstreifen Ost (V3)", 3, "St.", "Lage auf Blatt 03", null, null], ["7.4", "Bewässerung", "Versenkregner Kunstrasen (V10), Viertelkreis", 4, "St.", "an den 4 Ecken; nur Taster/App", null, null], ["7.5", "Bewässerung", "Verteilleitung PE 25 zu den Regnern", 171, "lfm", "Luftlinie Ventilbox → Regner + 20 %", null, null], ["7.6", "Bewässerung", "Tropfschlauch 16 mm inkl. Zuleitung (Richtwert)", 116, "lfm", "Beete: Reihenabstand 35 cm; Hecke 2 Stränge", null, null], ["7.7", "Bewässerung", "Ventilbox mit Magnetventilen", 2, "St.", "VN 4 Ventile, VS 6 Ventile", null, null], ["7.8", "Bewässerung", "Steuerung 12 Zonen mit App, Regensensor", 1, "St.", "E2", null, null], ["7.9", "Bewässerung", "Tropfcomputer an Zapfstelle W1 (Vorbereich)", 1, "St.", "V11", null, null], ["7.10", "Bewässerung", "Zisternenpumpe (Tauchdruck) + Nachspeisemodul mit freiem Auslauf", 1, "St.", "E9, NS", null, null], ["8.1", "Elektro und Licht", "Kabelgraben 60–80 cm mit Leerrohr DN 50, Trassenband", 57.3, "lfm", "Trassen S1–S10 auf Blatt 03 (Skizze)", null, null], ["8.2", "Elektro und Licht", "Erdkabel NYY-J 3 × 2,5 / 5 × 2,5 mm² (Richtwert)", 104, "lfm", "Trassen + 15 % + 2 m je Abgang; Querschnitte nach Elektriker", null, null], ["8.3", "Elektro und Licht", "Erdspieß-Strahler Garten 2200–2700 K", 6, "St.", "LG1, LG7, LG2, LG4, LG5, LG6", null, null], ["8.4", "Elektro und Licht", "Wegeleuchten / Poller", 4, "St.", "LW2, LW3, LW4, LW5", null, null], ["8.5", "Elektro und Licht", "Wandleuchten Hof/Vorbereich", 3, "St.", "LA1, LA2, LA3", null, null], ["8.6", "Elektro und Licht", "Steckdosen außen (Fahrradhaus, Terrasse 2×, Pooltechnik)", 4, "St.", "E1, E3, E4, E5", null, null], ["8.7", "Elektro und Licht", "Sauna-Anschluss 400 V, 5 × 4 mm², eigener FI", 1, "St.", "E10, außen nur ca. 1 m", null, null], ["8.8", "Elektro und Licht", "Klingel-/Briefkastenstele mit Leerrohr", 1, "St.", "E13", null, null], ["9.1", "Wasser", "Trinkwasserleitung PE 32, frostfrei verlegt", 15.2, "lfm", "TW1 Haus → Technik, TW2 Nachspeisung → Zisterne, TW3 Dusche", null, null], ["9.2", "Wasser", "Außendusche warm/kalt, frostsicher entleerbar, Kiesbett", 1, "St.", "W4 an der Sauna", null, null], ["9.3", "Wasser", "Poolleitungen Technik G02 → Pool (Poolbauer)", 6.2, "lfm", "Trasse PL, nur zur Info", null, null], ["10.1", "Bauten", "Außensauna (Elementsauna) ca. 2,1 × 2,2 m, Glasfront nach Süden", 1, "St.", "Begleitblatt 5", null, null], ["10.2", "Bauten", "Fahrradhaus ca. 3,2 × 2,4 m", 1, "St.", "G01", null, null], ["10.3", "Bauten", "Mülltonnenbox für 4 Tonnen", 1, "St.", "G04, Lage laut Architekt", null, null], ["10.4", "Bauten", "Gartenschränke wetterfest, 4 m lang, 0,8 m tief, 2 m hoch", 1, "St.", "G05 vor dem Bad; Licht + Steckdose E16", null, null], ["10.5", "Bauten", "Technikhäuschen für Pool-Wärmepumpe/Filter, schallgedämmt", 1, "St.", "G02, ca. 1,9 × 2,0 m", null, null], [null, null, "Summe netto", null, null, null, null, null]]}, "Offene_Punkte": {"kopf": ["Thema", "Was zu prüfen ist", "Wer"], "zeilen": [["Gästeplätze begrünt", "Ob Schotterrasen + Rasengitterstreifen als Stellplatznachweis zählen (Bauantrag): beim Bauamt kurz bestätigen lassen. Meist ja, solange befahrbar.", "Bauamt"], ["Überfahrt am Straßenende", "Klären, ob am Versatz eine Überfahrt/Bordsteinabsenkung für ST1 genehmigt wird und die Wendefläche frei bleibt.", "Benjamin / Stadt Montabaur"], ["Pooldach-Schienen", "Beim Poolbauer bodenbündige Schienen bestellen – sonst kommt der Mähroboter nicht über die Schiene auf die Dachfläche R03.", "Poolbauer"], ["Poolleitungen", "Technik G02 liegt jetzt nördlich der Sauna: ca. 6 m Leitung bis zum Pool. Mit dem Poolbauer bestätigen.", "Poolbauer"], ["Zaun West 2,43 m", "Einfriedungen über 2 m an der Grenze: beim Bauamt kurz bestätigen lassen und Nachbar 128 vorher informieren.", "Bauamt / Nachbar"], ["Sauna + Technik an der Grenze", "Zusammen ca. 4,5 m Grenzbebauung, Wandhöhe unter 3 m, keine Aufenthaltsräume. Beim Bauamt bestätigen lassen.", "Bauamt"], ["Wärmepumpe Pool", "Gebietsart aus dem Bebauungsplan bestimmt den Nachtwert 35 bzw. 40 dB(A). Gerät mit Schallleistung ≤ 55 dB(A) im Nachtbetrieb wählen oder Pool über die Haus-Wärmepumpe heizen.", "Heizungsbauer / Poolbauer"], ["Regenwasser-Entgelt", "Satzung VG/Stadt Montabaur: Anrechnung von Ökopflaster, Sickerpflaster und Kunstrasen bei der Niederschlagswassergebühr.", "Benjamin"], ["Glaszaun", "Höhe ab Gartenniveau nach Absturzhöhe an den L-Steinen festlegen; Vogelschutz-Markierung vorsehen.", "Gartenbauer / Metallbauer"], ["Zisterne", "Lage und Deckel einmessen; Deckel bodengleich im Rasen, begehbar.", "Gartenbauer"], ["Höhen", "Höhenaufmaß Süd (L-Steine, Glas) und Gefälle Kunstrasen; danach Massen Erdbau anpassen.", "Vermesser / Gartenbauer"]]}, "Pflanzen": {"kopf": ["Beet", "Deutscher Name", "Botanisch / Sorte", "Menge", "Einheit", "Pflanzgröße", "Abstand", "Endhöhe", "Wirkung / Blüte", "Hinweis"], "zeilen": [["P01", "Stechpalme, männlich", "Ilex × meserveae 'Heckenpracht'", 14, "St.", "100–125 cm, Ballen", "50 cm, 1 Reihe", "1,8–2,0 m (Schnitt)", "immergrün, dunkelgrün", "stachelige Blätter; Schnitt 1× Juni; keine Beeren (männlich)"], ["P02", "Fleischbeere / Schneeduft", "Sarcococca hookeriana var. humilis", 3, "St.", "Topf 3 l, 30–40 cm", "60 cm", "0,4–0,6 m", "immergrün; Duftblüte Jan–März", "Duft am Bad-Weg im Winter; Schatten ok"], ["P02", "Filigranfarn", "Polystichum setiferum 'Herrenhausen'", 3, "St.", "Topf 2 l", "60 cm", "0,5 m", "wintergrün", "Struktur im Schatten"], ["P02", "Elfenblume", "Epimedium × perralchicum 'Frohnleiten'", 9, "St.", "Topf 9 cm", "35 cm", "0,3 m", "wintergrün; gelb April", "altes Laub im Februar abschneiden"], ["P02", "Lenzrose", "Helleborus orientalis, pink/rubinrot", 3, "St.", "Topf 2 l", "45 cm", "0,4 m", "Blüte Feb–April", "giftig – nicht im Naschbereich"], ["P02", "Schneeglöckchen", "Galanthus nivalis", 40, "Zw.", "Zwiebel 5/6", "Tuffs à 8", "0,15 m", "Blüte Feb", "Pflanzung Sept–Okt"], ["P03", "Rote Johannisbeere", "Ribes rubrum 'Rovada'", 1, "St.", "Busch 3–4 Triebe", "1,2 m", "1,5 m", "Ernte Juli", "lange Trauben, kinderleicht zu pflücken"], ["P03", "Weiße Johannisbeere", "Ribes rubrum 'Weiße Versailler'", 1, "St.", "Busch 3–4 Triebe", "1,2 m", "1,3 m", "Ernte Juli", "milder als rot"], ["P03", "Jostabeere", "Ribes × nidigrolaria 'Jogranda'", 1, "St.", "Busch", "1,5 m", "1,8 m", "Ernte Juli", "dornenlos, robust gegen Mehltau"], ["P03", "Stachelbeere, fast dornenlos", "Ribes uva-crispa 'Captivator'", 1, "St.", "Busch", "1,2 m", "1,2 m", "Ernte Juli", "kaum Stacheln, mehltauresistent"], ["P03", "Walderdbeere", "Fragaria vesca 'Rügen'", 15, "St.", "Topf 9 cm", "30 cm", "0,2 m", "Mai–Okt Früchte", "Unterpflanzung, verträgt Halbschatten"], ["P04B", "Sommerhimbeere", "Rubus idaeus 'Glen Ample'", 3, "St.", "Topf 2 l", "60 cm", "1,6 m", "Ernte Juli", "dornenarm; Reihe West am Drahtspalier"], ["P04B", "Herbsthimbeere", "Rubus idaeus 'Autumn Bliss'", 3, "St.", "Topf 2 l", "60 cm", "1,2 m", "Ernte Aug–Okt", "Reihe Ost; Rückschnitt bodennah im Winter"], ["P04B", "Rhizomsperre", "HDPE 30 cm tief, zum Rasen hin", 6, "m", "–", "–", "–", "–", "hält Himbeer-Ausläufer aus dem Rasen"], ["P04A", "Erdbeere, früh", "Fragaria × ananassa 'Korona'", 4, "St.", "Topf 9 cm", "35 cm", "0,25 m", "Ernte Juni", "Hochbeet 2,9 × 0,9 m"], ["P04A", "Erdbeere, Aroma", "Fragaria × ananassa 'Mieze Schindler'", 4, "St.", "Topf 9 cm", "35 cm", "0,25 m", "Ernte Juni/Juli", "braucht Befruchter ('Korona' passt)"], ["P04A", "Monatserdbeere", "Fragaria × ananassa 'Ostara'", 4, "St.", "Topf 9 cm", "35 cm", "0,25 m", "Ernte Juni–Okt", "trägt bis Herbst"], ["P04C", "Kulturheidelbeere", "Vaccinium corymbosum 'Reka'", 1, "St.", "Topf 3 l", "Kübel 60 l", "1,2 m", "Ernte Juli", "Moorbeeterde, nur Regenwasser"], ["P04C", "Kulturheidelbeere", "Vaccinium corymbosum 'Bluecrop'", 1, "St.", "Topf 3 l", "Kübel 60 l", "1,5 m", "Ernte Aug", "zwei Sorten = bessere Ernte"], ["P04C", "Säulenapfel", "Malus domestica 'Rondo'", 1, "St.", "2-jährig", "Kübel 80 l", "2,5 m", "Ernte Sept", "schorfresistent"], ["P04C", "Säulenapfel", "Malus domestica 'Redcats'", 1, "St.", "2-jährig", "Kübel 80 l", "2,5 m", "Ernte Sept", "bestäubt 'Rondo' gegenseitig"], ["P07", "Bergkiefer, Kugelform", "Pinus mugo 'Gnom'", 1, "St.", "60–80 cm, Ballen", "–", "1,2–1,5 m", "immergrün", "Südende, gibt dem Beet im Winter Halt"], ["P07", "Chinaschilf, schmal", "Miscanthus sinensis 'Gracillimus'", 1, "St.", "Topf 5 l", "–", "1,5 m", "Halme stehen bis März", "Nordende an der Hobby-Wand; Rückschnitt im März"], ["P07", "Lavendel", "Lavandula angustifolia 'Hidcote'", 8, "St.", "Topf 2 l", "35 cm", "0,4 m", "violett Juni–Juli, Bienen", "Rand zur Terrasse; Schnitt nach der Blüte und im März"], ["P07", "Blauraute", "Perovskia atriplicifolia 'Blue Spire'", 3, "St.", "Topf 2 l", "50 cm", "0,9 m", "blau Juli–Sept", "volle Sonne, trocken; Rückschnitt im April"], ["P07", "Steppensalbei", "Salvia nemorosa 'Caradonna'", 5, "St.", "Topf 9 cm", "35 cm", "0,5 m", "violett Mai–Juli", "Nachblüte nach Rückschnitt"], ["P07", "Fetthenne", "Sedum telephium 'Herbstfreude'", 4, "St.", "Topf 9 cm", "40 cm", "0,5 m", "rosa Sept, Samenstände im Winter", "erst im März schneiden"], ["P07", "Kugellauch", "Allium 'Purple Sensation'", 30, "Zw.", "Zwiebel 10/12", "Tuffs à 5", "0,7 m", "violett Mai", null], ["P07", "Krokus", "Crocus tommasinianus", 30, "Zw.", "Zwiebel 5/+", "gestreut", "0,1 m", "lila März", null], ["P09", "Zaubernuss", "Hamamelis × intermedia 'Arnold Promise'", 1, "St.", "100–125 cm, Ballen", "–", "2,5–3 m", "gelbe Duftblüte Jan–Feb", "Strahler LG2"], ["P09", "Bergkiefer, Kugelform", "Pinus mugo 'Mops'", 2, "St.", "40–50 cm, Ballen", "2,3 m", "0,8–1,0 m", "immergrün", "bleibt niedrig, Blick übers Glas bleibt frei"], ["P09", "Herbst-Kopfgras", "Sesleria autumnalis", 14, "St.", "Topf 2 l", "40 cm", "0,4 m", "wintergrün", "Band entlang Glas"], ["P09", "Bergenie, weiß", "Bergenia 'Bressingham White'", 8, "St.", "Topf 2 l", "40 cm", "0,35 m", "immergrün; weiß April", null], ["P09", "Christrose", "Helleborus niger", 5, "St.", "Topf 2 l", "40 cm", "0,3 m", "weiße Blüte Dez–Feb", "giftig – Abstand zu Naschbeeten halten"], ["P09", "Schneeglöckchen", "Galanthus nivalis", 70, "Zw.", "Zwiebel 5/6", "Tuffs à 10", "0,15 m", "Blüte Feb", null], ["P09", "Winterling", "Eranthis hyemalis", 40, "Zw.", "Knolle 5/+", "gestreut", "0,1 m", "gelb Feb", "Knollen vorher 12 h wässern"], ["P09", "Elfen-Krokus", "Crocus tommasinianus", 80, "Zw.", "Zwiebel 5/+", "gestreut", "0,1 m", "lila März", null], ["P09", "Mini-Narzisse", "Narcissus 'Tête-à-Tête'", 30, "Zw.", "Zwiebel 10/12", "Tuffs à 10", "0,2 m", "gelb März", "giftig, wird aber nicht verwechselt"], ["P09B", "Felsenbirne, mehrstämmig", "Amelanchier lamarckii, Solitär", 1, "St.", "250–300 cm, mehrstämmig, Ballen", "–", "4–6 m, Schirm", "weiße Blüte April, Beeren Juni (essbar), rotes Herbstlaub", "2 Strahler LG1/LG7"], ["P09B", "Balkan-Storchschnabel", "Geranium macrorrhizum 'Spessart'", 8, "St.", "Topf 9 cm", "35 cm", "0,3 m", "wintergrün je Witterung", "Baumscheibe"], ["P09B", "Elfen-Krokus", "Crocus tommasinianus", 40, "Zw.", "Zwiebel 5/+", "gestreut", "0,1 m", "lila März", "auch in den Rasen rund um den Baum"], ["P10", "Säulen-Felsenbirne", "Amelanchier alnifolia 'Obelisk'", 1, "St.", "200–250 cm, Ballen", "–", "4–5 m, nur 1–1,5 m breit", "weiße Blüte April, essbare Beeren, Herbstfarbe", "der Baum an der Einfahrt; schmal, stört beim Rangieren nicht; Strahler LG8"], ["P10", "Herbst-Kopfgras", "Sesleria autumnalis", 5, "St.", "Topf 2 l", "40 cm", "0,4 m", "wintergrün", null], ["P10", "Storchschnabel", "Geranium × cantabrigiense 'Biokovo'", 6, "St.", "Topf 9 cm", "30 cm", "0,25 m", "weiß-rosa Mai–Juni, wintergrün", "verträgt Autoabgase und Trockenheit"], ["P12", "Rispenhortensie, kompakt", "Hydrangea paniculata 'Bobo'", 1, "St.", "Topf 5 l", "–", "0,8–1,0 m", "weiß Juli–Sept, Blüten bleiben im Winter stehen", "an der Wand zwischen Garagentor und Haustür, nicht vor der Tür"], ["P12", "Herbst-Kopfgras", "Sesleria autumnalis", 2, "St.", "Topf 2 l", "40 cm", "0,4 m", "wintergrün", null], ["P13", "Hainbuche, Heckenpflanze", "Carpinus betulus", 13, "St.", "125–150 cm, 3–4 Triebe, Ballen", "33 cm, 1 Reihe", "1,8 m (Schnitt)", "grün; braunes Laub bleibt im Winter hängen", "vor dem Zaun Z14 zur Gartenseite; fängt Bälle mit, Schnitt Juni + August"], ["ST1", "Kräuter-Schotterrasen (Ansaat)", "RSM 5.1 Parkplatzrasen mit Kräutern", 25, "m²", "Ansaat 25 g/m²", "–", "0,05–0,15 m", "grün mit Blüten", "zwischen und neben den Fahrstreifen; 1–2× im Jahr mähen (Akkumäher), kein Roboter"], ["ST1", "Sand-Thymian", "Thymus serpyllum", 30, "St.", "Topf 9 cm", "30 cm, in Tuffs", "0,05–0,1 m", "lila Juni–Aug, duftet beim Drüberfahren", "auch in die Kammern der Rasengitter am Rand"], ["ST1", "Teppich-Thymian, rot", "Thymus praecox 'Coccineus'", 20, "St.", "Topf 9 cm", "30 cm", "0,05 m", "karminrot Juni–Juli", "in die Mitte unter dem Auto, verträgt Überfahren"], ["ST1", "Weiße Fetthenne", "Sedum album 'Coral Carpet'", 20, "St.", "Topf 9 cm", "25 cm", "0,05–0,1 m", "immergrün, Herbst rötlich", "Trockenheit kein Problem"], ["ST1", "Grasnelke", "Armeria maritima 'Düsseldorfer Stolz'", 12, "St.", "Topf 9 cm", "30 cm", "0,15–0,2 m", "pink Mai–Juli", "nur am Rand zur Straße und zum Fahrradhaus, nicht in der Spur"], ["ST1", "Steppen-Wolfsmilch", "Euphorbia seguieriana", 5, "St.", "Topf 2 l", "50 cm", "0,4 m", "gelbgrün Juni–Sept", "Randbepflanzung West (Grenze Flst. 128), giftiger Milchsaft – Handschuhe"], ["ST1", "Herbst-Kopfgras", "Sesleria autumnalis", 8, "St.", "Topf 2 l", "40 cm", "0,4 m", "wintergrün", "Randband an der Grenze West und zum Hof"], ["ST1", "Elfen-Krokus", "Crocus tommasinianus", 100, "Zw.", "Zwiebel 5/+", "gestreut", "0,1 m", "lila März", "blüht, bevor jemand parkt"]]}, "Zaun_Tore": {"kopf": ["Code", "Art", "Länge m", "Höhe", "Status"], "zeilen": [["Z13", "Gartenabschluss am Hobby, Doppelstabmatte", 4.68, "1,83 m", "Planstand 03"], ["GT3", "Gartentür 1,0 m, selbstschließend", 1, "1,83 m", "Planstand 03"], ["Z09", "West am Spielfeld, Doppelstabmatte (Ballfang)", 7.28, "2,43 m", "Planstand 04"], ["Z14", "Ost am Spielfeld, Doppelstabmatte dunkelgrün, Hainbuche davor", 5.87, "1,83 m", "neu"], ["Z08", "Süd am Spielfeld, Doppelstabmatte auf L-Steinen", 12.24, "1,43 m", "Planstand 04"], ["Z06", "Süd, Glaselemente (Blickachse Wohnen/Essen)", 17, "1,00–1,20 m", "Planstand 04"], ["Z05", "Süd-Ost, Metall niedrig", 3.25, "1,03 m", "Planstand 04"], ["Z04", "Ost, Doppelstabmatte", 23.74, "1,83 m", "unverändert"], ["Z03", "Nord, Doppelstabmatte", 9.45, "1,83 m", "unverändert"], ["Z02", "Nord, Bad-Sichtschutz Alulamellen", 4.5, "1,80 m", "unverändert"], ["L", "L-Steine Südkante", 32.49, "nach Aufmaß", "Bestand Planung"], ["GT1", "Fahrzeugtor 4 m am Hof", 4, null, "entfällt"], ["GT2", "Fußgängertor 1,2 m am Hof", 1.2, null, "entfällt"], ["Z01", "Zaun Nord am Hof", 5.09, null, "entfällt"], ["Z09a", "Westzaun am Vorbereich (optional, Absprache Nachbar 128)", 8.2, null, "entfällt"], ["Z07", "Süd, Metall niedrig (jetzt Teil von Z08/Z06)", 3.1, null, "entfällt"], ["B1–B4", "Ballfangnetze 3–4 m aus Planstand 03", 17.82, null, "entfällt"]]}, "Hinweise": {"kopf": ["Thema", "Stand"], "zeilen": [["Planstand", "Planstand 06 · 29.10.2026 / Entwurf zur Abstimmung"], ["Basis", "Planstand 05 + Hinweis Benjamin 29.10.2026 (Gästeplätze begrünt)"], ["Mengen", "Netto-Entwurfsmengen ohne Bestellzuschläge, 2,5-cm-Raster; vor Ausschreibung Aufmaß"], ["Grundstück im Modell m²", 748.4], ["Garten ohne Haus m²", 476.3], ["davon offen m²", 170.1], ["davon teildurchlässig m²", 188.8], ["davon voll versiegelt m²", 117.4], ["Pflanzen gesamt (St.)", 257], ["Zwiebeln gesamt", 460]]}};
+const BILDER = [
+  ['bilder/haus.jpg', 'Haus von Süden', 'Beide Geschosse, Terrasse unter dem auskragenden OG, Pool rechts, Spielfeld links.'],
+  ['bilder/oben.jpg', 'Ganzer Garten', 'Blick von Süden über die Felder auf Haus und Garten.'],
+  ['bilder/essen.jpg', 'Blick aus Küche/Essen', 'Augenhöhe am Esstisch: Erdbeer-Hochbeet, Felsenbirne, dahinter die Felder.'],
+  ['bilder/wohnen.jpg', 'Blick aus Wohnen', 'Über den Pool zum Glaszaun und zum Pflanzbeet im Süden.'],
+  ['bilder/ankommen.jpg', 'Ankommen', 'Hof, Haustür, begrünte Gästeplätze.'],
+  ['bilder/eingang.jpg', 'Haustür', 'Tür anthrazit, links das raumhohe Flurfenster, rechts das Bürofenster.'],
+  ['bilder/spielfeld.jpg', 'Spielfeld', 'Alu-Tore 3 × 2 m stehen hinter der Torlinie, noch auf dem Kunstrasen.'],
+  ['bilder/gaeste.jpg', 'Gästeplätze', 'Je Auto zwei Streifen Rasengittersteine, dazwischen Kräuterrasen.'],
+  ['bilder/sauna.jpg', 'Sauna und Pool', 'Sauna schaut auf den Pool, Technik dahinter im Norden.'],
+  ['bilder/abend.jpg', 'Am Abend', 'Gartenlicht nur dort, wo man es aus dem Haus sieht.'],
+];
+const el = (t, k, txt) => { const e = document.createElement(t); if (k) e.className = k; if (txt != null) e.textContent = txt; return e; };
+const zahl = v => typeof v === 'number' ? v.toLocaleString('de-DE', { maximumFractionDigits: 1 }) : (v ?? '');
+
+const gal = document.getElementById('galerie');
+for (const [src, titel, text] of BILDER) {
+  const f = el('figure'); const i = el('img'); i.src = src; i.alt = titel; i.loading = 'lazy'; i.width = 1920; i.height = 1080;
+  const c = el('figcaption'); c.append(el('b', null, titel), el('span', 'leise', text)); f.append(i, c); gal.append(f);
+}
+
+function gruppe(ziel, titel, eintraege, offen = false) {
+  const d = el('details'); if (offen) d.open = true;
+  const s = el('summary'); s.append(el('span', null, titel), el('span', 'anz', eintraege.length + ' Pos.')); d.append(s);
+  const l = el('div', 'liste'); eintraege.forEach(e => l.append(e)); d.append(l); ziel.append(d);
+}
+function pos(nr, was, menge, wo) {
+  const p = el('div', 'pos'); const w = el('div', 'was'); if (nr) w.append(el('span', 'nr', nr)); w.append(document.createTextNode(was));
+  p.append(w, el('div', 'menge', menge)); if (wo) p.append(el('div', 'wo', wo)); return p;
+}
+
+// Mengen nach Gewerk
+(() => { const z = document.getElementById('massen'); const g = new Map();
+  for (const [nr, gewerk, leistung, menge, einheit, grundlage] of D.Massen.zeilen) { if (!gewerk) continue; if (!g.has(gewerk)) g.set(gewerk, []); g.get(gewerk).push(pos(nr, leistung, `${zahl(menge)} ${einheit ?? ''}`.trim(), grundlage)); }
+  [...g].forEach(([k, v], i) => gruppe(z, k, v, i === 0)); })();
+// Zaun
+(() => { const z = document.getElementById('zaeune');
+  gruppe(z, 'Alle Zaunabschnitte und Tore', D.Zaun_Tore.zeilen.filter(r => !/entf/i.test(r[4] ?? '')).map(([c, art, l, h, st]) => pos(c, art, typeof l === 'number' ? zahl(l) + ' m' : '', h ? 'Höhe ' + h : '')), true); })();
+// Pflanzen nach Beet
+(() => { const z = document.getElementById('pflanzliste'); const g = new Map();
+  for (const [beet, name, bot, menge, einheit, groesse, abstand, hoehe, wirkung, hinweis] of D.Pflanzen.zeilen) { if (!beet) continue; if (!g.has(beet)) g.set(beet, []);
+    g.get(beet).push(pos('', `${name} (${bot})`, `${zahl(menge)} ${einheit ?? ''}`.trim(), [groesse, abstand && 'Abstand ' + abstand, hinweis].filter(Boolean).join(' · '))); }
+  [...g].forEach(([k, v]) => gruppe(z, 'Beet ' + k, v)); })();
+// Offene Punkte
+(() => { const z = document.getElementById('offenliste');
+  for (const [thema, was, wer] of D.Offene_Punkte.zeilen) { const o = el('div', 'offen'); o.append(el('b', null, thema), el('div', null, was)); if (wer) o.append(el('div', 'wer', 'Wer: ' + wer)); z.append(o); } })();
+
+// Vollbild-Plan mit Vergrößern/Verkleinern
+const voll = document.getElementById('voll'), bild = document.getElementById('vollbild'), flaeche = document.getElementById('flaeche');
+let faktor = 1;
+function setze(f) {
+  const mitte = [(flaeche.scrollLeft + flaeche.clientWidth / 2) / bild.width, (flaeche.scrollTop + flaeche.clientHeight / 2) / bild.height];
+  faktor = Math.max(1, Math.min(6, f)); bild.style.width = (flaeche.clientWidth * faktor) + 'px';
+  flaeche.scrollLeft = mitte[0] * bild.width - flaeche.clientWidth / 2; flaeche.scrollTop = mitte[1] * bild.height - flaeche.clientHeight / 2;
+}
+function auf() { voll.hidden = false; document.body.style.overflow = 'hidden'; faktor = 1; bild.style.width = flaeche.clientWidth + 'px'; setze(window.innerWidth < 700 ? 2.5 : 1.4); }
+document.getElementById('plan-auf').addEventListener('click', auf);
+document.getElementById('plan-auf2').addEventListener('click', auf);
+document.getElementById('groesser').addEventListener('click', () => setze(faktor * 1.5));
+document.getElementById('kleiner').addEventListener('click', () => setze(faktor / 1.5));
+document.getElementById('zu').addEventListener('click', () => { voll.hidden = true; document.body.style.overflow = ''; });
+bild.addEventListener('dblclick', () => setze(faktor * 1.6));
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !voll.hidden) document.getElementById('zu').click(); });
+</script>
+
+</body>
+</html>
