@@ -3,7 +3,8 @@
 import * as THREE from 'three';
 import { Reflector } from 'three/addons/objects/Reflector.js';
 
-export const CEIL = 2.55;   // angenommene lichte Raumhöhe
+export const CEIL = 2.55;
+export const OPTS = { openMirror: false };   // nur für Standbilder: eine Spiegelschranktür offen   // angenommene lichte Raumhöhe
 const T = 0.004;            // Abstand Belag zur Wand
 
 // ---------- Materialien: ein Konzept für alle Bäder ----------
@@ -81,6 +82,7 @@ class Bath {
     this.ceilings = [];
     this.views = {};
     this.bounds = [0, 0, 1, 1];
+    this.marks = [];        // Lichtplan-Markierungen, nur im Standbild 'Lichtplan'
   }
   add(o) { o.traverse(m => { if (m.isMesh) { m.castShadow = !m.material.transparent; m.receiveShadow = true; } }); this.root.add(o); return o; }
   box(x, z, w, d, y0, y1, mat) {      // Plan-Rechteck x,z,w,d, Höhe y0..y1
@@ -228,6 +230,8 @@ class Bath {
     panel(len, ch, t, len / 2, cy, cd - t / 2);
     panel(t, ch, cd, t / 2, cy, cd / 2); panel(t, ch, cd, len - t / 2, cy, cd / 2);
     panel(len, t, cd, len / 2, cy - ch / 2 + t / 2, cd / 2);
+    // Nachtlicht: LED unter dem schwebenden Unterschrank
+    const nl = new THREE.Mesh(new THREE.BoxGeometry(len - 0.08, 0.004, 0.012), M.led); nl.position.set(len / 2, cy - ch / 2 - 0.003, cd - 0.05); g.add(nl);
     // Schubkasten-Fuge
     const fu = new THREE.Mesh(new THREE.BoxGeometry(len - 0.04, 0.004, 0.004), M.frame); fu.position.set(len / 2, cy + 0.02, cd + 0.001); g.add(fu);
     // Handtuchstangen seitlich am Unterschrank ('L' = Anfang, 'R' = Ende) oder vorn
@@ -244,13 +248,24 @@ class Bath {
     // Spiegelschrank bündig + Lichtleiste, Fugen zeigen die Türen
     if (opts.mirror !== false) {
       const mw = opts.mirrorLen || len, mx = opts.mirrorX ?? 0;
-      const mir = new Reflector(new THREE.PlaneGeometry(mw - 0.01, 0.72), { textureWidth: 1024, textureHeight: 512, color: '#b9bdbd' });
-      mir.position.set(mx + mw / 2, 1.58, 0.014); g.add(mir);
-      const back = new THREE.Mesh(new THREE.BoxGeometry(mw, 0.73, 0.012), M.frame);
-      back.position.set(mx + mw / 2, 1.58, 0.006); g.add(back);
+      const nd = Math.max(1, Math.round(mw / 0.6)), dw = mw / nd, od = opts.openDoor;
+      const cw = od === undefined ? mw : od * dw;   // geschlossener Teil
+      if (cw > 0) {
+        const mir = new Reflector(new THREE.PlaneGeometry(cw - 0.01, 0.72), { textureWidth: 1024, textureHeight: 512, color: '#b9bdbd' });
+        mir.position.set(mx + cw / 2, 1.58, 0.014); g.add(mir);
+        const back = new THREE.Mesh(new THREE.BoxGeometry(cw, 0.73, 0.012), M.frame);
+        back.position.set(mx + cw / 2, 1.58, 0.006); g.add(back);
+      }
+      if (od !== undefined) {   // Tür am rechten Rand angeschlagen, 100° offen
+        const pv = new THREE.Group(); pv.position.set(mx + mw, 1.58, 0.012); pv.rotation.y = -1.75;
+        const dm = new Reflector(new THREE.PlaneGeometry(dw - 0.01, 0.72), { textureWidth: 512, textureHeight: 512, color: '#b9bdbd' });
+        dm.position.set(-dw / 2, 0, 0.008); pv.add(dm);
+        const db = new THREE.Mesh(new THREE.BoxGeometry(dw, 0.73, 0.014), M.frame); db.position.set(-dw / 2, 0, 0); pv.add(db);
+        g.add(pv);
+      }
       const led = new THREE.Mesh(new THREE.BoxGeometry(mw, 0.012, 0.02), M.led);
       led.position.set(mx + mw / 2, 1.215, 0.01); g.add(led);
-      const n = Math.max(1, Math.round(mw / 0.6));
+      const n = opts.openDoor === undefined ? nd : opts.openDoor;
       for (let i = 1; i < n; i++) { const f = new THREE.Mesh(new THREE.BoxGeometry(0.004, 0.72, 0.006), M.frame); f.position.set(mx + (mw * i) / n, 1.58, 0.016); g.add(f); }
     }
     g.position.set(ox, 0, oz); g.rotation.y = Math.atan2(dir[0], dir[1]) ;
@@ -332,6 +347,24 @@ class Bath {
     g.position.set(ox, 0, oz); g.rotation.y = Math.atan2(dir[0], dir[1]);
     return this.add(g);
   }
+  brushUP(ox, oz, dir, y = 0.20) {   // WC-Bürste unterputz in der Vorwand: nur eine Bronzeblende, Griff oben
+    const g = new THREE.Group();
+    const f = new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.36, 0.008), M.bronze); f.position.set(0, y + 0.18, 0.004);
+    const sl = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.008, 0.004), M.frame); sl.position.set(0, y + 0.33, 0.009);
+    const h = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.035, 12), M.bronze); h.position.set(0, y + 0.352, 0.03);
+    const hb = new THREE.Mesh(new THREE.SphereGeometry(0.016, 12, 8), M.bronze); hb.position.set(0, y + 0.372, 0.03);
+    g.add(f, sl, h, hb);
+    g.position.set(ox, 0, oz); g.rotation.y = Math.atan2(dir[0], dir[1]);
+    return this.add(g);
+  }
+  paperUP(ox, oz, dir, y = 0.70) {   // Papierhalter unterputz: Rolle liegt halb in der Vorwand
+    const g = new THREE.Group();
+    const f = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.15, 0.008), M.bronze); f.position.set(0, y, 0.004);
+    const r = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, 0.10, 28), M.ceramic); r.rotation.z = Math.PI / 2; r.position.set(0, y - 0.01, 0.02);
+    g.add(f, r);
+    g.position.set(ox, 0, oz); g.rotation.y = Math.atan2(dir[0], dir[1]);
+    return this.add(g);
+  }
   // Schrank aus Eiche mit Fugen für n Türen. front: Seite, zu der die Türen zeigen (N S W E)
   cab(x, z, w, d, y0, y1, front, n = 1, flap = false) {
     this.box(x, z, w, d, y0, y1, M.oak);
@@ -380,6 +413,7 @@ class Bath {
   }
   niche(x1, z1, x2, z2, nx, nz, y = 1.10) {     // Nische 60 x 30, Unterkante y
     this.clad(x1, z1, x2, z2, y, y + 0.30, nx, nz, M.niche).position.add(new THREE.Vector3(nx * 0.002, 0, nz * 0.002));
+    this.clad(x1, z1, x2, z2, y + 0.285, y + 0.295, nx, nz, M.led).position.add(new THREE.Vector3(nx * 0.004, 0, nz * 0.004));   // LED-Leiste in der Nische
   }
   door(hx, hz, ox, oz) {               // Türblatt offen: Scharnier -> offenes Ende
     const w = Math.hypot(ox - hx, oz - hz);
@@ -392,6 +426,50 @@ class Bath {
   spot(x, z) {
     const s = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.01, 24), M.led);
     s.position.set(x, CEIL - 0.004, z); this.root.add(s); this.ceilings.push(s);
+    this.mark(x, z, 0.30, '#f2b544');
+  }
+  mark(x, z, r, col) {          // Lichtkegel als Kreis von oben
+    const m = new THREE.Mesh(new THREE.CircleGeometry(r, 40), new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 0.35, depthTest: false }));
+    m.rotation.x = -Math.PI / 2; m.position.set(x, CEIL + 0.05, z); m.renderOrder = 10; m.visible = false;
+    const c = new THREE.Mesh(new THREE.CircleGeometry(0.05, 24), new THREE.MeshBasicMaterial({ color: '#7a4a10', depthTest: false }));
+    c.rotation.x = -Math.PI / 2; c.position.set(x, CEIL + 0.06, z); c.renderOrder = 11; c.visible = false;
+    this.root.add(m, c); this.marks.push(m, c);
+  }
+  // Deckenschiene (flach eingelassen) mit Strahlern: Strecke + Ziele [x, z, y]
+  track(x1, z1, x2, z2, aims) {
+    const L = Math.hypot(x2 - x1, z2 - z1), ang = -Math.atan2(z2 - z1, x2 - x1);
+    const r = new THREE.Mesh(new THREE.BoxGeometry(L, 0.012, 0.035), M.frame);
+    r.position.set((x1 + x2) / 2, CEIL - 0.006, (z1 + z2) / 2); r.rotation.y = ang; this.root.add(r); this.ceilings.push(r);
+    aims.forEach(([ax, az, ay], i) => {
+      const t = (i + 0.5) / aims.length, px = x1 + (x2 - x1) * t, pz = z1 + (z2 - z1) * t;
+      const g = new THREE.Group(); g.position.set(px, CEIL - 0.07, pz);
+      const st = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.006, 0.06, 8), M.frame); st.position.y = 0.035; g.add(st);
+      const head = new THREE.Group(); head.lookAt(ax - px, ay - (CEIL - 0.07), az - pz);
+      const c = new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.028, 0.10, 20), M.frame); c.rotation.x = Math.PI / 2; head.add(c);
+      const l = new THREE.Mesh(new THREE.CircleGeometry(0.022, 20), M.led); l.position.z = 0.051; head.add(l);
+      g.add(head); this.root.add(g); this.ceilings.push(g);
+      this.mark(ax, az, 0.22, '#f2b544');
+      const ln = new THREE.Mesh(new THREE.BoxGeometry(Math.hypot(ax - px, az - pz), 0.01, 0.012), new THREE.MeshBasicMaterial({ color: '#b07a2a', depthTest: false }));
+      ln.position.set((ax + px) / 2, CEIL + 0.06, (az + pz) / 2); ln.rotation.y = -Math.atan2(az - pz, ax - px); ln.renderOrder = 11; ln.visible = false;
+      this.root.add(ln); this.marks.push(ln);
+    });
+    const tl = new THREE.Mesh(new THREE.BoxGeometry(L, 0.01, 0.05), new THREE.MeshBasicMaterial({ color: '#2a2722', depthTest: false }));
+    tl.position.set((x1 + x2) / 2, CEIL + 0.07, (z1 + z2) / 2); tl.rotation.y = ang; tl.renderOrder = 12; tl.visible = false;
+    this.root.add(tl); this.marks.push(tl);
+  }
+  // weicher Lichtschein auf einer Fläche (Boden unter schwebenden Möbeln, Wand)
+  glow(x, z, w, d, y = 0.003) {
+    const tex = canvasTex(256, 256, (g, W, H) => { const gr = g.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, W / 2);
+      gr.addColorStop(0, 'rgba(255,214,150,0.55)'); gr.addColorStop(1, 'rgba(255,214,150,0)'); g.fillStyle = gr; g.fillRect(0, 0, W, H); });
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(w, d), new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
+    m.rotation.x = -Math.PI / 2; m.position.set(x + w / 2, y, z + d / 2); this.root.add(m);
+  }
+  // LED-Streifen unter einem schwebenden Schrank (Plan-Rechteck), mit Schein darunter
+  underLight(x, z, w, d, y, floorY = 0.003) {
+    this.box(x + 0.03, z + 0.03, w - 0.06, d - 0.06, y - 0.004, y, M.led);
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(w, d), new THREE.MeshBasicMaterial({ color: '#9fd0c8', transparent: true, opacity: 0.45, depthTest: false }));
+    m.rotation.x = -Math.PI / 2; m.position.set(x + w / 2, CEIL + 0.04, z + d / 2); m.renderOrder = 10; m.visible = false; this.root.add(m); this.marks.push(m);
+    this.glow(x - 0.15, z - 0.15, w + 0.3, d + 0.3, floorY);
   }
   view(name, pos, target, fov = 62, noDoor = false) { this.views[name] = { pos, target, fov, noDoor }; }
 }
@@ -411,7 +489,18 @@ function elternbad() {
   b.door(W, 2.545, W - 0.885, 2.545);
   b.wall(0, 1.54, 1.10, 0.115);                 // Wand WC / Dusche
   b.wall(1.10, 0.70, 0.115, 1.80);              // T-Wand
-  b.vorwand(1.215, 0.70, 0.15, 1.80, CEIL, false);   // Vorwand raumhoch für Spiegelschrank
+  if (!OPTS.openMirror) b.vorwand(1.215, 0.70, 0.15, 1.80, CEIL, false);   // Vorwand raumhoch für Spiegelschrank
+  else {   // Vorwand mit offenem Fach hinter der rechten Spiegeltür
+    b.vorwand(1.215, 0.70, 0.15, 1.80, 1.215, false);
+    b.box(1.215, 0.70, 0.15, 1.80, 1.945, CEIL, M.plaster); b.box(1.215, 1.30, 0.15, 1.20, 1.215, 1.945, M.plaster);
+    b.box(1.215, 0.70, 0.03, 0.60, 1.215, 1.945, M.oak);
+    for (const [z, y, h, r] of [[0.85, 1.458, 0.16, 0.025], [0.95, 1.458, 0.12, 0.03], [1.12, 1.458, 0.18, 0.022], [0.90, 1.708, 0.10, 0.035], [1.10, 1.708, 0.14, 0.025]]) {
+      const bt = new THREE.Mesh(new THREE.CylinderGeometry(r, r, h, 20), M.ceramic); bt.position.set(1.30, y + h / 2, z); b.add(bt);
+    }
+    for (const y of [1.45, 1.70]) b.box(1.245, 0.72, 0.11, 0.56, y, y + 0.008, M.glass);
+    b.box(1.243, 0.95, 0.004, 0.08, 1.30, 1.38, M.ceramic);   // Steckdose innen
+    const fl = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.004, 0.6), M.niche); fl.position.set(1.305, 1.217, 1.0); b.add(fl);
+  }
   // WC
   b.vorwand(0, 1.34, 1.10, 0.20, 1.20);
   b.clad(0, 1.34, 1.10, 1.34, 0, 1.20, 0, -1);
@@ -428,18 +517,25 @@ function elternbad() {
   b.head(0.55, 1.655, PY);                      // Kopfbrause aus der WC-Wand
   // Waschtisch 180 cm, 2 Becken, Achsen y 1,20 / 2,00 – Spritzschutz Fliese bis 1,20
   b.clad(1.365, 0.70, 1.365, 2.50, 0.85, 1.20, 1, 0);
-  b.vanity(1.365, 2.50, PX, 1.80, 0.52, [0.50, 1.30], { sideBars: ['L', 'R'] });   // Handtuchstangen seitlich am Unterschrank
+  b.vanity(1.365, 2.50, PX, 1.80, 0.52, [0.50, 1.30], { sideBars: ['L', 'R'], openDoor: OPTS.openMirror ? 2 : undefined });   // Handtuchstangen seitlich am Unterschrank
   b.towel(2.00, H, NY, 0.60);
   b.cab(2.20, H - 0.35, W - 2.20, 0.35, 0.10, 2.35, 'N', 2, true);   // Hochschrank mit Wäscheklappe
   b.hooks(2.198, 2.98, NX, 2, 0.16, 1.70);                  // Bademantelhaken an der Schrankseite
   b.cab(W - 0.40, 0.03, 0.40, 1.57, 0.30, 0.80, 'W', 3);    // Sideboard schwebend, bis kurz vor die Tür
   b.cab(0, 1.24, 1.10, 0.30, 1.60, 2.35, 'N', 2);           // Hängeschrank über dem WC
-  b.paper(0, 0.85, PX); b.brush(1.10, 1.15, NX);
-  [[0.55, 0.6], [2.3, 0.9], [2.3, 2.3], [0.55, 2.6]].forEach(p => b.spot(...p));
+  b.paper(0, 0.85, PX); b.brushUP(0.86, 1.34, NY);          // Bürste in der Vorwand
+  // Licht: Spiegelschrank (Arbeitslicht), Schiene mit 4 Strahlern, Einbauspots IP65 in Dusche und am WC, indirekt unter Möbeln
+  [[0.55, 0.6], [0.55, 2.6]].forEach(p => b.spot(...p));
+  b.track(2.45, 0.35, 2.45, 2.95, [[3.1, 0.6, 0.7], [1.6, 1.2, 1.0], [1.6, 2.0, 1.0], [2.4, 3.1, 1.4]]);
+  b.glow(1.30, 0.62, 0.70, 1.96);
+  b.underLight(W - 0.40, 0.03, 0.40, 1.57, 0.30);
+  b.underLight(0, 1.24, 1.10, 0.30, 1.60, 1.205);
   b.view('Blick von der Tür', [3.05, 2.10, 1.62], [1.2, 1.55, 1.15], 66);
   b.view('Blick zur Dusche', [2.3, 3.0, 1.62], [0.0, 2.2, 1.0], 70);
   b.view('Blick zum WC', [1.6, 0.15, 1.62], [0.45, 1.0, 1.15], 72);
   b.view('Nah am WC', [0.55, 0.12, 1.30], [0.55, 1.2, 0.55], 80);
+  b.view('Spiegelschrank offen', [2.55, 0.30, 1.65], [1.3, 1.05, 1.55], 62);
+  b.views['Spiegelschrank offen'].still = true;   // nur als Standbild
   b.view('Blick zum Sideboard', [1.7, 2.9, 1.62], [3.25, 0.7, 0.9], 66);
   b.view('Modell', [W + 1.3, -1.2, 5.8], [W / 2, H / 2, 0.4], 40);
   b.hideFrom = ['S', 'E'];
@@ -475,7 +571,7 @@ function kinder964() {
   b.vorwand(1.315, 0, W - 1.315, 0.20, 0.95);
   b.clad(1.315, 0.20, W, 0.20, 0, 0.95, 0, 1);
   b.wc(1.90, 0.20, PY, false, 0.80);
-  b.paper(2.51, 0.75, NX); b.brush(1.315, 0.70, PX);
+  b.paper(2.51, 0.75, NX); b.brushUP(1.50, 0.20, PY);        // Bürste in der Vorwand
   b.spot(1.90, 0.9);
   // Handtuchwärmer am Duschausgang, 75 cm
   b.towel(0, 2.25, PX, 0.75);
@@ -485,7 +581,9 @@ function kinder964() {
   b.vanity(0.15, 3.50, PX, 1.20, 0.46, [0.30, 0.90], { bw: 0.36, bd: 0.28, frontBar: true });   // zwei Becken, Handtuchstange vorn
   b.hooks(1.155, 3.92, PX, 3, 0.15, 1.15); b.hooks(1.155, 3.92, PX, 3, 0.15, 1.65);   // Hakenwand am Eingang: Kinder unten, Erwachsene oben
   b.cab(2.21, 2.60, 0.30, 0.48, 0.15, 2.15, 'W', 1, true);   // schmaler Schrank zwischen den Türen, unten Wäscheklappe
-  [[0.6, 0.7], [0.9, 2.9], [1.9, 2.9]].forEach(p => b.spot(...p));
+  [[0.6, 0.7]].forEach(p => b.spot(...p));
+  b.track(1.55, 2.0, 1.55, 3.75, [[0.3, 2.6, 1.0], [2.4, 2.85, 1.2], [0.3, 3.2, 1.0]]);
+  b.glow(0.10, 2.22, 0.62, 1.36);
   b.view('Blick von der Tür', [2.2, 3.3, 1.62], [0.2, 2.6, 1.0], 75);
   b.view('Blick zur Dusche', [0.9, 3.3, 1.62], [0.5, 0.2, 1.1], 66);
   b.view('Blick in den WC-Raum', [1.85, 3.0, 1.62], [1.9, 0.2, 0.7], 62);
@@ -526,7 +624,7 @@ function kinder1060() {
   b.vanity(0.20, 3.35, PX, 1.40, 0.48, [0.35, 1.05], { sideBars: ['L', 'R'] });
   b.wc(0.20, 4.05, PX);
   b.cab(0, 3.50, 0.30, 0.70, 1.60, 2.30, 'E', 2);          // Hängeschrank über dem WC
-  b.paper(0.70, H, NY); b.brush(0.95, H, NY);
+  b.paperUP(0.20, 4.36, PX); b.brushUP(0.20, 3.66, PX);     // Papier und Bürste in der Vorwand
   // Wanne 180 x 80 rechts. Fliese: Fensterwand bis zur Brüstung durchgehend, an der Wanne bis 1,80 (drei Reihen)
   const tx = W - 0.80, tz = H - 1.80;
   b.clad(W, tz, W, H, 0, 1.80, -1, 0);
@@ -542,11 +640,16 @@ function kinder1060() {
   b.cab(W - 0.35, 1.85, 0.35, 0.80, 0.30, 2.25, 'W', 2);    // Hochschrank hängend, 1,95 hoch
   b.bar(W - 0.33, 2.65, PY, 0.30, 0.95);                    // Wannenhandtuch an der Schrankseite
   b.hooks(W - 0.08, 1.848, NY, 2, 0.17, 1.20); b.hooks(W - 0.08, 1.848, NY, 2, 0.17, 1.65);   // Haken zur Tür hin, Kinder unten
-  [[1.8, 0.4], [0.9, 2.6], [1.3, 3.9], [0.55, 1.15]].forEach(p => b.spot(...p));
+  [[1.8, 0.4], [0.55, 1.15]].forEach(p => b.spot(...p));
+  b.track(1.35, 1.95, 1.35, 4.25, [[2.3, 2.2, 1.2], [0.4, 2.7, 1.0], [2.1, 3.6, 0.6], [0.4, 4.0, 0.9]]);
+  b.glow(0.14, 1.87, 0.62, 1.56);
+  b.underLight(W - 0.35, 1.85, 0.35, 0.80, 0.30);
+  b.underLight(0, 3.50, 0.30, 0.70, 1.60, 1.205);
   b.view('Blick von der Tür', [1.95, 0.25, 1.62], [0.4, 3.0, 1.0], 70);
   b.view('Blick zur Wanne', [0.85, 1.95, 1.62], [2.2, 4.3, 0.75], 64);
   b.view('Blick zur Dusche', [1.9, 2.9, 1.62], [0.3, 1.0, 1.05], 62);
   b.view('Nah am WC', [1.45, 3.65, 1.25], [0.3, 4.3, 0.55], 76);
+  b.view('Am Duschausgang', [2.2, 1.6, 1.55], [1.1, 0.3, 1.0], 72);
   b.view('Blick zum Schrank', [0.75, 2.0, 1.55], [2.5, 2.6, 1.2], 70);
   b.view('Modell', [W + 0.9, -1.0, 6.6], [W / 2, H / 2, 0.3], 44);
   b.hideFrom = ['S', 'E'];
@@ -599,8 +702,11 @@ function gaestewc() {
   b.vanity(W - 0.15, 0.20, NX, 0.75, 0.32, [0.375], { bw: 0.34, bd: 0.22, sideBars: ['R'] });
   b.cab(0.03, H - 0.25, 1.55, 0.25, 1.60, 2.30, 'N', 3);   // Hängeschrank über WC und Pissoir
   b.mural(0.12, 0, 1.25, 0, 0.85, 2.25, 0, 1);              // Wandbild gegenüber dem WC, flach
-  b.paper(0, 1.45, PX); b.brush(0.90, H - 0.20, NY);
-  [[0.9, 1.1], [0.9, 0.4]].forEach(p => b.spot(...p));
+  b.paper(0, 1.45, PX); b.brushUP(0.90, H - 0.20, NY);
+  [[0.9, 1.25]].forEach(p => b.spot(...p));
+  b.track(0.45, 0.75, 0.95, 0.75, [[0.68, 0.0, 1.55]]);       // schwenkbarer Strahler aufs Wandbild
+  b.glow(1.25, 0.12, 0.45, 0.91);
+  b.underLight(0.03, H - 0.25, 1.55, 0.25, 1.60, 1.205);
   b.view('Blick von der Tür', [0.25, 0.55, 1.62], [1.7, 0.6, 1.1], 70);
   b.view('Blick zu WC und Pissoir', [1.2, 0.25, 1.62], [0.8, 2.1, 1.0], 72);
   b.view('Blick vom WC', [0.6, 1.35, 1.20], [0.7, 0, 1.55], 80, true);
