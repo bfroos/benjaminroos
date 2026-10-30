@@ -1,0 +1,959 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,-apple-system,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Garten Montabaur</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: schmale Kopfleiste mit Ansichten, darunter das Modell bildschirmfüllend, Infokarte schwebt unten links */
+:root {
+  --bg: #eef1ea; --panel: #fbfcf8; --fg: #22312a; --muted: #5d6b62; --line: #cfd6cb;
+  --accent: #3d6b4a; --accent-fg: #ffffff; --chip: #e2e8dc;
+  --display: "Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+  --body: "IBM Plex Sans", "Helvetica Neue", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #141a17; --panel: #1c2420; --fg: #e3eae2; --muted: #9aa89e; --line: #2f3a34;
+  --accent: #7fb08b; --accent-fg: #102016; --chip: #26302b; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #141a17; --panel: #1c2420; --fg: #e3eae2; --muted: #9aa89e; --line: #2f3a34;
+  --accent: #7fb08b; --accent-fg: #102016; --chip: #26302b; color-scheme: dark }
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--fg); font-family: var(--body); display: flex; flex-direction: column; overflow: hidden; }
+header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px;
+  padding-block: 10px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  border-bottom: 1px solid var(--line); background: var(--panel); }
+h1 { font-family: var(--display); font-weight: 700; font-size: 1.15rem; margin: 0; letter-spacing: -0.01em; text-wrap: balance; }
+.stand { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); }
+.gruppe { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.gruppe .lbl { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-right: 2px; }
+button { font: 500 0.82rem var(--body); color: var(--fg); background: var(--chip); border: 1px solid transparent; border-radius: 6px; padding: 6px 10px; cursor: pointer; }
+button:hover { border-color: var(--line); }
+button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); }
+button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+main { position: relative; flex: 1; min-height: 320px; }
+#szene, #plan { position: absolute; inset: 0; display: block; width: 100%; height: 100%; touch-action: none; }
+#plan { cursor: grab; }
+.laden { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); font-size: .9rem; }
+.karte { position: absolute; left: max(12px, env(safe-area-inset-left, 0px)); bottom: 12px; max-width: min(360px, calc(100% - 24px));
+  background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; box-shadow: 0 6px 20px rgba(0,0,0,.12); }
+.karte h2 { font-family: var(--display); font-size: 1rem; margin: 0 0 4px; text-wrap: balance; }
+.karte p { margin: 0; font-size: 0.85rem; line-height: 1.45; color: var(--muted); }
+.karte .code { font-family: var(--mono); font-size: 0.72rem; color: var(--accent); margin-bottom: 2px; }
+.hinweis { position: absolute; right: max(12px, env(safe-area-inset-right, 0px)); bottom: 12px; font-size: 0.72rem; color: var(--muted);
+  background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px; }
+.nord { position: absolute; right: max(12px, env(safe-area-inset-right, 0px)); top: 12px; width: 44px; height: 44px; }
+@media (max-width: 560px) { .hinweis { display: none; } h1 { font-size: 1rem; } button { padding: 5px 8px; font-size: 0.78rem; flex: none; }
+  .gruppe { flex-wrap: nowrap; overflow-x: auto; max-width: 100%; scrollbar-width: none; } .stand { display: none; }
+  .karte { padding: 8px 10px; } .karte p { font-size: .78rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; } }
+</style>
+</head>
+<body>
+
+
+<header>
+  <div>
+    <h1>Garten Montabaur</h1>
+    <div class="stand">Planstand 06 · 29.10.2026 · Haus nach Grundriss EG/OG vom 20.08.2026</div>
+  </div>
+  <div class="gruppe" id="modus" role="group" aria-label="Darstellung">
+    <button id="m-plan" aria-pressed="true">Gartenplan</button>
+    <button id="m-3d" aria-pressed="false">3D-Modell</button>
+  </div>
+  <div class="gruppe nur-plan" role="group" aria-label="Plan">
+    <button id="p-ganz">Ganzer Plan</button>
+  </div>
+  <div class="gruppe nur-3d" id="ansichten" role="group" aria-label="Ansicht" hidden>
+    <span class="lbl">Blick</span>
+    <button id="v-oben" data-v="oben" aria-pressed="true">Von oben</button>
+    <button id="v-essen" data-v="essen" aria-pressed="false">Aus Küche/Essen</button>
+    <button id="v-wohnen" data-v="wohnen" aria-pressed="false">Aus Wohnen</button>
+    <button id="v-ankommen" data-v="ankommen" aria-pressed="false">Ankommen</button>
+    <button id="v-gaeste" data-v="gaeste" aria-pressed="false">Gästeplätze</button>
+    <button id="v-sauna" data-v="sauna" aria-pressed="false">Sauna & Pool</button>
+    <button id="v-haus" data-v="haus" aria-pressed="false">Haus von Süden</button>
+  </div>
+  <div class="gruppe nur-3d" role="group" aria-label="Schalter" hidden>
+    <span class="lbl">Zeigen</span>
+    <button id="t-nacht" aria-pressed="false">Abend mit Licht</button>
+    <button id="t-autos" aria-pressed="false">Gäste parken</button>
+    <button id="t-dach" aria-pressed="false">Pooldach zu</button>
+  </div>
+</header>
+<main>
+  <canvas id="plan" aria-label="Gartenplan in der Draufsicht"></canvas>
+  <div class="laden" id="laden">Plan wird gezeichnet …</div>
+  <canvas id="szene" hidden></canvas>
+  <svg class="nord nur-3d" hidden viewBox="0 0 44 44" aria-label="Norden"><circle cx="22" cy="22" r="20" fill="var(--panel)" stroke="var(--line)"/><g id="nadel"><path d="M22 6 L27 24 L22 21 L17 24 Z" fill="var(--accent)"/><text x="22" y="37" text-anchor="middle" font-size="10" font-family="IBM Plex Mono, monospace" fill="var(--fg)">N</text></g></svg>
+  <div class="karte" id="karte" aria-live="polite">
+    <div class="code" id="k-code">Tipp</div>
+    <h2 id="k-titel">Fläche antippen</h2>
+    <p id="k-text">Der Garten von oben wie beim Landschaftsarchitekten. Ein Tipp auf eine Fläche zeigt, was dort geplant ist. Oben rechts geht es zum 3D-Modell mit beiden Geschossen.</p>
+  </div>
+  <div class="hinweis" id="hinweis">Ziehen = verschieben · Rad oder zwei Finger = zoomen · Tippen = Info</div>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/environments/RoomEnvironment.js"></script>
+<script>
+const D = {"grundstueck": [[-5.19, -0.15], [24.55, -0.16], [25.25, 23.57], [-7.24, 23.58], [-7.71, 8.11], [-4.95, 8.02]], "strasse": [[-10.2, -1.6], [-5.23, -1.6], [-4.95, 8.02], [-7.71, 8.11], [-10.0, 8.18]], "haus": [[0, 0], [10.23, 0], [10.23, 2.91], [21.49, 2.91], [21.49, 14.9], [14.75, 14.9], [14.75, 11.35], [4.99, 11.35], [4.99, 16.5], [-1.5, 16.5], [-1.5, 9.17], [0, 9.17]], "fenster": [[[5.6, 11.35], [13.9, 11.35]], [[14.75, 12.0], [14.75, 14.4]], [[15.5, 14.9], [20.8, 14.9]], [[-1.1, 16.5], [4.4, 16.5]], [[11.3, 2.91], [13.6, 2.91]], [[0, 0.94], [0, 6.2]], [[0, 7.4], [0, 8.26]], [[-1.5, 9.9], [-1.5, 11.09]]], "haustuer": [[0, 8.26], [0, 9.15]], "flaechen": [{"code": "B00", "name": "Hausumriss 2026, vereinfacht", "gruppe": "Haus", "pts": [[0, 0], [10.23, 0], [10.23, 2.91], [21.49, 2.91], [21.49, 14.9], [14.75, 14.9], [14.75, 11.35], [4.99, 11.35], [4.99, 16.5], [-1.5, 16.5], [-1.5, 9.17], [0, 9.17]]}, {"code": "B01", "name": "Pool 8 × 3 m mit Beckenrand (Reserve 8,5 × 3,6 m)", "gruppe": "Pool", "pts": [[12.9, 16.85], [21.4, 16.85], [21.4, 20.45], [12.9, 20.45]]}, {"code": "G02", "name": "Technik: Pool-Wärmepumpe, Filter, Nachspeisung", "gruppe": "Bau", "pts": [[22.75, 10.9], [24.7, 10.9], [24.7, 12.9], [22.75, 12.9]]}, {"code": "G03", "name": "Außensauna ca. 2,1 × 2,2 m", "gruppe": "Bau", "pts": [[22.75, 13.2], [24.85, 13.2], [24.85, 15.4], [22.75, 15.4]]}, {"code": "G01", "name": "Fahrradhaus ca. 3,2 × 2,4 m", "gruppe": "Bau", "pts": [[-7.45, 13.75], [-4.25, 13.75], [-4.25, 16.15], [-7.45, 16.15]]}, {"code": "G04", "name": "Mülltonnenbox 4 Tonnen (laut Architekt)", "gruppe": "Bau", "pts": [[-3.3, 0.05], [-1.0, 0.05], [-1.0, 0.9], [-3.3, 0.9]]}, {"code": "G05", "name": "Gartenschränke 4 × 0,8 m, 2 m hoch", "gruppe": "Bau", "pts": [[10.5, 0.1], [14.5, 0.1], [14.5, 0.9], [10.5, 0.9]]}, {"code": "AD", "name": "Außendusche an der Sauna, Platte auf Kiesbett", "gruppe": "Bau", "pts": [[23.95, 15.5], [24.75, 15.5], [24.75, 16.3], [23.95, 16.3]]}, {"code": "PS1", "name": "Pooldach-Schiene Nord, bodenbündig", "gruppe": "Schiene", "pts": [[12.9, 16.6], [24.45, 16.6], [24.45, 16.85], [12.9, 16.85]]}, {"code": "PS2", "name": "Pooldach-Schiene Süd, bodenbündig", "gruppe": "Schiene", "pts": [[12.9, 20.45], [24.45, 20.45], [24.45, 20.7], [12.9, 20.7]]}, {"code": "P01", "name": "Immergrüne Hecke Nord", "gruppe": "Beet", "pts": [[14.6, 0.1], [21.49, 0.1], [21.49, 0.9], [14.6, 0.9]]}, {"code": "P02", "name": "Schattenbeet Nord mit Winterduft", "gruppe": "Beet", "pts": [[15.9, 1.9], [21.49, 1.9], [21.49, 2.91], [15.9, 2.91]]}, {"code": "P03", "name": "Naschecke Nordost (Beerensträucher)", "gruppe": "Nasch", "pts": [[22.85, 0.3], [24.45, 0.3], [24.45, 4.5], [22.85, 4.5]]}, {"code": "P04B", "name": "Himbeeren an der Naschecke", "gruppe": "Nasch", "pts": [[22.85, 4.6], [24.5, 4.6], [24.5, 6.4], [22.85, 6.4]]}, {"code": "P04A", "name": "Erdbeer-Hochbeet vor der Terrasse", "gruppe": "Nasch", "pts": [[7.9, 17.0], [10.8, 17.0], [10.8, 17.9], [7.9, 17.9]]}, {"code": "P04C", "name": "Kübel: Blaubeeren + Säulenäpfel", "gruppe": "Nasch", "pts": [[6.0, 17.0], [7.3, 17.0], [7.3, 18.3], [6.0, 18.3]]}, {"code": "P07", "name": "Sonnenbeet Terrasse West", "gruppe": "Beet", "pts": [[4.99, 12.4], [6.2, 12.4], [6.2, 16.2], [4.99, 16.2]]}, {"code": "P09", "name": "Gartenbild Süd am Glas", "gruppe": "Beet", "pts": [[5.7, 22.1], [12.6, 22.1], [12.6, 23.35], [5.7, 23.35]]}, {"code": "P09B", "name": "Baumscheibe Felsenbirne", "gruppe": "Beet", "pts": [[8.4, 19.9], [8.375, 20.123], [8.301, 20.334], [8.182, 20.523], [8.023, 20.682], [7.834, 20.801], [7.623, 20.875], [7.4, 20.9], [7.177, 20.875], [6.966, 20.801], [6.777, 20.682], [6.618, 20.523], [6.499, 20.334], [6.425, 20.123], [6.4, 19.9], [6.425, 19.677], [6.499, 19.466], [6.618, 19.277], [6.777, 19.118], [6.966, 18.999], [7.177, 18.925], [7.4, 18.9], [7.623, 18.925], [7.834, 18.999], [8.023, 19.118], [8.182, 19.277], [8.301, 19.466], [8.375, 19.677]]}, {"code": "P10", "name": "Pflanzstreifen Hof Nord mit Säulenbaum", "gruppe": "Beet", "pts": [[-5.1, 0.0], [-3.4, 0.0], [-3.4, 0.95], [-5.1, 0.95]]}, {"code": "P12", "name": "Pflanzbeet an der Wand zwischen Garagentor und Haustür", "gruppe": "Beet", "pts": [[-0.6, 6.3], [0, 6.3], [0, 7.3], [-0.6, 7.3]]}, {"code": "P13", "name": "Hainbuchenhecke am Spielfeld (vor Zaun Z14)", "gruppe": "Beet", "pts": [[5.0, 17.7], [5.65, 17.7], [5.65, 22.1], [5.0, 22.1]]}, {"code": "SP1", "name": "Fahrstreifen ST1 West, Rasengitterstein mit Splitt", "gruppe": "Spur", "pts": [[-7.35, 8.15], [-6.85, 8.15], [-6.85, 13.15], [-7.35, 13.15]]}, {"code": "SP2", "name": "Fahrstreifen ST1 Ost, Rasengitterstein mit Splitt", "gruppe": "Spur", "pts": [[-5.85, 8.15], [-5.35, 8.15], [-5.35, 13.15], [-5.85, 13.15]]}, {"code": "SP3", "name": "Fahrstreifen ST2 West, Rasengitterstein mit Splitt", "gruppe": "Spur", "pts": [[-4.85, 8.15], [-4.35, 8.15], [-4.35, 13.15], [-4.85, 13.15]]}, {"code": "SP4", "name": "Fahrstreifen ST2 Ost, Rasengitterstein mit Splitt", "gruppe": "Spur", "pts": [[-3.35, 8.15], [-2.85, 8.15], [-2.85, 13.15], [-3.35, 13.15]]}, {"code": "ST1", "name": "Gästeplatz 1, Kräuter-Schotterrasen bepflanzt", "gruppe": "Gaeste", "pts": [[-7.6, 8.15], [-5.1, 8.15], [-5.1, 13.15], [-7.6, 13.15]]}, {"code": "ST2", "name": "Gästeplatz 2, Kräuter-Schotterrasen bepflanzt", "gruppe": "Gaeste", "pts": [[-5.1, 8.15], [-2.6, 8.15], [-2.6, 13.15], [-5.1, 13.15]]}, {"code": "H07", "name": "Vorplatz Fahrradhaus, Ökopflaster mit Splittfuge", "gruppe": "Stellplatz", "pts": [[-7.6, 13.15], [-2.6, 13.15], [-2.6, 16.3], [-7.6, 16.3]]}, {"code": "H08", "name": "Weg zur Gartentür, Pflaster", "gruppe": "Pflaster", "pts": [[-2.6, 9.3], [-1.5, 9.3], [-1.5, 16.3], [-2.6, 16.3]]}, {"code": "H01", "name": "Hof: Zufahrt Garage + Haustür, Sickerfugenpflaster", "gruppe": "Pflaster", "pts": [[-5.19, -0.15], [0, 0], [0, 9.17], [-1.5, 9.17], [-1.5, 9.3], [-2.6, 9.3], [-2.6, 8.15], [-4.95, 8.15], [-4.95, 8.02]]}, {"code": "H02", "name": "Servicefläche Nord, Splitt", "gruppe": "Kies", "pts": [[10.23, 0.9], [21.49, 0.9], [21.49, 1.9], [15.9, 1.9], [15.9, 2.91], [10.23, 2.91]]}, {"code": "KS", "name": "Spritzschutz Kies an der Ostwand", "gruppe": "Kies", "pts": [[21.49, 0.9], [21.79, 0.9], [21.79, 14.9], [21.49, 14.9]]}, {"code": "H03", "name": "Ostweg, Platten 0,9 m", "gruppe": "Pflaster", "pts": [[21.79, 0.9], [22.69, 0.9], [22.69, 16.6], [21.79, 16.6]]}, {"code": "H04", "name": "Hauptterrasse", "gruppe": "Terrasse", "pts": [[4.99, 11.35], [14.75, 11.35], [14.75, 14.9], [12.1, 14.9], [12.1, 16.2], [4.99, 16.2]]}, {"code": "H05", "name": "Pooldeck Nord + Beckenrand West", "gruppe": "Terrasse", "pts": [[12.1, 14.9], [21.79, 14.9], [21.79, 16.6], [12.9, 16.6], [12.9, 20.7], [12.1, 20.7]]}, {"code": "K01", "name": "Kunstrasen Spielfeld bis Hobby-Ostecke", "gruppe": "Kunstrasen", "pts": [[-7.28, 16.32], [-1.5, 16.32], [-1.5, 16.5], [4.99, 16.5], [4.99, 23.565], [-7.24, 23.58]]}, {"code": "R03", "name": "Rasen zwischen den Pooldach-Schienen", "gruppe": "Rasen", "pts": [[21.4, 16.85], [24.45, 16.85], [24.45, 20.45], [21.4, 20.45]]}, {"code": "R02", "name": "Rasenstreifen Ost", "gruppe": "Rasen", "pts": [[22.69, -0.2], [25.3, -0.2], [25.3, 16.6], [22.69, 16.6]]}, {"code": "R01", "name": "Gebrauchsrasen Süd (Zisterne liegt darunter)", "gruppe": "Rasen", "pts": [[4.99, 16.2], [25.3, 16.2], [25.3, 23.6], [4.99, 23.6]]}], "zaun": [{"code": "Z13", "art": "Gartenabschluss am Hobby, Doppelstabmatte", "pts": [[-7.28, 16.3], [-2.6, 16.3]], "h": "1,83 m"}, {"code": "GT3", "art": "Gartentür 1,0 m, selbstschließend", "pts": [[-2.6, 16.3], [-1.6, 16.3]], "h": "1,83 m"}, {"code": "Z09", "art": "West am Spielfeld, Doppelstabmatte (Ballfang)", "pts": [[-7.28, 16.3], [-7.24, 23.58]], "h": "2,43 m"}, {"code": "Z14", "art": "Ost am Spielfeld, Doppelstabmatte dunkelgrün, Hainbuche davor", "pts": [[5.0, 17.7], [5.0, 23.57]], "h": "1,83 m"}, {"code": "Z08", "art": "Süd am Spielfeld, Doppelstabmatte auf L-Steinen", "pts": [[-7.24, 23.58], [5.0, 23.57]], "h": "1,43 m"}, {"code": "Z06", "art": "Süd, Glaselemente (Blickachse Wohnen/Essen)", "pts": [[5.0, 23.57], [22.0, 23.57]], "h": "1,00–1,20 m"}, {"code": "Z05", "art": "Süd-Ost, Metall niedrig", "pts": [[22.0, 23.57], [25.25, 23.57]], "h": "1,03 m"}, {"code": "Z04", "art": "Ost, Doppelstabmatte", "pts": [[24.55, -0.16], [25.25, 23.57]], "h": "1,83 m"}, {"code": "Z03", "art": "Nord, Doppelstabmatte", "pts": [[15.1, -0.16], [24.55, -0.16]], "h": "1,83 m"}, {"code": "Z02", "art": "Nord, Bad-Sichtschutz Alulamellen", "pts": [[10.6, -0.16], [15.1, -0.16]], "h": "1,80 m"}], "gehoelze": [[7.4, 19.9, 1.35, "Fb", "Baum"], [-4.25, 0.5, 0.6, "Ob", "Baum"], [6.45, 22.65, 0.7, "Hm", "Strauch"], [9.7, 22.75, 0.55, "Ki", "Strauch"], [12.0, 22.75, 0.55, "Ki", "Strauch"], [5.6, 15.5, 0.55, "Ki", "Strauch"], [5.6, 13.2, 0.5, "Mi", "Strauch"], [-0.3, 6.8, 0.4, "Hy", "Strauch"], [23.25, 0.95, 0.5, "Jo", "Nasch"], [24.1, 0.95, 0.5, "Jo", "Nasch"], [23.25, 2.3, 0.5, "Ja", "Nasch"], [24.1, 2.3, 0.5, "St", "Nasch"], [6.35, 17.35, 0.3, "Bl", "Nasch"], [6.95, 17.35, 0.3, "Bl", "Nasch"], [6.35, 17.95, 0.3, "Sä", "Nasch"], [6.95, 17.95, 0.3, "Sä", "Nasch"]], "himbeeren": [[23.3, 4.9], [23.3, 5.5], [23.3, 6.1000000000000005], [24.1, 4.9], [24.1, 5.5], [24.1, 6.1000000000000005]], "feld": [-6.1, 16.9, 3.85, 23.35], "zisterne": [[21.0, 21.65], [25.0, 21.65], [25.0, 23.2], [21.0, 23.2]], "leuchten": [["LA1", "L1", -0.25, 2.3, "Hausbeleuchtung"], ["LA2", "L1", -0.25, 6.0, "Hausbeleuchtung"], ["LA3", "L1", -1.5, 12.8, "Wandleuchte Weg zur Gartentür, Bewegung"], ["LW2", "L2", 17.3, 1.65, "unverändert"], ["LW3", "L2", 22.75, 6.3, "Ostweg"], ["LW4", "L2", 22.75, 10.3, "Ostweg"], ["LW5", "L2", 5.25, 17.6, "unverändert"], ["LT1", "L3", 8.2, 11.63, "unverändert"], ["LT2", "L3", 14.48, 13.7, "unverändert"], ["LT3", "L3", 22.75, 15.1, "Sauna-Eingang"], ["LG1", "L4", 6.2, 19.2, "Felsenbirne, Strahler 1"], ["LG7", "L4", 8.2, 19.2, "Felsenbirne, Strahler 2"], ["LG2", "L4", 6.4, 21.55, "Zaubernuss"], ["LG4", "L4", 9.7, 21.9, "Bergkiefer"], ["LG5", "L4", 12.0, 21.9, "Bergkiefer"], ["LG6", "L4", 5.9, 20.6, "neu: Streiflicht Hainbuchenhecke"], ["LP1", "L5", 15.2, 17.4, "Pool"], ["LP2", "L5", 19.5, 17.4, "Pool"], ["LS1", "L6", -0.2, 16.63, "unverändert"], ["LS2", "L6", 4.3, 16.63, "unverändert"], ["LN1", "L7", 10.44, 1.8, "unverändert"]], "raeume": [["Garage", 2.9, 3.4], ["Technik / Abstell.", 8.1, 1.2], ["Nebenraum", 8.1, 4.2], ["Bad", 12.8, 4.3], ["Eltern", 18.8, 4.6], ["Eingang", 2.2, 9.3], ["Küche / Essen", 9.8, 7.5], ["Büro", 1.4, 12.2], ["Hobby", 1.4, 14.9], ["Wohnen", 18.8, 12.3]], "tor": [3.0, 2.0, 1.0]};
+// ---------- Illustrierter Gartenplan (Draufsicht im Stil eines Freiflächenplans)
+// Zeichnet in Metern (x nach Osten, y nach Süden) auf eine große Offscreen-Leinwand.
+const PLAN = (() => {
+  const WELT = { x1: -11.5, y1: -3.2, x2: 27.2, y2: 26.2 };   // Zeichenbereich in m
+  const LEG_B = 8.6;                                          // Legendenspalte rechts in m
+  const OG = [[-1.88, 2.91], [21.49, 2.91], [21.49, 13.65], [-1.88, 13.65]];
+  const BALKON = [[14.83, 13.65], [21.49, 13.65], [21.49, 15.4], [14.83, 15.4]];
+  const SCHATTEN = [0.21, -0.17];                             // Versatz je Meter Höhe (Sonne aus Südwest)
+  let rnd = 11; const r = () => (rnd = (rnd * 16807) % 2147483647) / 2147483647;
+  const fl = c => D.flaechen.find(f => f.code === c);
+  const bb = pts => { const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]); return [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)]; };
+  const drin = (pts, x, y) => { let c = false; for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) { const [xi, yi] = pts[i], [xj, yj] = pts[j]; if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) c = !c; } return c; };
+  const rect = (a, b, c, d) => [[a, b], [c, b], [c, d], [a, d]];
+
+  function pfad(x, pts) { x.beginPath(); pts.forEach(([a, b], i) => i ? x.lineTo(a, b) : x.moveTo(a, b)); x.closePath(); }
+  function clip(x, pts, f) { x.save(); pfad(x, pts); x.clip(); f(); x.restore(); }
+  const mix = (hex, d) => { const n = parseInt(hex.slice(1), 16); const k = v => Math.max(0, Math.min(255, Math.round(v + d))); return `rgb(${k(n >> 16)},${k((n >> 8) & 255)},${k(n & 255)})`; };
+
+  // ---- Texturen
+  function rasen(x, pts, basis = '#a7c07a', streifen = true) {
+    clip(x, pts, () => {
+      const [a, b, c, d] = bb(pts);
+      x.fillStyle = basis; x.fillRect(a, b, c - a, d - b);
+      if (streifen) for (let i = Math.floor(a); i < c; i += 2) { x.fillStyle = 'rgba(255,255,230,.07)'; x.fillRect(i, b, 1, d - b); }
+      const n = (c - a) * (d - b) * (streifen ? 70 : 18); x.lineWidth = 0.014; x.lineCap = 'round';
+      for (let i = 0; i < n; i++) { x.strokeStyle = r() < 0.5 ? 'rgba(70,100,40,.2)' : 'rgba(240,248,210,.22)'; const px = a + r() * (c - a), py = b + r() * (d - b), w = -1.57 + (r() - 0.5) * 1.2, l = 0.05 + r() * 0.05; x.beginPath(); x.moveTo(px, py); x.lineTo(px + Math.cos(w) * l, py + Math.sin(w) * l); x.stroke(); }
+    });
+  }
+  // Steine in Reihen (Läuferverband). laengen = mögliche Steinlängen, h = Reihenhöhe, dreh = Winkel
+  function verband(x, pts, { h, laengen, farbe, fuge, streu = 10, dreh = 0, fugeB = 0.012, gruen = false }) {
+    clip(x, pts, () => {
+      const [a, b, c, d] = bb(pts); const cx = (a + c) / 2, cy = (b + d) / 2, R = Math.hypot(c - a, d - b) / 2 + 1;
+      x.fillStyle = fuge; x.fillRect(a, b, c - a, d - b);
+      x.save(); x.translate(cx, cy); x.rotate(dreh);
+      for (let y = -R; y < R; y += h) {
+        let s = -R - r() * 0.5;
+        while (s < R) {
+          const l = laengen[Math.floor(r() * laengen.length)];
+          x.fillStyle = mix(farbe, (r() - 0.5) * streu);
+          x.fillRect(s + fugeB, y + fugeB, l - 2 * fugeB, h - 2 * fugeB);
+          if (gruen) { x.fillStyle = 'rgba(110,150,60,.55)'; x.fillRect(s - fugeB * 2, y, fugeB * 3, h); }
+          s += l;
+        }
+      }
+      x.restore();
+      // leichte Patina
+      const n = (c - a) * (d - b) * 25;
+      for (let i = 0; i < n; i++) { x.fillStyle = 'rgba(0,0,0,.05)'; x.fillRect(a + r() * (c - a), b + r() * (d - b), 0.04, 0.04); }
+    });
+  }
+  function kies(x, pts, basis = '#d9d5cb') {
+    clip(x, pts, () => {
+      const [a, b, c, d] = bb(pts); x.fillStyle = basis; x.fillRect(a, b, c - a, d - b);
+      const n = (c - a) * (d - b) * 260;
+      for (let i = 0; i < n; i++) { x.fillStyle = mix('#b8b2a6', (r() - 0.5) * 60); x.beginPath(); x.arc(a + r() * (c - a), b + r() * (d - b), 0.012 + r() * 0.018, 0, 6.3); x.fill(); }
+    });
+  }
+  function rasengitter(x, pts) {
+    clip(x, pts, () => {
+      const [a, b, c, d] = bb(pts); x.fillStyle = '#9a978d'; x.fillRect(a, b, c - a, d - b);
+      for (let y = b; y < d; y += 0.2) for (let xx = a + 0.02; xx < c; xx += 0.165) {
+        x.fillStyle = r() < 0.6 ? '#c9c3b5' : '#8fae63'; x.fillRect(xx + 0.03, y + 0.03, 0.1, 0.13);
+      }
+    });
+  }
+  // Pflanzen-Tuff: runde Kuppel mit Licht oben links
+  function tuff(x, px, py, rad, farbe, licht = 34, kante = 26) {
+    // flacher, leicht gelappter Busch mit dunklem Rand und Lichtkappe oben links
+    const lappen = (rr, ox, oy) => { x.beginPath(); for (let i = 0; i <= 10; i++) { const w = i / 10 * 6.283, q = rr * (0.88 + r() * 0.16); i ? x.lineTo(px + ox + Math.cos(w) * q, py + oy + Math.sin(w) * q) : x.moveTo(px + ox + Math.cos(w) * q, py + oy + Math.sin(w) * q); } x.fill(); };
+    x.fillStyle = mix(farbe, -kante); lappen(rad, 0, 0);
+    x.fillStyle = farbe; lappen(rad * 0.88, -rad * 0.05, -rad * 0.05);
+    x.fillStyle = mix(farbe, licht); x.globalAlpha = 0.7; lappen(rad * 0.48, -rad * 0.28, -rad * 0.3); x.globalAlpha = 1;
+  }
+  function gras(x, px, py, rad, farbe) {
+    x.strokeStyle = farbe; x.lineWidth = 0.018; x.lineCap = 'round';
+    for (let i = 0; i < 26; i++) { const w = r() * 6.283, l = rad * (0.5 + r() * 0.5); x.beginPath(); x.moveTo(px, py); x.quadraticCurveTo(px + Math.cos(w) * l * 0.5, py + Math.sin(w) * l * 0.5 - 0.04, px + Math.cos(w) * l, py + Math.sin(w) * l); x.stroke(); }
+  }
+  function bluete(x, px, py, farbe, n = 6, s = 0.18) {
+    x.fillStyle = farbe; for (let i = 0; i < n; i++) { x.beginPath(); x.arc(px + (r() - 0.5) * s, py + (r() - 0.5) * s, 0.025 + r() * 0.02, 0, 6.3); x.fill(); }
+  }
+  function beet(x, pts, { dichte = 3.2, rmin = 0.14, rmax = 0.32, farben, blueten = [], graeser = 0.2, mulch = '#6d5f4c' } = {}) {
+    clip(x, pts, () => {
+      const [a, b, c, d] = bb(pts); x.fillStyle = mulch; x.fillRect(a, b, c - a, d - b);
+      for (let i = 0; i < (c - a) * (d - b) * 120; i++) { x.fillStyle = 'rgba(40,30,20,.25)'; x.fillRect(a + r() * (c - a), b + r() * (d - b), 0.04, 0.04); }
+      const n = Math.max(3, Math.round((c - a) * (d - b) * dichte * 3));
+      const liste = [];
+      for (let i = 0; i < n * 3 && liste.length < n; i++) { const px = a + r() * (c - a), py = b + r() * (d - b); if (drin(pts, px, py)) liste.push([px, py]); }
+      liste.sort((p, q) => p[1] - q[1]);
+      for (const [px, py] of liste) {
+        const rad = rmin + r() * (rmax - rmin);
+        x.fillStyle = 'rgba(30,40,20,.2)'; x.beginPath(); x.arc(px + rad * 0.22, py - rad * 0.16, rad, 0, 6.3); x.fill();
+        if (r() < graeser) gras(x, px, py, rad * 1.3, r() < 0.5 ? '#b9b07a' : '#8ea062');
+        else tuff(x, px, py, rad, farben[Math.floor(r() * farben.length)]);
+        if (blueten.length && r() < 0.55) bluete(x, px, py, blueten[Math.floor(r() * blueten.length)], 5, rad);
+      }
+    });
+  }
+  function hecke(x, pts, farbe) {
+    const [a, b, c, d] = bb(pts), lang = (c - a) > (d - b), B = lang ? d - b : c - a;
+    x.fillStyle = mix(farbe, -22); x.beginPath(); x.roundRect(a, b, c - a, d - b, B * 0.45); x.fill();
+    // Rand gelappt
+    const L = lang ? c - a : d - b; x.fillStyle = farbe;
+    for (let t = 0; t < L; t += B * 0.3) for (const q of [0.28, 0.72]) { const px = lang ? a + t : a + B * q, py = lang ? b + B * q : b + t; x.beginPath(); x.arc(px, py, B * (0.3 + r() * 0.08), 0, 6.3); x.fill(); }
+    const n = Math.round((c - a) * (d - b) * 380);
+    for (let i = 0; i < n; i++) {
+      const qx = a + r() * (c - a), qy = b + r() * (d - b), rel = lang ? (qy - b) / B : (qx - a) / B;
+      x.fillStyle = mix(farbe, (0.5 - rel) * 40 + (r() - 0.5) * 26); x.globalAlpha = 0.6;
+      x.beginPath(); x.ellipse(qx, qy, 0.06 + r() * 0.05, 0.04 + r() * 0.03, r() * 3, 0, 6.3); x.fill();
+    }
+    x.globalAlpha = 1;
+  }
+  // Baumkrone mit Blattstruktur
+  function krone(x, px, py, rad, farbe, { stern = false } = {}) {
+    // gelappter Umriss, dann Blattbüschel mit wenig Kontrast, zuletzt Licht von oben links
+    x.fillStyle = mix(farbe, -30); x.beginPath();
+    for (let i = 0; i <= 48; i++) { const w = i / 48 * 6.283, rr = rad * (0.9 + 0.08 * Math.sin(w * 7 + px) + r() * 0.04); i ? x.lineTo(px + Math.cos(w) * rr, py + Math.sin(w) * rr) : x.moveTo(px + Math.cos(w) * rr, py + Math.sin(w) * rr); }
+    x.fill();
+    x.fillStyle = farbe; x.beginPath(); x.arc(px - rad * 0.04, py - rad * 0.04, rad * 0.86, 0, 6.3); x.fill();
+    const n = Math.round(rad * rad * 420);
+    for (let i = 0; i < n; i++) {
+      const w = r() * 6.283, d = Math.sqrt(r()) * rad * 0.9, qx = px + Math.cos(w) * d, qy = py + Math.sin(w) * d;
+      const hell = ((qx - px) + (qy - py)) / rad;           // −: oben links (Licht), +: unten rechts
+      x.fillStyle = mix(farbe, -hell * 22 + (r() - 0.5) * 30); x.globalAlpha = 0.55;
+      x.beginPath(); x.ellipse(qx, qy, 0.07 + r() * 0.06, 0.045 + r() * 0.04, r() * 3, 0, 6.3); x.fill();
+    }
+    x.globalAlpha = 1;
+    const g = x.createRadialGradient(px - rad * 0.4, py - rad * 0.45, 0, px, py, rad * 1.05);
+    g.addColorStop(0, 'rgba(255,255,220,.28)'); g.addColorStop(0.55, 'rgba(255,255,220,0)'); g.addColorStop(1, 'rgba(0,20,0,.22)');
+    x.fillStyle = g; x.beginPath(); x.arc(px, py, rad, 0, 6.3); x.fill();
+    if (stern) { x.strokeStyle = 'rgba(70,55,40,.5)'; x.lineWidth = 0.03; for (let i = 0; i < 5; i++) { const w = i * 1.26 + 0.3; x.beginPath(); x.moveTo(px, py); x.lineTo(px + Math.cos(w) * rad * 0.55, py + Math.sin(w) * rad * 0.55); x.stroke(); } }
+  }
+
+  // ---- Schatten: Prisma aus Grundriss + Höhe
+  function schattenPrisma(x, pts, h, basis = 0) {
+    const [dx, dy] = SCHATTEN, o = [dx * h, dy * h], u = [dx * basis, dy * basis];
+    const A = pts.map(([a, b]) => [a + u[0], b + u[1]]), B = pts.map(([a, b]) => [a + o[0], b + o[1]]);
+    pfad(x, A); x.fill(); pfad(x, B); x.fill();
+    for (let i = 0; i < pts.length; i++) { const j = (i + 1) % pts.length; pfad(x, [A[i], A[j], B[j], B[i]]); x.fill(); }
+  }
+
+  // ---- Beschriftung
+  function text(x, s, wx, wy, zeilen, { gross = 1, dreh = 0, farbe = '#2a2d27', halo = true } = {}) {
+    const [px, py] = [(wx - WELT.x1) * s, (wy - WELT.y1) * s];
+    x.save(); x.setTransform(1, 0, 0, 1, 0, 0); x.translate(px, py); x.rotate(dreh);
+    x.textAlign = 'center'; x.textBaseline = 'middle';
+    const t = s * 0.30 * gross, k = s * 0.205 * gross;
+    const hoehe = t + (zeilen.length - 1) * k * 1.25; let y = -hoehe / 2 + t / 2;
+    zeilen.forEach((z, i) => {
+      x.font = i ? `400 ${k}px Jost, "Futura", "Avenir Next", sans-serif` : `600 ${t}px Jost, "Futura", "Avenir Next", sans-serif`;
+      if (halo) { x.lineWidth = s * 0.07; x.strokeStyle = 'rgba(255,255,250,.72)'; x.lineJoin = 'round'; x.strokeText(z, 0, y); }
+      x.fillStyle = i ? '#3c4038' : farbe; x.fillText(z, 0, y);
+      y += i ? k * 1.25 : (t + k * 1.25) / 2 + k * 0.1;
+    });
+    x.restore();
+  }
+
+  const BESCHRIFTUNG = [
+    [-2.55, 3.6, ['Hof / Zufahrt', 'Betonpflaster Mehrformat', 'grau-anthrazit, 7 mm Sickerfuge']],
+    [-5.1, 9.2, ['Gästeplätze', 'Rasengitter-Fahrstreifen', 'Kräuterrasen, Thymian, Sedum'], { gross: 0.9 }],
+    [-5.85, 14.95, ['Fahrradhaus', '3,2 × 2,4 m, Gründach', 'Genehmigung vor Bau prüfen'], { gross: 0.85 }],
+    [-3.6, 12.9, ['Vorplatz', 'Ökopflaster'], { gross: 0.7 }],
+    [-0.9, 19.9, ['Spielfeld', 'Kunstrasen ca. 12 × 7 m, Linien 10 × 6,45 m', 'Tore 3 × 2 m stehen hinter der Linie']],
+    [9.9, 15.35, ['Terrasse', 'Keramikplatten 80/40', 'hellgrau, teils unter dem OG']],
+    [17.15, 18.65, ['Pool 8 × 3 m', 'Schiebedach auf', 'bodenbündigen Schienen'], { farbe: '#123a4a' }],
+    [17.2, 15.75, ['Pooldeck', 'Keramik wie Terrasse'], { gross: 0.8 }],
+    [23.8, 14.3, ['Sauna', '2,1 × 2,2 m'], { gross: 0.75 }],
+    [23.72, 11.9, ['Technik', 'Pool-WP'], { gross: 0.7 }],
+    [16.6, 21.9, ['Rasen', 'strapazierfähig, Mähroboter']],
+    [13.6, 24.25, ['Glaszaun h = 1,0–1,2 m', 'Blickachse auf die Felder'], { gross: 0.85 }],
+    [18.0, 0.5, ['Hecke', 'immergrün'], { gross: 0.75 }],
+    [18.7, 2.4, ['Schattenbeet', 'Farne, Winterduft'], { gross: 0.7 }],
+    [12.5, 0.5, ['Gartenschränke'], { gross: 0.7, farbe: '#f3f3ee', halo: false }],
+    [-2.15, 0.48, ['Wertstoffe'], { gross: 0.6, farbe: '#f3f3ee', halo: false }],
+    [24.05, 7.6, ['Naschecke', 'Beeren + Himbeeren'], { gross: 0.75 }],
+    [22.24, 8.6, ['Weg, Platten 0,9 m'], { gross: 0.7, dreh: -Math.PI / 2 }],
+    [9.2, 22.7, ['Pflanzbeet', 'Stauden, Gräser, Kiefern'], { gross: 0.75 }],
+    [7.4, 18.2, ['Felsenbirne', 'mehrstämmig'], { gross: 0.75 }],
+    [5.6, 14.3, ['Sonnen-', 'beet'], { gross: 0.6 }],
+    [5.33, 20.2, ['Hainbuche'], { gross: 0.6, dreh: -Math.PI / 2 }],
+    [9.35, 17.45, ['Erdbeer-Hochbeet'], { gross: 0.6 }],
+    [23.0, 22.4, ['Zisterne', 'unterirdisch'], { gross: 0.65 }],
+    [22.95, 18.65, ['Rasen', 'zwischen Schienen'], { gross: 0.55 }],
+    [-8.9, 3.4, ['Straße'], { gross: 1.5, dreh: -Math.PI / 2, farbe: '#5a5d58' }],
+    [10, 25.4, ['Wiese / Felder'], { gross: 1.2, farbe: '#6d6744' }],
+    [-9.5, 17.5, ['Nachbar Flst. 128'], { gross: 0.8, dreh: -Math.PI / 2, farbe: '#5b6352' }],
+  ];
+
+  function zeichne(s) {
+    rnd = 11;
+    const W = Math.round((WELT.x2 - WELT.x1 + LEG_B) * s), H = Math.round((WELT.y2 - WELT.y1) * s);
+    const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+    const x = cv.getContext('2d');
+    const welt = () => x.setTransform(s, 0, 0, s, -WELT.x1 * s, -WELT.y1 * s);
+    x.fillStyle = '#fbfaf5'; x.fillRect(0, 0, W, H);
+    welt();
+    // Umgebung: Nachbargärten, Felder, Straße
+    x.save(); x.beginPath(); x.rect(WELT.x1, WELT.y1, WELT.x2 - WELT.x1, WELT.y2 - WELT.y1); x.clip();
+    rasen(x, rect(WELT.x1, WELT.y1, WELT.x2, WELT.y2), '#bcc4ab', false);
+    x.fillStyle = 'rgba(244,242,232,.45)'; x.fillRect(WELT.x1, WELT.y1, WELT.x2 - WELT.x1, WELT.y2 - WELT.y1);
+    clip(x, rect(WELT.x1, 23.6, WELT.x2, WELT.y2), () => { x.fillStyle = '#d9d2a6'; x.fillRect(WELT.x1, 23.6, 50, 5); for (let y = 23.9; y < WELT.y2; y += 0.45) { x.fillStyle = 'rgba(150,140,80,.25)'; x.fillRect(WELT.x1, y, 50, 0.12); } });
+    kies(x, D.strasse, '#a9aba6'); x.fillStyle = 'rgba(80,82,80,.25)'; pfad(x, D.strasse); x.fill();
+    x.restore();
+
+    // Grundstück: Grundton Rasen
+    x.save(); pfad(x, D.grundstueck); x.clip();
+    rasen(x, D.grundstueck);
+    // Flächen nach Vorrang (unten zuerst)
+    const liste = D.flaechen.slice().reverse();
+    for (const f of liste) {
+      const p = f.pts;
+      switch (f.gruppe) {
+        case 'Rasen': rasen(x, p); break;
+        case 'Kunstrasen': clip(x, p, () => { const [a, b, c, d] = bb(p); for (let i = a; i < c; i += 1) { x.fillStyle = Math.round(i - a) % 2 ? '#6fa54f' : '#78ad57'; x.fillRect(i, b, 1.01, d - b); } }); break;
+        case 'Pflaster': f.code === 'H03'
+          ? verband(x, p, { h: 0.9, laengen: [0.6], farbe: '#b7b4ad', fuge: '#8f8c86', streu: 14, fugeB: 0.01 })
+          : verband(x, p, { h: 0.16, laengen: [0.24, 0.32, 0.4, 0.48], farbe: '#9c9993', fuge: '#77746f', streu: 22 }); break;
+        case 'Stellplatz': verband(x, p, { h: 0.2, laengen: [0.2], farbe: '#a6a39b', fuge: '#7f9a59', streu: 16, fugeB: 0.025, dreh: Math.PI / 2 }); break;
+        case 'Terrasse': verband(x, p, { h: 0.4, laengen: [0.8], farbe: '#e1ddd3', fuge: '#c4bfb3', streu: 9, fugeB: 0.008 }); break;
+        case 'Kies': kies(x, p); break;
+        case 'Spur': rasengitter(x, p); break;
+        case 'Gaeste': beet(x, p, { dichte: 4.2, rmin: 0.06, rmax: 0.14, mulch: '#b9b6a2', graeser: 0.08, farben: ['#8aa45e', '#9db36a', '#7d955a', '#a3a971'], blueten: ['#9b78b4', '#c78bb0', '#f1ece0', '#d4c25a'] }); break;
+        case 'Schiene': x.fillStyle = '#6f706c'; pfad(x, p); x.fill(); break;
+        case 'Pool': {
+          const [a, b, c, d] = bb(p); x.fillStyle = '#e7e3d9'; pfad(x, p); x.fill();
+          const g = x.createLinearGradient(a, b, c, d); g.addColorStop(0, '#4fb3cf'); g.addColorStop(0.5, '#7fcbe0'); g.addColorStop(1, '#3a9fbf');
+          x.fillStyle = g; x.fillRect(a + 0.25, b + 0.3, c - a - 0.5, d - b - 0.6);
+          x.strokeStyle = 'rgba(255,255,255,.35)'; x.lineWidth = 0.025;
+          for (let i = 0; i < 26; i++) { const yy = b + 0.5 + r() * (d - b - 1), xx = a + 0.4 + r() * (c - a - 1.4); x.beginPath(); x.moveTo(xx, yy); x.bezierCurveTo(xx + 0.3, yy - 0.1, xx + 0.6, yy + 0.1, xx + 0.9, yy); x.stroke(); }
+          x.fillStyle = 'rgba(20,70,90,.18)'; x.fillRect(a + 0.25, b + 0.3, c - a - 0.5, 0.18);
+          break;
+        }
+        case 'Beet': if (!['P01', 'P13', 'P09B'].includes(f.code)) beet(x, p, f.code === 'P02'
+          ? { farben: ['#3f6a45', '#4d7a4a', '#5d7f52'], blueten: ['#f2efe2', '#d9c3df'], graeser: 0.1, dichte: 3.4 }
+          : { farben: ['#5b8146', '#6c8f4f', '#4c7140', '#83965a', '#6e8a63'], blueten: ['#8d7bc0', '#c983a8', '#f1ede1', '#7d8fc4'], graeser: 0.25 }); break;
+        case 'Nasch': if (f.code === 'P04A') { x.fillStyle = '#8a6a4b'; pfad(x, p); x.fill(); beet(x, rect(...(([a, b, c, d]) => [a + 0.1, b + 0.1, c - 0.1, d - 0.1])(bb(p))), { farben: ['#4f8a3e', '#5f9a48'], blueten: ['#d33b33', '#f5f2e8'], graeser: 0, mulch: '#5b4a39', rmin: 0.12, rmax: 0.17 }); }
+          else beet(x, p, { farben: ['#4c7a3f', '#5a8848', '#3f6c39'], blueten: ['#b8323a', '#3f3a73'], graeser: 0, rmin: 0.2, rmax: 0.34 }); break;
+      }
+    }
+    x.restore();
+    // Spielfeld-Linien und Tore
+    { const [a, b, c, d] = D.feld; x.strokeStyle = 'rgba(255,255,255,.9)'; x.lineWidth = 0.06; x.strokeRect(a, b, c - a, d - b);
+      x.beginPath(); x.moveTo((a + c) / 2, b); x.lineTo((a + c) / 2, d); x.stroke(); x.beginPath(); x.arc((a + c) / 2, (b + d) / 2, 1, 0, 6.3); x.stroke();
+      const [TB, , TT] = D.tor, m = (b + d) / 2;   // Tore hinter der Linie, mit Netztiefe
+      for (const [xx, r] of [[a, -1], [c, 1]]) { const x0 = r < 0 ? xx - TT : xx; x.fillStyle = 'rgba(255,255,255,.35)'; x.fillRect(x0, m - TB / 2, TT, TB);
+        x.strokeStyle = 'rgba(255,255,255,.6)'; x.lineWidth = 0.02; for (let k = 0.2; k < TT; k += 0.2) { x.beginPath(); x.moveTo(x0 + k, m - TB / 2); x.lineTo(x0 + k, m + TB / 2); x.stroke(); }
+        x.strokeStyle = '#f4f4f2'; x.lineWidth = 0.08; x.strokeRect(x0, m - TB / 2, TT, TB); } }
+    // Zisterne (unterirdisch, gestrichelt)
+    { const [a, b, c, d] = bb(D.zisterne); x.setLineDash([0.15, 0.1]); x.strokeStyle = 'rgba(40,60,70,.6)'; x.lineWidth = 0.035; x.beginPath(); x.ellipse((a + c) / 2, (b + d) / 2, (c - a) / 2, (d - b) / 2, 0, 0, 6.3); x.stroke(); x.setLineDash([]);
+      x.fillStyle = '#6f706a'; x.beginPath(); x.arc((a + c) / 2, (b + d) / 2, 0.32, 0, 6.3); x.fill(); }
+
+    // ---- Schattenebene (Haus, Bauten, Hecken, Gehölze)
+    const sc = document.createElement('canvas'); sc.width = W; sc.height = H; const sx = sc.getContext('2d');
+    sx.setTransform(s, 0, 0, s, -WELT.x1 * s, -WELT.y1 * s); sx.fillStyle = '#000';
+    schattenPrisma(sx, D.haus, 3.25); schattenPrisma(sx, OG, 6.5, 3.25); schattenPrisma(sx, rect(-1.5, 13.65, 4.99, 16.5), 3.7);
+    const BAU_H = { G01: 2.2, G02: 1.9, G03: 2.4, G04: 1.3, G05: 2.0 };
+    for (const [c, h] of Object.entries(BAU_H)) schattenPrisma(sx, fl(c).pts, h);
+    schattenPrisma(sx, fl('P01').pts, 1.9); schattenPrisma(sx, fl('P13').pts, 1.8); schattenPrisma(sx, fl('P04A').pts, 0.8);
+    for (const [gx, gy, gr, k] of D.gehoelze) { const h = { Fb: 4.5, Ob: 4.2, Hm: 2.6, Ki: 1.1, Mi: 1.5 }[k] ?? 1.2; sx.beginPath(); sx.ellipse(gx + SCHATTEN[0] * h * 0.75, gy + SCHATTEN[1] * h * 0.75, gr * 1.05, gr * 0.95, 0, 0, 6.3); sx.fill(); }
+    for (const z of D.zaun) if (!/Glas/.test(z.art)) { const h = parseFloat(z.h.replace(',', '.')); const [[a, b], [c, d]] = [z.pts[0], z.pts[z.pts.length - 1]]; sx.lineWidth = 0.05; sx.strokeStyle = '#000'; sx.beginPath(); sx.moveTo(a, b); sx.lineTo(c, d); sx.lineTo(c + SCHATTEN[0] * h, d + SCHATTEN[1] * h); sx.lineTo(a + SCHATTEN[0] * h, b + SCHATTEN[1] * h); sx.closePath(); sx.globalAlpha = 0.35; sx.fill(); sx.globalAlpha = 1; }
+    sx.globalCompositeOperation = 'destination-out'; pfad(sx, OG); sx.fill(); sx.globalCompositeOperation = 'source-over';
+    sx.globalAlpha = 0.45; pfad(sx, OG); sx.fill(); sx.globalAlpha = 1;
+    x.save(); x.setTransform(1, 0, 0, 1, 0, 0); x.globalAlpha = 0.26; x.filter = `blur(${Math.max(1, s * 0.05)}px)`; x.drawImage(sc, 0, 0); x.restore(); welt();
+
+    // ---- Bauten
+    const dachFarbe = { G01: '#7f9c55', G02: '#8f938f', G03: '#5d5550', G04: '#4a4e4c', G05: '#4a4e4c' };
+    for (const [c, f] of Object.entries(dachFarbe)) {
+      const p = fl(c).pts; x.fillStyle = f; pfad(x, p); x.fill();
+      if (c === 'G01') clip(x, p, () => { const [a, b, cc, d] = bb(p); for (let i = 0; i < 500; i++) { x.fillStyle = r() < 0.5 ? '#c7b25a' : '#9fb768'; x.beginPath(); x.arc(a + r() * (cc - a), b + r() * (d - b), 0.04, 0, 6.3); x.fill(); } });
+      if (c === 'G03') clip(x, p, () => { const [a, b, cc, d] = bb(p); x.strokeStyle = 'rgba(255,255,255,.12)'; x.lineWidth = 0.02; for (let yy = b; yy < d; yy += 0.15) { x.beginPath(); x.moveTo(a, yy); x.lineTo(cc, yy); x.stroke(); } });
+      x.strokeStyle = 'rgba(30,30,30,.55)'; x.lineWidth = 0.04; pfad(x, p); x.stroke();
+    }
+    { const p = fl('AD').pts; verband(x, p, { h: 0.4, laengen: [0.4], farbe: '#d6d1c6', fuge: '#aaa59a', streu: 6 }); }
+
+    // ---- Haus: Grundriss EG, OG gestrichelt
+    x.fillStyle = '#f4f1ea'; pfad(x, D.haus); x.fill();
+    x.fillStyle = '#efe9dc'; pfad(x, rect(-1.5, 13.65, 4.99, 16.5)); x.fill();
+    x.strokeStyle = '#3b3e3b'; x.lineWidth = 0.3; x.lineJoin = 'miter'; clip(x, D.haus, () => { pfad(x, D.haus); x.stroke(); });
+    // Fensterbänder in der Wand
+    x.strokeStyle = '#a9c9d6'; x.lineWidth = 0.12;
+    for (const [[a, b], [c, d]] of D.fenster) { if (a === 0 && c === 0 && b < 1) continue; x.beginPath(); x.moveTo(a, b); x.lineTo(c, d); x.stroke(); }
+    // Garagentor
+    x.strokeStyle = '#6b6f6c'; x.lineWidth = 0.14; x.beginPath(); x.moveTo(0, 0.94); x.lineTo(0, 6.2); x.stroke();
+    // Haustür
+    { const [[a, b], [c, d]] = D.haustuer; x.strokeStyle = '#33373a'; x.lineWidth = 0.18; x.beginPath(); x.moveTo(a, b); x.lineTo(c, d); x.stroke(); }
+    // OG-Umriss und Balkon
+    x.setLineDash([0.35, 0.18]); x.strokeStyle = 'rgba(40,45,42,.75)'; x.lineWidth = 0.05; pfad(x, OG); x.stroke(); pfad(x, BALKON); x.stroke(); x.setLineDash([]);
+    clip(x, BALKON, () => { x.fillStyle = 'rgba(200,190,170,.35)'; x.fillRect(14.83, 14.9, 6.7, 0.5); });
+    // Raumnamen
+    for (const [n, rx, ry] of D.raeume) text(x, s, rx, ry, [n], { gross: 0.62, farbe: '#9a988f', halo: false });
+
+    // ---- Hecken + Gehölze
+    hecke(x, fl('P01').pts, '#2f5a35'); hecke(x, fl('P13').pts, '#5b8a3c');
+    beet(x, fl('P09B').pts, { farben: ['#7d955a', '#6d8a54'], blueten: ['#f2efe2'], graeser: 0.3, rmin: 0.1, rmax: 0.2 });
+    const KF = { Fb: ['#7ea154', true, 1.25], Ob: ['#6f9a4a', false, 1], Hm: ['#c9a23e', true, 1], Ki: ['#2d5235', false, 1], Mi: ['#b3ac70', false, 1], Hy: ['#e8e5d6', false, 1], Jo: ['#4b7a3f', false, 1], Ja: ['#45733d', false, 1], St: ['#557f45', false, 1], Bl: ['#4e7a52', false, 1], Sä: ['#5f8f45', false, 1] };
+    for (const [gx, gy, gr, k] of D.gehoelze) {
+      const [farbe, stern, f] = KF[k] ?? ['#4b7a3f', false, 1];
+      if (k === 'Mi') { gras(x, gx, gy, gr * 1.2, '#c2b77d'); gras(x, gx, gy, gr, '#9aa060'); continue; }
+      if (k === 'Bl' || k === 'Sä') { x.fillStyle = '#3f4442'; x.fillRect(gx - 0.22, gy - 0.22, 0.44, 0.44); }
+      krone(x, gx, gy, gr * f, farbe, { stern });
+    }
+    for (const [hx, hy] of D.himbeeren) tuff(x, hx, hy, 0.28, '#3f6e38');
+
+    // ---- Zäune, Grenze
+    for (const z of D.zaun) {
+      const [a, b] = z.pts[0], [c, d] = z.pts[z.pts.length - 1];
+      const glas = /Glas/.test(z.art), tuer = /Tür/.test(z.art);
+      x.strokeStyle = glas ? '#7fb4c6' : tuer ? '#2f4a37' : '#3a3f3c'; x.lineWidth = glas ? 0.09 : 0.05;
+      x.beginPath(); x.moveTo(a, b); x.lineTo(c, d); x.stroke();
+      if (!glas && !tuer) { const L = Math.hypot(c - a, d - b), n = Math.max(1, Math.round(L / 2.5)); x.fillStyle = '#2b2f2d'; for (let i = 0; i <= n; i++) { const t = i / n; x.fillRect(a + (c - a) * t - 0.05, b + (d - b) * t - 0.05, 0.1, 0.1); } }
+      if (tuer) { x.strokeStyle = 'rgba(47,74,55,.6)'; x.lineWidth = 0.02; x.beginPath(); x.arc(a, b, Math.hypot(c - a, d - b), 0, Math.PI / 2); x.stroke(); }
+    }
+    x.strokeStyle = '#d42a20'; x.lineWidth = 0.17; x.setLineDash([0.55, 0.28]); pfad(x, D.grundstueck); x.stroke(); x.setLineDash([]);
+
+    // ---- Leuchten mit Lichthof
+    for (const [code, typ, lx, ly] of D.leuchten) {
+      const rr = typ === 'L4' ? 1.1 : typ === 'L5' ? 0.9 : 0.75;
+      const g = x.createRadialGradient(lx, ly, 0, lx, ly, rr); g.addColorStop(0, 'rgba(255,236,150,.85)'); g.addColorStop(0.35, 'rgba(255,226,140,.35)'); g.addColorStop(1, 'rgba(255,220,130,0)');
+      x.fillStyle = g; x.beginPath(); x.arc(lx, ly, rr, 0, 6.3); x.fill();
+      x.fillStyle = '#e0a51c'; x.fillRect(lx - 0.06, ly - 0.06, 0.12, 0.12);
+    }
+
+    // ---- Beschriftung
+    text(x, s, 9.6, 5.6, ['Wohngebäude', 'OKFFB EG ±0,00 · OG +3,25', 'Flachdach mit PV'], { gross: 1.35 });
+    text(x, s, 9.9, 12.55, ['OG kragt über die Terrasse'], { gross: 0.6, farbe: '#5b5f58' });
+    text(x, s, 18.2, 15.1, ['Balkon OG'], { gross: 0.6, farbe: '#5b5f58' });
+    for (const [wx, wy, z, o] of BESCHRIFTUNG) text(x, s, wx, wy, z, o || {});
+
+    // ---- Legende rechts
+    x.setTransform(1, 0, 0, 1, 0, 0);
+    const L0 = (WELT.x2 - WELT.x1) * s; x.fillStyle = '#fbfaf5'; x.fillRect(L0, 0, LEG_B * s, H);
+    x.strokeStyle = '#2b2e2a'; x.lineWidth = Math.max(1, s * 0.03); x.beginPath(); x.moveTo(L0, 0); x.lineTo(L0, H); x.stroke();
+    const lx = L0 + s * 0.6, bw = LEG_B * s - s * 1.2; let ly = s * 1.2;
+    const zeile = (t, gr, w = 400, f = '#2b2e2a') => { x.font = `${w} ${s * gr}px Jost, "Futura", "Avenir Next", sans-serif`; x.fillStyle = f; x.textAlign = 'left'; x.textBaseline = 'alphabetic'; x.fillText(t, lx, ly); ly += s * gr * 1.45; };
+    zeile('FREIFLÄCHENPLAN', 0.34, 500, '#6a6e66'); ly += s * 0.15;
+    zeile('Garten Haus', 0.62, 600); zeile('Montabaur', 0.62, 600); zeile('Planstand 06 · 29.10.2026', 0.3, 400, '#55594f'); ly += s * 0.5;
+    const muster = [
+      ['Rasen, Mähroboter', c => rasen(c, rect(0, 0, 1.4, 0.7))],
+      ['Kunstrasen Spielfeld', c => { c.fillStyle = '#74aa54'; c.fillRect(0, 0, 1.4, 0.7); }],
+      ['Terrasse / Pooldeck, Keramik 80/40', c => verband(c, rect(0, 0, 1.4, 0.7), { h: 0.4, laengen: [0.8], farbe: '#e1ddd3', fuge: '#c4bfb3', streu: 9, fugeB: 0.008 })],
+      ['Pflaster mit Sickerfuge', c => verband(c, rect(0, 0, 1.4, 0.7), { h: 0.16, laengen: [0.24, 0.32, 0.4], farbe: '#9c9993', fuge: '#77746f', streu: 22 })],
+      ['Ökopflaster, Splittfuge', c => verband(c, rect(0, 0, 1.4, 0.7), { h: 0.2, laengen: [0.2], farbe: '#a6a39b', fuge: '#7f9a59', streu: 16, fugeB: 0.025 })],
+      ['Rasengitter-Fahrstreifen', c => rasengitter(c, rect(0, 0, 1.4, 0.7))],
+      ['Kräuterrasen, befahrbar', c => beet(c, rect(0, 0, 1.4, 0.7), { dichte: 6, rmin: 0.06, rmax: 0.12, mulch: '#b9b6a2', graeser: 0.05, farben: ['#8aa45e', '#9db36a'], blueten: ['#9b78b4', '#c78bb0'] })],
+      ['Pflanzbeet, Stauden + Gräser', c => beet(c, rect(0, 0, 1.4, 0.7), { farben: ['#5b8146', '#6c8f4f', '#83965a'], blueten: ['#8d7bc0', '#c983a8'], graeser: 0.25, dichte: 6 })],
+      ['Splitt / Kies', c => kies(c, rect(0, 0, 1.4, 0.7))],
+      ['Hecke', c => hecke(c, rect(0, 0.1, 1.4, 0.6), '#2f5a35')],
+    ];
+    for (const [t, f] of muster) {
+      x.save(); x.setTransform(s, 0, 0, s, lx, ly - s * 0.55); f(x); x.restore();
+      x.strokeStyle = 'rgba(0,0,0,.25)'; x.lineWidth = 1; x.strokeRect(lx, ly - s * 0.55, s * 1.4, s * 0.7);
+      x.font = `400 ${s * 0.3}px Jost, "Futura", sans-serif`; x.fillStyle = '#2b2e2a'; x.textBaseline = 'middle'; x.fillText(t, lx + s * 1.7, ly - s * 0.2); ly += s * 0.95;
+    }
+    ly += s * 0.2;
+    const symbol = (t, f) => { x.save(); x.translate(lx + s * 0.7, ly - s * 0.2); f(); x.restore(); x.font = `400 ${s * 0.3}px Jost, "Futura", sans-serif`; x.fillStyle = '#2b2e2a'; x.textBaseline = 'middle'; x.fillText(t, lx + s * 1.7, ly - s * 0.2); ly += s * 0.75; };
+    symbol('Grundstücksgrenze', () => { x.strokeStyle = '#d42a20'; x.lineWidth = s * 0.12; x.setLineDash([s * 0.35, s * 0.18]); x.beginPath(); x.moveTo(-s * 0.7, 0); x.lineTo(s * 0.7, 0); x.stroke(); x.setLineDash([]); });
+    symbol('Zaun Doppelstabmatte', () => { x.strokeStyle = '#3a3f3c'; x.lineWidth = s * 0.05; x.beginPath(); x.moveTo(-s * 0.7, 0); x.lineTo(s * 0.7, 0); x.stroke(); x.fillStyle = '#2b2f2d'; for (const q of [-0.6, 0, 0.6]) x.fillRect(q * s - s * 0.05, -s * 0.05, s * 0.1, s * 0.1); });
+    symbol('Glaszaun', () => { x.strokeStyle = '#7fb4c6'; x.lineWidth = s * 0.09; x.beginPath(); x.moveTo(-s * 0.7, 0); x.lineTo(s * 0.7, 0); x.stroke(); });
+    symbol('Obergeschoss (Umriss)', () => { x.strokeStyle = '#333'; x.lineWidth = s * 0.04; x.setLineDash([s * 0.25, s * 0.12]); x.beginPath(); x.moveTo(-s * 0.7, 0); x.lineTo(s * 0.7, 0); x.stroke(); x.setLineDash([]); });
+    symbol('Gartenleuchte', () => { const g = x.createRadialGradient(0, 0, 0, 0, 0, s * 0.45); g.addColorStop(0, 'rgba(255,236,150,.9)'); g.addColorStop(1, 'rgba(255,220,130,0)'); x.fillStyle = g; x.beginPath(); x.arc(0, 0, s * 0.45, 0, 6.3); x.fill(); x.fillStyle = '#e0a51c'; x.fillRect(-s * 0.06, -s * 0.06, s * 0.12, s * 0.12); });
+    // Nordpfeil + Maßstab
+    ly += s * 0.6;
+    x.save(); x.translate(lx + s * 0.8, ly + s * 0.6); x.fillStyle = '#2b2e2a'; x.beginPath(); x.moveTo(0, -s * 0.7); x.lineTo(s * 0.32, s * 0.4); x.lineTo(0, s * 0.18); x.lineTo(-s * 0.32, s * 0.4); x.closePath(); x.fill();
+    x.font = `600 ${s * 0.36}px Jost, sans-serif`; x.textAlign = 'center'; x.fillText('N', 0, s * 0.95); x.restore();
+    x.save(); x.translate(lx + s * 2.2, ly + s * 0.6); for (let i = 0; i < 5; i++) { x.fillStyle = i % 2 ? '#fbfaf5' : '#2b2e2a'; x.fillRect(i * s, 0, s, s * 0.14); } x.strokeStyle = '#2b2e2a'; x.lineWidth = 1; x.strokeRect(0, 0, 5 * s, s * 0.14);
+    x.font = `400 ${s * 0.26}px Jost, sans-serif`; x.fillStyle = '#2b2e2a'; x.textAlign = 'center'; for (const m of [0, 1, 2, 5]) x.fillText(m + (m === 5 ? ' m' : ''), m * s, s * 0.5); x.restore();
+    ly += s * 1.8;
+    x.textAlign = 'left';
+    const klein = ['Grundlage: Planstand 06 (Maße in m),', 'Grundriss EG/OG ZT 1-3 vom 20.08.2026.', 'Pflanzen und Licht schematisch;', 'Mengen stehen im Massen-Blatt.'];
+    for (const t of klein) { x.font = `400 ${s * 0.24}px Jost, sans-serif`; x.fillStyle = '#6a6e66'; x.fillText(t, lx, ly); ly += s * 0.36; }
+    // Rahmen
+    x.strokeStyle = '#2b2e2a'; x.lineWidth = Math.max(1, s * 0.03); x.strokeRect(x.lineWidth / 2, x.lineWidth / 2, W - x.lineWidth, H - x.lineWidth);
+    return cv;
+  }
+
+  // ---- Anzeige mit Zoom und Verschieben
+  function ansicht(canvas, onTipp) {
+    const ctx = canvas.getContext('2d');
+    let bild = null, sBild = 1, sicht = { k: 1, x: 0, y: 0 };
+    const dpr = () => Math.min(window.devicePixelRatio || 1, 2);
+    function passend() {
+      const w = canvas.clientWidth, h = canvas.clientHeight; if (!bild) return;
+      const k = Math.min(w / bild.width, h / bild.height) * 0.98; sicht = { k, x: (w - bild.width * k) / 2, y: (h - bild.height * k) / 2 };
+    }
+    function male() {
+      const w = canvas.clientWidth, h = canvas.clientHeight, p = dpr();
+      if (canvas.width !== Math.round(w * p) || canvas.height !== Math.round(h * p)) { canvas.width = Math.round(w * p); canvas.height = Math.round(h * p); }
+      ctx.setTransform(p, 0, 0, p, 0, 0); ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--bg') || '#eee'; ctx.fillRect(0, 0, w, h);
+      if (!bild) return; ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(bild, sicht.x, sicht.y, bild.width * sicht.k, bild.height * sicht.k);
+    }
+    function zoom(f, cx, cy) { const k = Math.max(0.05, Math.min(3, sicht.k * f)); f = k / sicht.k; sicht.x = cx - (cx - sicht.x) * f; sicht.y = cy - (cy - sicht.y) * f; sicht.k = k; male(); }
+    canvas.addEventListener('wheel', e => { e.preventDefault(); const b = canvas.getBoundingClientRect(); zoom(Math.exp(-e.deltaY * 0.0015), e.clientX - b.left, e.clientY - b.top); }, { passive: false });
+    const zeiger = new Map(); let start = null, abstand = 0;
+    canvas.addEventListener('pointerdown', e => { canvas.setPointerCapture(e.pointerId); zeiger.set(e.pointerId, [e.clientX, e.clientY]); start = [e.clientX, e.clientY]; if (zeiger.size === 2) { const [a, b] = [...zeiger.values()]; abstand = Math.hypot(a[0] - b[0], a[1] - b[1]); } });
+    canvas.addEventListener('pointermove', e => {
+      if (!zeiger.has(e.pointerId)) return; const alt = zeiger.get(e.pointerId); zeiger.set(e.pointerId, [e.clientX, e.clientY]);
+      if (zeiger.size === 1) { sicht.x += e.clientX - alt[0]; sicht.y += e.clientY - alt[1]; male(); }
+      else if (zeiger.size === 2) { const [a, b] = [...zeiger.values()]; const d = Math.hypot(a[0] - b[0], a[1] - b[1]); const bx = canvas.getBoundingClientRect(); if (abstand) zoom(d / abstand, (a[0] + b[0]) / 2 - bx.left, (a[1] + b[1]) / 2 - bx.top); abstand = d; }
+    });
+    const ende = e => {
+      if (zeiger.size === 1 && start && Math.hypot(e.clientX - start[0], e.clientY - start[1]) < 6) {
+        const b = canvas.getBoundingClientRect(); const px = (e.clientX - b.left - sicht.x) / sicht.k, py = (e.clientY - b.top - sicht.y) / sicht.k;
+        const wx = px / sBild + WELT.x1, wy = py / sBild + WELT.y1; onTipp(wx, wy);
+      }
+      zeiger.delete(e.pointerId); abstand = 0;
+    };
+    canvas.addEventListener('pointerup', ende); canvas.addEventListener('pointercancel', e => zeiger.delete(e.pointerId));
+    window.addEventListener('resize', () => { passend(); male(); });
+    return {
+      setze(b, s) { bild = b; sBild = s; passend(); male(); },
+      ganz() { passend(); male(); },
+      male,
+    };
+  }
+  // Kachel-Textur je Belag für das 3D-Modell (m × m Meter, s Pixel je Meter)
+  function kachel(gruppe, m = 2, s = 160) {
+    const c = document.createElement('canvas'); c.width = c.height = Math.round(m * s); const x = c.getContext('2d'); x.setTransform(s, 0, 0, s, 0, 0);
+    const p = rect(0, 0, m, m); rnd = 5 + gruppe.length;
+    switch (gruppe) {
+      case 'Rasen': rasen(x, p); break;
+      case 'Umgebung': rasen(x, p, '#9fb27e', false); break;
+      case 'Kunstrasen': x.fillStyle = '#6fa54f'; x.fillRect(0, 0, m, m); x.fillStyle = '#78ad57'; x.fillRect(0, 0, m / 2, m); break;
+      case 'Pflaster': verband(x, p, { h: 0.16, laengen: [0.24, 0.32, 0.4, 0.48], farbe: '#9c9993', fuge: '#77746f', streu: 22 }); break;
+      case 'Weg': verband(x, p, { h: 0.9, laengen: [0.6], farbe: '#b7b4ad', fuge: '#8f8c86', streu: 14, fugeB: 0.01 }); break;
+      case 'Stellplatz': verband(x, p, { h: 0.2, laengen: [0.2], farbe: '#a6a39b', fuge: '#7f9a59', streu: 16, fugeB: 0.025 }); break;
+      case 'Terrasse': verband(x, p, { h: 0.4, laengen: [0.8], farbe: '#e1ddd3', fuge: '#c4bfb3', streu: 9, fugeB: 0.008 }); break;
+      case 'Kies': kies(x, p); break;
+      case 'Spur': rasengitter(x, p); break;
+      case 'Gaeste': beet(x, p, { dichte: 4.2, rmin: 0.06, rmax: 0.14, mulch: '#b9b6a2', graeser: 0.08, farben: ['#8aa45e', '#9db36a', '#7d955a'], blueten: ['#9b78b4', '#c78bb0', '#f1ece0'] }); break;
+      case 'Mulch': x.fillStyle = '#5f5242'; x.fillRect(0, 0, m, m); for (let i = 0; i < m * m * 900; i++) { x.fillStyle = r() < 0.5 ? 'rgba(30,22,15,.35)' : 'rgba(140,115,85,.3)'; x.fillRect(r() * m, r() * m, 0.03, 0.02); } break;
+      case 'Putz': x.fillStyle = '#ffffff'; x.fillRect(0, 0, m, m); for (let i = 0; i < m * m * 2500; i++) { x.fillStyle = r() < 0.5 ? 'rgba(0,0,0,.035)' : 'rgba(255,255,255,.5)'; x.fillRect(r() * m, r() * m, 0.012, 0.012); } break;
+      case 'Holz': for (let i = 0; i < m; i += 0.06) { x.fillStyle = mix('#a8784f', (r() - 0.5) * 30); x.fillRect(i, 0, 0.05, m); x.fillStyle = '#6a5040'; x.fillRect(i + 0.05, 0, 0.01, m); } break;
+      case 'Laub': x.fillStyle = '#9a9a9a'; x.fillRect(0, 0, m, m); for (let i = 0; i < m * m * 1400; i++) { const v = 90 + r() * 165; x.fillStyle = `rgb(${v},${v},${v})`; x.beginPath(); x.ellipse(r() * m, r() * m, 0.035 + r() * 0.03, 0.02 + r() * 0.015, r() * 3, 0, 6.3); x.fill(); } break;
+      case 'Deck': for (let i = 0; i < m; i += 0.145) { x.fillStyle = mix('#8a6b52', (r() - 0.5) * 26); x.fillRect(0, i, m, 0.135); } break;
+    }
+    return c;
+  }
+  return { zeichne, ansicht, drin, kachel };
+})();
+
+
+const ERKL = {
+  ST1: "Gästeplatz 1: zwei Streifen Rasengittersteine für die Räder, dazwischen Thymian, Fetthenne und Kräuterrasen. Ohne Auto sieht es aus wie ein Beet. Der Unterbau ist befahrbar, später kann Ökopflaster drauf.",
+  ST2: "Gästeplatz 2: wie Gästeplatz 1. Angefahren über den Hof.",
+  SP1: "Fahrstreifen aus Rasengittersteinen, 0,5 m breit, Kammern mit Splitt.", SP2: "Fahrstreifen aus Rasengittersteinen, 0,5 m breit.",
+  SP3: "Fahrstreifen aus Rasengittersteinen, 0,5 m breit.", SP4: "Fahrstreifen aus Rasengittersteinen, 0,5 m breit.",
+  H07: "Vorplatz am Fahrradhaus in Ökopflaster: wird täglich mit Rad und Tonnen befahren.",
+  K01: "Kunstrasen ca. 12 × 7 m. Spielfeld-Linien ca. 10 × 6,45 m, damit die Alu-Tore (3 × 2 m, 1 m tief) hinter der Torlinie noch auf dem Kunstrasen stehen. Ballfang-Zaun West 2,43 m, Ost Zaun + Hainbuchenhecke.",
+  B01: "Pool 8 × 3 m mit Schiebedach auf zwei bodenbündigen Schienen.",
+  G03: "Außensauna, schaut nach Süden auf Pool und Garten. Dusche an der Südseite.",
+  G02: "Pooltechnik mit Wärmepumpe, hinter (nördlich) der Sauna.",
+  P09B: "Felsenbirne mehrstämmig: rahmt den Blick aus Küche/Essen links ein.",
+  P13: "Hainbuchenhecke vor dem Zaun am Spielfeld: grün von der Terrasse, Ball bleibt auf dem Feld.",
+  R01: "Gebrauchsrasen, Mähroboter ohne Draht. Die Zisterne liegt darunter, Deckel bodengleich.",
+  H04: "Hauptterrasse vor Küche/Essen und Wohnen.",
+};
+
+// ---------- Grundgerüst
+const canvas = document.getElementById('szene');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: /export3d/.test(location.search) });
+// Licht wie bei den Bad-Visualisierungen: Filmkurve, echte Farben, weiches Raumlicht als Umgebung
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 0.82; renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 400);
+const controls = new THREE.OrbitControls(camera, canvas);
+controls.enableDamping = true; controls.maxPolarAngle = Math.PI * 0.495; controls.minDistance = 2; controls.maxDistance = 120;
+
+const umgebung = new THREE.PMREMGenerator(renderer).fromScene(new THREE.RoomEnvironment(), 0.04).texture; scene.environment = umgebung;
+const hemi = new THREE.HemisphereLight(0xdfeaff, 0x6b7350, 0.75); scene.add(hemi);
+const sonne = new THREE.DirectionalLight(0xfff0d6, 2.2);
+sonne.position.set(38, 16, 22); sonne.target.position.set(8, 0, 11);
+sonne.castShadow = true; sonne.shadow.mapSize.set(4096, 4096); sonne.shadow.normalBias = 0.03;
+Object.assign(sonne.shadow.camera, { left: -30, right: 30, top: 30, bottom: -30, near: 1, far: 140 });
+sonne.shadow.bias = -0.0006;
+scene.add(sonne, sonne.target);
+
+const lin = c => new THREE.Color(c).convertSRGBToLinear();
+const mat = (c, o = {}) => { const m = new THREE.MeshStandardMaterial(Object.assign({ roughness: 0.92, metalness: 0, envMapIntensity: 0.32 }, o)); m.color = lin(c); if (o.emissive !== undefined) m.emissive = lin(o.emissive); return m; };
+// Kachel-Texturen aus dem Gartenplan (gleiche Steine, gleicher Rasen)
+const texCache = {};
+function tex(art, m = 2) { const k = art + m; if (!texCache[k]) { const t = new THREE.CanvasTexture(PLAN.kachel(art, m)); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.encoding = THREE.sRGBEncoding; t.anisotropy = 8; t.repeat.set(1 / m, 1 / m); texCache[k] = t; } return texCache[k]; }
+const texMat = (art, m = 2, o = {}) => { const ma = new THREE.MeshStandardMaterial(Object.assign({ map: tex(art, m), roughness: 0.95, metalness: 0, envMapIntensity: 0.3 }, o)); return ma; };
+const shapeAus = pts => { const s = new THREE.Shape(); pts.forEach(([x, y], i) => i ? s.lineTo(x, -y) : s.moveTo(x, -y)); return s; };
+function flaeche(pts, m, h) {
+  const g = new THREE.ShapeGeometry(shapeAus(pts)); g.rotateX(-Math.PI / 2);
+  const me = new THREE.Mesh(g, m); me.position.y = h; me.receiveShadow = true; scene.add(me); return me;
+}
+function koerper(pts, m, h, basis = 0) {
+  const g = new THREE.ExtrudeGeometry(shapeAus(pts), { depth: h, bevelEnabled: false }); g.rotateX(-Math.PI / 2);
+  const me = new THREE.Mesh(g, m); me.position.y = basis; me.castShadow = true; me.receiveShadow = true; scene.add(me); return me;
+}
+function box(x1, z1, x2, z2, h, m, basis = 0) {
+  const me = new THREE.Mesh(new THREE.BoxGeometry(Math.abs(x2 - x1), h, Math.abs(z2 - z1)), m);
+  me.position.set((x1 + x2) / 2, basis + h / 2, (z1 + z2) / 2); me.castShadow = true; me.receiveShadow = true; scene.add(me); return me;
+}
+const bbox = pts => { const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]); return [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)]; };
+function innen(pts, x, y) { let c = false; for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) { const [xi, yi] = pts[i], [xj, yj] = pts[j]; if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) c = !c; } return c; }
+let seed = 7; const zufall = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+
+// ---------- Umgebung
+const bodenTex = tex('Umgebung', 4).clone(); bodenTex.needsUpdate = true; bodenTex.repeat.set(75, 75);
+const boden = new THREE.Mesh(new THREE.PlaneGeometry(300, 300), new THREE.MeshStandardMaterial({ map: bodenTex, roughness: 1, envMapIntensity: 0.25 })); boden.rotation.x = -Math.PI / 2; boden.position.y = -0.03; boden.receiveShadow = true; scene.add(boden);
+flaeche([[-60, 23.6], [80, 23.6], [80, 120], [-60, 120]], mat(0xb9bd86), -0.02);       // Felder im Süden
+for (let i = 0; i < 40; i++) { const z = 24.5 + i * 0.9; const l = new THREE.Mesh(new THREE.PlaneGeometry(140, 0.12), mat(0xb4ab72)); l.rotation.x = -Math.PI / 2; l.position.set(10, -0.015, z); scene.add(l); }
+flaeche(D.strasse, mat(0x8e918d), -0.01);
+// Baumreihen und Hecken in der Ferne, damit der Horizont nicht leer ist
+const kulisse = [];
+for (let i = 0; i < 240; i++) { const w = zufall() * 6.283, d = 100 + zufall() * 50, x = 9 + Math.cos(w) * d, z = 12 + Math.sin(w) * d; const r = 2 + zufall() * 2.2; kulisse.push([x, z, r, r * (2.2 + zufall())]); }
+flaeche(D.grundstueck, texMat('Rasen', 2, { color: lin(0xd2dcc0) }), 0);
+
+// ---------- Flächen aus dem Plan
+const FARBE = { Pool: 0xd9d5cc, Bau: 0xb9bdb9, Schiene: 0x7c7975, Beet: 0x6b5a45, Nasch: 0x6b5a45, Stellplatz: 0xa9b39a,
+  Spur: 0xa6a59c, Gaeste: 0x9dbb6e, Pflaster: 0xc9c0b4, Kies: 0xd8d2c4, Terrasse: 0xd8c6a6, Kunstrasen: 0x4f8f3e, Rasen: 0x8fb26a };
+const klickbar = [];
+const N = D.flaechen.length;
+D.flaechen.slice().reverse().forEach((f, k) => {
+  if (f.gruppe === 'Haus') return;
+  const i = N - 1 - k;
+  const TEX = { Rasen: 'Rasen', Kunstrasen: 'Kunstrasen', Pflaster: f.code === 'H03' ? 'Weg' : 'Pflaster', Stellplatz: 'Stellplatz', Terrasse: 'Terrasse', Kies: 'Kies', Spur: 'Spur', Gaeste: 'Gaeste', Beet: 'Mulch', Nasch: 'Mulch' };
+  const m = flaeche(f.pts, TEX[f.gruppe] ? texMat(TEX[f.gruppe], 2, f.gruppe === 'Rasen' ? { color: lin(0xd2dcc0) } : {}) : mat(FARBE[f.gruppe] ?? 0x999999), 0.004 + (N - i) * 0.0025);
+  m.userData = f; klickbar.push(m);
+});
+
+// Feldlinien + Tore
+(() => {
+  const [x1, y1, x2, y2] = D.feld, w = new THREE.LineBasicMaterial({ color: 0xf2f5ee });
+  const pts = [[x1, y1], [x2, y1], [x2, y2], [x1, y2], [x1, y1]].map(([x, y]) => new THREE.Vector3(x, 0.16, y));
+  scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), w));
+  const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
+  scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(mx, 0.16, y1), new THREE.Vector3(mx, 0.16, y2)]), w));
+  const kr = []; for (let a = 0; a <= 64; a++) kr.push(new THREE.Vector3(mx + Math.cos(a / 64 * 6.283), 0.16, my + Math.sin(a / 64 * 6.283)));
+  scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(kr), w));
+  // Alu-Rahmentore stehen hinter der Torlinie, die Tiefe liegt noch auf dem Kunstrasen
+  const [TB, TH, TT] = D.tor, torM = mat(0xf4f4f2, { roughness: 0.35, metalness: 0.5 });
+  const nc = document.createElement('canvas'); nc.width = nc.height = 64; const nx = nc.getContext('2d');
+  nx.strokeStyle = 'rgba(255,255,255,.9)'; nx.lineWidth = 3; for (let i = 0; i <= 64; i += 16) { nx.beginPath(); nx.moveTo(i, 0); nx.lineTo(i, 64); nx.moveTo(0, i); nx.lineTo(64, i); nx.stroke(); }
+  const netzT = new THREE.CanvasTexture(nc); netzT.wrapS = netzT.wrapT = THREE.RepeatWrapping;
+  const rohr = (a, b) => { const v = new THREE.Vector3().subVectors(b, a), m = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, v.length(), 8), torM);
+    m.position.copy(a).addScaledVector(v, 0.5); m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), v.clone().normalize()); m.castShadow = true; scene.add(m); };
+  const netz = (pts, w, h) => { const t = netzT.clone(); t.needsUpdate = true; t.repeat.set(w / 0.12, h / 0.12);
+    const g = new THREE.BufferGeometry().setFromPoints(pts); g.setIndex([0, 1, 2, 0, 2, 3]); g.setAttribute('uv', new THREE.Float32BufferAttribute([0, 0, 1, 0, 1, 1, 0, 1], 2)); g.computeVertexNormals();
+    scene.add(new THREE.Mesh(g, new THREE.MeshBasicMaterial({ map: t, transparent: true, opacity: 0.55, side: THREE.DoubleSide, depthWrite: false }))); };
+  const V = (x, y, z) => new THREE.Vector3(x, y, z), b = 0.16;
+  for (const [x, d] of [[x1, -1], [x2, 1]]) {
+    const z1 = my - TB / 2, z2 = my + TB / 2, xh = x + d * TT, xo = x + d * TT * 0.8;   // oben 80 % der Tiefe
+    rohr(V(x, b, z1), V(x, TH, z1)); rohr(V(x, b, z2), V(x, TH, z2)); rohr(V(x, TH, z1), V(x, TH, z2));
+    rohr(V(xh, b, z1), V(xh, b, z2)); rohr(V(x, b, z1), V(xh, b, z1)); rohr(V(x, b, z2), V(xh, b, z2));
+    rohr(V(x, TH, z1), V(xo, TH, z1)); rohr(V(x, TH, z2), V(xo, TH, z2)); rohr(V(xo, TH, z1), V(xh, b, z1)); rohr(V(xo, TH, z2), V(xh, b, z2));
+    netz([V(xh, b, z1), V(xh, b, z2), V(xo, TH, z2), V(xo, TH, z1)], TB, TH);
+    netz([V(x, TH, z1), V(x, TH, z2), V(xo, TH, z2), V(xo, TH, z1)], TB, TT);
+    for (const z of [z1, z2]) netz([V(x, b, z), V(xh, b, z), V(xo, TH, z), V(x, TH, z)], TT, TH);
+  }
+})();
+
+// ---------- Haus: EG + OG nach Grundriss ZT 1-3 (20.08.2026) und Ansichten aus dem Bauantrag
+// EG ±0,00 bis Attika 3,25 · Hobby-Block 3,70 · OG +3,25 bis 6,25, Attika bis 6,50, Flachdach mit PV
+// Fassade nach Entwurf Variante 3 (31.07.2026): OG heller Putz, EG greige, Anthrazit für Rahmen und Haustür
+const putz = texMat('Putz', 2, { color: lin(0xeeebe4) }), verkl = texMat('Putz', 2, { color: lin(0xa39686) }), dunkel = mat(0x2f3335, { roughness: 0.55 }), kiesDach = texMat('Kies', 2, { color: lin(0x9a978f) });
+const greige = verkl;
+const R = (a, b, c, d) => [[a, b], [c, b], [c, d], [a, d]];
+const OG_W = R(-1.88, 2.91, 14.75, 13.65), OG_O = R(14.75, 2.91, 21.49, 13.65), OG_ALL = R(-1.88, 2.91, 21.49, 13.65);
+const hausTeile = [];
+hausTeile.push(koerper(D.haus, greige, 3.25));
+hausTeile.push(koerper(R(-1.51, 13.65, 5.0, 16.51), verkl, 3.70));          // Hobby, verkleidet
+hausTeile.push(koerper(OG_W, putz, 3.0, 3.25));
+hausTeile.push(koerper(OG_O, putz, 3.0, 3.25));
+hausTeile.forEach(h => h.userData = { code: 'Haus', name: 'Wohnhaus, EG + OG (vereinfacht nach Grundriss)' }); klickbar.push(...hausTeile);
+// Attika-Kante und Kiesdach mit PV
+const attika = mat(0xf2efe9);
+[[-1.88, 2.91, 21.49, 3.11], [-1.88, 13.45, 21.49, 13.65], [-1.88, 3.11, -1.68, 13.45], [21.29, 3.11, 21.49, 13.45]].forEach(([a, b, c, d]) => box(a, b, c, d, 0.25, attika, 6.5 - 0.25));
+flaeche(R(-1.68, 3.11, 21.29, 13.45), kiesDach, 6.3);
+flaeche(R(0.1, 0.1, 10.13, 2.81), kiesDach, 3.27);                         // Garagendach
+(() => { const pv = mat(0x1d2a3a, { roughness: 0.25, metalness: 0.3 }), rahmen = mat(0xb9bcbc);
+  for (const zy of [5.2, 7.7, 10.2]) for (let i = 0; i < 14; i++) {
+    const m = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.04, 1.72), pv); m.position.set(2.2 + i * 1.14, 6.62, zy); m.rotation.x = 0.21; m.castShadow = true; scene.add(m);
+  } })();
+// Balkon OG über Wohnen mit Glasbrüstung
+box(14.83, 13.65, 21.49, 15.4, 0.22, mat(0xdcd8cf), 3.05);
+const glasM = new THREE.MeshStandardMaterial({ color: 0xcfe9f0, transparent: true, opacity: 0.3, roughness: 0.05, side: THREE.DoubleSide, depthWrite: false });
+for (const [[ax, az], [bx, bz]] of [[[14.83, 15.4], [21.49, 15.4]], [[14.83, 13.65], [14.83, 15.4]], [[21.49, 13.65], [21.49, 15.4]]]) {
+  const L = Math.hypot(bx - ax, bz - az), g = new THREE.Mesh(new THREE.PlaneGeometry(L, 1.0), glasM);
+  g.position.set((ax + bx) / 2, 3.27 + 0.5, (az + bz) / 2); g.rotation.y = -Math.atan2(bz - az, bx - ax); scene.add(g);
+}
+// Fenster: Glas + dunkler Rahmen, leicht vor der Wand
+const fensterM = mat(0x34424c, { roughness: 0.04, metalness: 0.6, envMapIntensity: 1.4, emissive: 0x000000 });
+const fensterMeshes = [];
+function fenster(ax, ay, bx, by, unten, hoch, umriss, glasMat = fensterM) {
+  const L = Math.hypot(bx - ax, by - ay), nx = (by - ay) / L, nz = -(bx - ax) / L, cx = (ax + bx) / 2, cz = (ay + by) / 2;
+  const aus = innen(umriss, cx + nx * 0.3, cz + nz * 0.3) ? -1 : 1;
+  const grp = new THREE.Group(); grp.position.set(cx + nx * aus * 0.03, unten + hoch / 2, cz + nz * aus * 0.03); grp.rotation.y = -Math.atan2(by - ay, bx - ax);
+  const g = new THREE.Mesh(new THREE.PlaneGeometry(L - 0.1, hoch - 0.1), glasMat); g.material.side = THREE.DoubleSide; grp.add(g);
+  const f = 0.07;
+  for (const [w, h, x, y] of [[L, f, 0, hoch / 2 - f / 2], [L, f, 0, -hoch / 2 + f / 2], [f, hoch, -L / 2 + f / 2, 0], [f, hoch, L / 2 - f / 2, 0]]) { const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, 0.06), dunkel); m.position.set(x, y, 0); grp.add(m); }
+  if (L > 2.2) { const n = Math.round(L / 1.6); for (let i = 1; i < n; i++) { const m = new THREE.Mesh(new THREE.BoxGeometry(0.05, hoch, 0.05), dunkel); m.position.set(-L / 2 + i * L / n, 0, 0); grp.add(m); } }
+  scene.add(grp); fensterMeshes.push(g); return grp;
+}
+// EG aus dem Plan (Garagentor separat)
+for (const [[ax, ay], [bx, by]] of D.fenster) {
+  if (ax === 0 && bx === 0 && ay < 1) {        // Garagentor
+    const t = new THREE.Mesh(new THREE.PlaneGeometry(by - ay, 2.25), mat(0x4a4f50)); t.position.set(-0.03, 1.125, (ay + by) / 2); t.rotation.y = Math.PI / 2; t.material.side = THREE.DoubleSide; scene.add(t);
+    for (let i = 1; i < 5; i++) { const l = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.02, by - ay), dunkel); l.position.set(-0.05, i * 0.45, (ay + by) / 2); scene.add(l); }
+    continue;
+  }
+  if (ax === -1.5) fenster(ax, ay, bx, by, 0.9, 1.4, D.haus);   // Büro West, Brüstung 0,90 (Annahme)
+  else fenster(ax, ay, bx, by, 0.1, 2.35, D.haus);
+}
+// OG Süd (y 13,65), Maße aus dem OG-Grundriss: Fenster 1,385 hoch ab Brüstung 0,90; Türen 2,385
+const OGU = 3.25;
+for (const [a, b, unten, h] of [[-1.88, 0.40, 0.9, 1.385], [3.22, 3.98, 0.9, 1.385], [4.485, 5.245, 0.9, 1.385], [6.39, 9.09, 0.9, 1.385], [10.49, 14.5, 0.05, 2.385], [15.3, 17.6, 0.05, 2.385], [17.75, 20.9, 0.05, 2.385]])
+  fenster(a, 13.65, b, 13.65, OGU + unten, h, OG_ALL);
+// OG Nord (y 2,91)
+for (const [a, b, unten, h] of [[-0.6, 0.8, 0.9, 1.385], [4.2, 4.98, 0.9, 1.385], [5.48, 6.24, 0.9, 1.385], [7.54, 10.41, 0.9, 1.385], [11.3, 13.5, 0.4, 2.0], [14.85, 15.6, 1.4, 0.97], [17.4, 20.3, 0.9, 1.385]])
+  fenster(a, 2.91, b, 2.91, OGU + unten, h, OG_ALL);
+// OG West (x −1,88)
+for (const [a, b, unten, h] of [[2.91, 4.975, 0.9, 1.385], [7.65, 8.91, 0.05, 2.7], [11.81, 13.65, 0.9, 1.385]]) fenster(-1.88, a, -1.88, b, OGU + unten, h, OG_ALL);
+// Haustür anthrazit, daneben das raumhohe Flurfenster (EG-Grundriss: 0,89 Glas + 0,89 Tür)
+(() => { const [[ax, ay], [bx, by]] = D.haustuer, w = by - ay; const t = new THREE.Mesh(new THREE.BoxGeometry(0.06, 2.3, w - 0.04), mat(0x33373a, { roughness: 0.5 })); t.position.set(ax - 0.03, 1.15, (ay + by) / 2); scene.add(t);
+  const g = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.03, 0.4), mat(0xb9bcbc, { metalness: 0.8, roughness: 0.3 })); g.position.set(ax - 0.08, 1.05, ay + 0.12); scene.add(g); })();
+
+// ---------- Bauten
+const holz = texMat('Holz', 1, { color: lin(0xd8c2a8) }), anthrazit = mat(0x3f4442), grau = mat(0x9ea3a0);
+holz.map = tex('Holz', 1).clone(); holz.map.needsUpdate = true; holz.map.repeat.set(1, 1);
+const fl = c => D.flaechen.find(f => f.code === c);
+const HOEHE = { G01: [2.2, holz], G02: [1.9, grau], G03: [2.4, holz], G04: [1.3, anthrazit], G05: [2.0, anthrazit] };
+for (const [c, [h, m]] of Object.entries(HOEHE)) { const k = koerper(fl(c).pts, m, h); k.userData = fl(c); klickbar.push(k); }
+(() => { const [x1, y1, x2, y2] = bbox(fl('G03').pts); const g = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 1.9), mat(0x8fb4bf, { roughness: 0.1 })); g.position.set((x1 + x2) / 2, 1.05, y2 + 0.02); scene.add(g); })();
+(() => { const [x1, y1, x2, y2] = bbox(fl('AD').pts); box(x2 - 0.12, y1 + 0.3, x2 - 0.06, y1 + 0.36, 2.2, mat(0xb8bcbc, { metalness: 0.6, roughness: 0.3 })); })();
+const gruenDach = flaeche(fl('G01').pts, mat(0x7a9a4f), 2.21);
+
+// ---------- Pool
+(() => {
+  const [x1, y1, x2, y2] = bbox(fl('B01').pts);
+  const w = new THREE.Mesh(new THREE.PlaneGeometry(x2 - x1 - 0.5, y2 - y1 - 0.6), new THREE.MeshStandardMaterial({ color: lin(0x1f7fa6), roughness: 0.2, metalness: 0.05, transparent: true, opacity: 0.92, envMapIntensity: 0.25 }));
+  w.rotation.x = -Math.PI / 2; w.position.set((x1 + x2) / 2, 0.16, (y1 + y2) / 2); scene.add(w);
+})();
+const dachGruppe = new THREE.Group(); scene.add(dachGruppe); dachGruppe.visible = false;
+(() => {
+  const [x1, , x2] = bbox(fl('PS1').pts); const z1 = 16.72, z2 = 20.58, xm = 12.9, xe = 21.5;
+  const glas = new THREE.MeshStandardMaterial({ color: 0xbfe0ea, transparent: true, opacity: 0.28, roughness: 0.05, side: THREE.DoubleSide, depthWrite: false });
+  const rahmen = mat(0xcfd3d2, { metalness: 0.5, roughness: 0.4 });
+  for (let i = 0; i < 4; i++) {
+    const a = xm + i * (xe - xm) / 4, b = a + (xe - xm) / 4, h = 1.1 - i * 0.08;
+    const g = new THREE.Mesh(new THREE.BoxGeometry(b - a, h, z2 - z1), glas); g.position.set((a + b) / 2, h / 2 + 0.05, (z1 + z2) / 2); dachGruppe.add(g);
+    const r = new THREE.Mesh(new THREE.BoxGeometry(0.05, h, z2 - z1), rahmen); r.position.set(a, h / 2 + 0.05, (z1 + z2) / 2); dachGruppe.add(r);
+  }
+})();
+
+// ---------- Zäune
+function zahl(h) { const m = h.replace(/,/g, '.').match(/[\d.]+/g).map(Number); return m.reduce((a, b) => a + b, 0) / m.length; }
+const gitterTex = (() => { const c = document.createElement('canvas'); c.width = 64; c.height = 64; const x = c.getContext('2d');
+  x.strokeStyle = '#2f4a37'; x.lineWidth = 5; for (let i = 0; i <= 64; i += 32) { x.beginPath(); x.moveTo(i, 0); x.lineTo(i, 64); x.stroke(); }
+  x.lineWidth = 7; x.beginPath(); x.moveTo(0, 2); x.lineTo(64, 2); x.stroke(); const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; return t; })();
+for (const z of D.zaun) {
+  const h = zahl(z.h); const [[ax, ay], [bx, by]] = [z.pts[0], z.pts[z.pts.length - 1]]; const L = Math.hypot(bx - ax, by - ay);
+  let m;
+  if (/Glas/.test(z.art)) m = new THREE.MeshStandardMaterial({ color: 0xcfe9f0, transparent: true, opacity: 0.22, roughness: 0.05, side: THREE.DoubleSide, depthWrite: false });
+  else if (/Lamellen/.test(z.art)) m = mat(0x8c8f8c, { side: THREE.DoubleSide });
+  else if (/Tür/.test(z.art)) m = mat(0x2f4a37, { side: THREE.DoubleSide });
+  else { const t = gitterTex.clone(); t.needsUpdate = true; t.repeat.set(L / 0.2, h / 0.2); m = new THREE.MeshStandardMaterial({ map: t, transparent: true, alphaTest: 0.4, side: THREE.DoubleSide }); }
+  const p = new THREE.Mesh(new THREE.PlaneGeometry(L, h), m); p.position.set((ax + bx) / 2, h / 2, (ay + by) / 2); p.rotation.y = -Math.atan2(by - ay, bx - ax);
+  if (!/Glas/.test(z.art)) p.castShadow = true; p.userData = { code: z.code, name: z.art + ' · ' + z.h }; scene.add(p); klickbar.push(p);
+  if (/Glas/.test(z.art)) { const r = new THREE.Mesh(new THREE.BoxGeometry(L, 0.04, 0.05), mat(0x9aa1a0, { metalness: 0.5 })); r.position.set(p.position.x, h, p.position.z); r.rotation.y = p.rotation.y; scene.add(r); }
+}
+// L-Steine Südkante
+box(-7.24, 23.5, 25.25, 23.65, 0.35, mat(0xb9b2a5), -0.3);
+
+// ---------- Pflanzen
+const geo = (() => { const g = new THREE.SphereGeometry(1, 36, 24); const p = g.attributes.position, v = new THREE.Vector3();
+  for (let i = 0; i < p.count; i++) { v.fromBufferAttribute(p, i); const n = 1 + 0.09 * Math.sin(v.x * 4.1 + v.y * 2.3) * Math.cos(v.z * 3.7 - v.x * 1.6) + 0.04 * Math.sin(v.y * 6 + v.z * 5); v.multiplyScalar(n); p.setXYZ(i, v.x, v.y, v.z); }
+  g.computeVertexNormals(); return g; })();
+const laub = (() => { const t = new THREE.CanvasTexture(PLAN.kachel('Laub', 1, 256)); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(6, 4); return t; })();
+function tuffs(liste, farbe, rauh = 0.95) {
+  const im = new THREE.InstancedMesh(geo, mat(farbe, { roughness: rauh, map: laub }), liste.length); const o = new THREE.Object3D();
+  liste.forEach(([x, z, r, h, y0 = 0], i) => { o.position.set(x, y0 + h * 0.5, z); o.scale.set(r, h * 0.5, r); o.rotation.y = zufall() * 6; o.updateMatrix(); im.setMatrixAt(i, o.matrix); });
+  im.castShadow = true; im.receiveShadow = true; scene.add(im); return im;
+}
+function streu(pts, n, rmin, rmax, hmin, hmax, ausser = () => false, y0 = 0) {
+  const [x1, y1, x2, y2] = bbox(pts); const out = []; let v = 0;
+  while (out.length < n && v++ < n * 40) { const x = x1 + zufall() * (x2 - x1), y = y1 + zufall() * (y2 - y1); if (innen(pts, x, y) && !ausser(x, y)) out.push([x, y, rmin + zufall() * (rmax - rmin), hmin + zufall() * (hmax - hmin), y0]); }
+  return out;
+}
+// Beete mit gemischten Stauden
+const staude = [], blau = [], rosa = [], gelbgr = [], weiss = [];
+const beetDichte = { P02: 30, P07: 26, P09: 60, P10: 8, P12: 4, P03: 18, P09B: 10 };
+for (const [c, n] of Object.entries(beetDichte)) {
+  const f = fl(c); if (!f) continue;
+  streu(f.pts, n, 0.16, 0.32, 0.2, c === 'P09' ? 0.55 : 0.6).forEach((t, i) => { staude.push(t); const [x, y, r, h] = t; if (i % 3) [blau, rosa, weiss][i % 3 === 1 ? (i % 2 ? 0 : 1) : 2].push([x + (zufall() - 0.5) * r * 0.5, y + (zufall() - 0.5) * r * 0.5, r * 0.45, h * 0.35, h * 0.72]); });
+}
+tuffs(staude, 0x4a713b); tuffs(blau, 0x6c62a8); tuffs(rosa, 0xb8728f); tuffs(weiss, 0xdedbcc);
+// Gästeplätze: Thymian, Fetthenne, Grasnelke – nur zwischen den Fahrstreifen
+const SPUREN = [[-7.35, -6.85], [-5.85, -5.35], [-4.85, -4.35], [-3.35, -2.85]];
+const aufSpur = x => SPUREN.some(([a, b]) => x > a - 0.07 && x < b + 0.07);
+const thymian = [], sedum = [], armeria = [];
+for (const c of ['ST1', 'ST2']) streu(fl(c).pts, 75, 0.07, 0.13, 0.04, 0.09, aufSpur).forEach((t, i) => [thymian, thymian, sedum, armeria][i % 4].push(t));
+tuffs(thymian, 0x8a6a9c); tuffs(sedum, 0x7f9a52); tuffs(armeria, 0xc48aa0);
+// Hecken
+const hecke = (c, h, farbe) => { const [x1, y1, x2, y2] = bbox(fl(c).pts); const k = box(x1 + 0.05, y1 + 0.05, x2 - 0.05, y2 - 0.05, h, mat(farbe, { flatShading: true })); k.userData = fl(c); klickbar.push(k); };
+hecke('P01', 1.9, 0x2f5a35); hecke('P13', 1.8, 0x5b8a3c);
+// Hochbeet Erdbeeren
+(() => { const [x1, y1, x2, y2] = bbox(fl('P04A').pts); const k = box(x1, y1, x2, y2, 0.8, holz); k.userData = fl('P04A'); klickbar.push(k);
+  tuffs(streu(fl('P04A').pts, 12, 0.14, 0.18, 0.15, 0.2, () => false, 0.8), 0x4d8a3e); })();
+// Himbeeren
+tuffs(D.himbeeren.map(([x, y]) => [x, y, 0.28, 1.4]), 0x3f6e38);
+tuffs(kulisse, 0x56704a).castShadow = false;
+// Gehölze
+const stamm = mat(0x6d5946);
+for (const [x, y, r, k, gr] of D.gehoelze) {
+  if (k === 'Fb') { for (let i = 0; i < 4; i++) { const s = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.08, 2.6, 6), stamm); s.position.set(x + Math.cos(i * 1.6) * 0.25, 1.3, y + Math.sin(i * 1.6) * 0.25); s.rotation.z = Math.cos(i * 1.6) * 0.15; s.rotation.x = Math.sin(i * 1.6) * 0.15; s.castShadow = true; scene.add(s); }
+    tuffs([[x, y, r * 1.5, 2.6, 2.1]], 0x6f9a4a); tuffs([[x + 0.6, y - 0.3, r, 1.8, 2.6], [x - 0.6, y + 0.4, r, 1.6, 2.4]], 0x7da552); continue; }
+  if (k === 'Ob') { const s = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.08, 1.2, 6), stamm); s.position.set(x, 0.6, y); scene.add(s); tuffs([[x, y, 0.55, 3.4, 0.9]], 0x6f9a4a); continue; }
+  if (k === 'Sä') { tuffs([[x, y, 0.22, 2.4, 0.35]], 0x5f8f45); box(x - 0.22, y - 0.22, x + 0.22, y + 0.22, 0.4, anthrazit); continue; }
+  if (k === 'Bl') { box(x - 0.22, y - 0.22, x + 0.22, y + 0.22, 0.4, anthrazit); tuffs([[x, y, 0.3, 0.9, 0.4]], 0x4e7a52); continue; }
+  const hoehe = { Hm: 2.6, Ki: 1.1, Mi: 1.5, Hy: 0.9, Jo: 1.5, Ja: 1.7, St: 1.2 }[k] ?? 1.2;
+  const farbe = { Hm: 0xc6a33e, Ki: 0x2c4f33, Mi: 0xa7a46a, Hy: 0xe6e3d2, Jo: 0x4b7a3f, Ja: 0x45733d, St: 0x557f45 }[k] ?? 0x4b7a3f;
+  tuffs([[x, y, r, hoehe]], farbe);
+}
+// Zisternendeckel
+(() => { const [x1, y1, x2, y2] = bbox(D.zisterne); const d = new THREE.Mesh(new THREE.CircleGeometry(0.35, 24), mat(0x6e6f6a)); d.rotation.x = -Math.PI / 2; d.position.set((x1 + x2) / 2, 0.16, (y1 + y2) / 2); scene.add(d); })();
+// Terrassenmöbel (Maßstab)
+(() => { const t = box(8.2, 12.6, 10.2, 13.5, 0.75, holz); const s = mat(0x3f4442); for (const [x, z] of [[8.6, 12.3], [9.8, 12.3], [8.6, 13.8], [9.8, 13.8]]) box(x - 0.22, z - 0.22, x + 0.22, z + 0.22, 0.45, s); })();
+
+// ---------- Autos (Gäste)
+const autos = new THREE.Group(); autos.visible = false; scene.add(autos);
+for (const [x, farbe] of [[-6.1, 0x8a96a6], [-3.6, 0x9b3b32]]) {
+  const m = mat(farbe, { roughness: 0.45 });
+  const k = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.75, 4.4), m); k.position.set(x, 0.65, 10.75); k.castShadow = true; autos.add(k);
+  const kab = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.55, 2.3), mat(0x55606a, { roughness: 0.25 })); kab.position.set(x, 1.3, 10.9); kab.castShadow = true; autos.add(kab);
+  for (const dx of [-0.75, 0.75]) for (const dz of [-1.4, 1.4]) { const r = new THREE.Mesh(new THREE.CylinderGeometry(0.33, 0.33, 0.22, 16), mat(0x1f1f1f)); r.rotation.z = Math.PI / 2; r.position.set(x + dx, 0.33, 10.75 + dz); autos.add(r); }
+}
+
+// ---------- Licht am Abend
+const lichter = new THREE.Group(); lichter.visible = false; scene.add(lichter);
+const glow = (() => { const c = document.createElement('canvas'); c.width = c.height = 64; const x = c.getContext('2d'); const g = x.createRadialGradient(32, 32, 0, 32, 32, 32);
+  g.addColorStop(0, 'rgba(255,220,150,1)'); g.addColorStop(0.3, 'rgba(255,200,120,.5)'); g.addColorStop(1, 'rgba(255,190,110,0)'); x.fillStyle = g; x.fillRect(0, 0, 64, 64); return new THREE.CanvasTexture(c); })();
+D.leuchten.forEach(([code, typ, x, y]) => {
+  const h = /^LA/.test(code) ? 2.3 : 0.35;
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: glow, depthWrite: false, blending: THREE.AdditiveBlending })); sp.position.set(x, h, y); sp.scale.set(1.4, 1.4, 1); lichter.add(sp);
+  const pl = new THREE.PointLight(0xffc98a, 1.6, 6, 2); pl.position.set(x, h + 0.2, y); lichter.add(pl);
+});
+
+// ---------- Ansichten
+const ANSICHT = {
+  oben:     { pos: [9, 40, 44], ziel: [9, 0, 11.5], titel: 'Ganzer Garten', text: 'Blick von Süden über die Felder auf Haus und Garten. Links vorne das Spielfeld, rechts der Pool mit Sauna.' },
+  essen:    { pos: [9.8, 1.6, 11.7], ziel: [9.8, 0.9, 24], titel: 'Blick aus Küche/Essen', text: 'Augenhöhe am Esstisch. Die Mitte bleibt unter 1 m, über das Glas sieht man auf die Felder. Die Felsenbirne rahmt links ein.' },
+  wohnen:   { pos: [18.2, 1.6, 15.2], ziel: [13, 0.8, 24], titel: 'Blick aus Wohnen', text: 'Vom Sofa über Pool und Rasen zum Glaszaun. Die Sauna steht rechts und schaut auf den Pool.' },
+  ankommen: { pos: [-9.5, 1.7, 2.5], ziel: [-2.5, 1.0, 11], titel: 'Ankommen von der Straße', text: 'Am Straßenende: Hof, Haustür und die begrünten Gästeplätze. Mit „Gäste parken“ siehst du sie mit Autos.' },
+  gaeste:   { pos: [-4.6, 6.5, 4.0], ziel: [-5, 0, 11], titel: 'Gästeplätze ST1 + ST2', text: 'Je Auto zwei Streifen Rasengittersteine, dazwischen Thymian, Fetthenne und Kräuterrasen. Unterbau befahrbar, später Ökopflaster möglich.' },
+  haus:     { pos: [3, 9, 42], ziel: [9.5, 2.8, 8], titel: 'Haus von Süden', text: 'Beide Geschosse nach Grundriss vom 20.08.2026: das OG kragt über die Terrasse, rechts der Balkon über Wohnen, links der Hobby-Block. Auf dem Dach 42 PV-Module (ca. 19,5 kWp).' },
+  eingang:  { pos: [-7.2, 1.7, 7.0], ziel: [0, 1.5, 9.0], titel: 'Haustür', text: 'Haustür anthrazit, links daneben das raumhohe Flurfenster, rechts das Bürofenster. Das OG darüber ist das Vordach.' },
+  spielfeld:{ pos: [-1.1, 6.5, 30.5], ziel: [-1.1, 0.4, 19.8], titel: 'Spielfeld', text: 'Alu-Tore 3 × 2 m mit 1 m Tiefe stehen hinter der Torlinie, noch auf dem Kunstrasen. Die Linien sind dafür auf ca. 10 × 6,45 m gekürzt.' },
+  sauna:    { pos: [15.5, 2.2, 24.5], ziel: [22, 0.8, 14], titel: 'Sauna & Pool', text: 'Sauna mit Glasfront nach Süden, Dusche daneben, Technik und Wärmepumpe dahinter im Norden.' },
+};
+const reduziert = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+let flug = null;
+function zeige(name) {
+  const a = ANSICHT[name];
+  document.querySelectorAll('#ansichten button').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === name));
+  karte('Ansicht', a.titel, a.text);
+  const ziel = { pos: new THREE.Vector3(...a.pos), ziel: new THREE.Vector3(...a.ziel) };
+  if (reduziert) { camera.position.copy(ziel.pos); controls.target.copy(ziel.ziel); return; }
+  flug = { t0: performance.now(), von: camera.position.clone(), vonZ: controls.target.clone(), ...ziel };
+}
+document.querySelectorAll('#ansichten button').forEach(b => b.addEventListener('click', () => zeige(b.dataset.v)));
+
+function karte(code, titel, text) { document.getElementById('k-code').textContent = code; document.getElementById('k-titel').textContent = titel; document.getElementById('k-text').textContent = text; }
+
+// ---------- Schalter
+function schalter(id, an) { const b = document.getElementById(id); b.addEventListener('click', () => { const v = b.getAttribute('aria-pressed') !== 'true'; b.setAttribute('aria-pressed', v); an(v); }); }
+const himmel = (() => { const c = document.createElement('canvas'); c.width = 4; c.height = 256; const x = c.getContext('2d'); const g = x.createLinearGradient(0, 0, 0, 256);
+  g.addColorStop(0, '#7fa6c9'); g.addColorStop(0.55, '#c3d6e4'); g.addColorStop(1, '#eef1ec'); x.fillStyle = g; x.fillRect(0, 0, 4, 256); const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; return t; })();
+function nacht(v) {
+  lichter.visible = v;
+  scene.background = v ? new THREE.Color(0x101a2c) : himmel; scene.fog = new THREE.Fog(v ? 0x101a2c : 0xdde6ea, 70, 180);
+  hemi.intensity = v ? 0.08 : 0.32; sonne.intensity = v ? 0.03 : 2.1; scene.environment = v ? null : umgebung;
+  fensterM.emissive.set(v ? 0xffc27a : 0x000000); fensterM.emissiveIntensity = v ? 0.7 : 0;
+}
+schalter('t-nacht', nacht); schalter('t-autos', v => autos.visible = v); schalter('t-dach', v => dachGruppe.visible = v);
+nacht(false);
+
+// ---------- Antippen
+const ray = new THREE.Raycaster(), maus = new THREE.Vector2(); let unten = null;
+canvas.addEventListener('pointerdown', e => unten = [e.clientX, e.clientY]);
+canvas.addEventListener('pointerup', e => {
+  if (!unten || Math.hypot(e.clientX - unten[0], e.clientY - unten[1]) > 6) return;
+  const r = canvas.getBoundingClientRect(); maus.set((e.clientX - r.left) / r.width * 2 - 1, -(e.clientY - r.top) / r.height * 2 + 1);
+  ray.setFromCamera(maus, camera); const t = ray.intersectObjects(klickbar)[0];
+  if (t) { const f = t.object.userData; karte(f.code, f.name, ERKL[f.code] || ''); }
+});
+
+// ---------- Schleife
+function groesse() { const w = canvas.clientWidth, h = canvas.clientHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); }
+window.addEventListener('resize', groesse);
+const nadel = document.getElementById('nadel');
+function schleife(t) {
+  if (flug) { let k = Math.min(1, (t - flug.t0) / 1100); k = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+    camera.position.lerpVectors(flug.von, flug.pos, k); controls.target.lerpVectors(flug.vonZ, flug.ziel, k); if (k >= 1) flug = null; }
+  controls.update(); renderer.render(scene, camera);
+  const d = new THREE.Vector3(); camera.getWorldDirection(d); nadel.setAttribute('transform', `rotate(${Math.atan2(d.x, -d.z) * -180 / Math.PI} 22 22)`);
+  if (modus === '3d') requestAnimationFrame(schleife);
+}
+camera.position.set(...ANSICHT.oben.pos); controls.target.set(...ANSICHT.oben.ziel);
+
+// ---------- Umschalten Gartenplan / 3D-Modell
+let modus = 'plan';
+const planCanvas = document.getElementById('plan');
+const ERKL_PLAN = Object.assign({ Haus: 'Wohnhaus: EG mit Garage, Küche/Essen, Wohnen, Büro und Hobby; OG mit Kinderzimmern und Spielzimmer. Das OG kragt über die Terrasse.' }, ERKL);
+const planAnsicht = PLAN.ansicht(planCanvas, (x, y) => {
+  const f = D.flaechen.find(f => PLAN.drin(f.pts, x, y));
+  if (f) karte(f.code === 'B00' ? 'Haus' : f.code, f.code === 'B00' ? 'Wohnhaus EG + OG' : f.name, ERKL_PLAN[f.code === 'B00' ? 'Haus' : f.code] || '');
+});
+function setzeModus(m) {
+  modus = m;
+  document.getElementById('m-plan').setAttribute('aria-pressed', m === 'plan');
+  document.getElementById('m-3d').setAttribute('aria-pressed', m === '3d');
+  document.querySelectorAll('.nur-3d').forEach(e => e.hidden = m !== '3d');
+  document.querySelectorAll('.nur-plan').forEach(e => e.hidden = m !== 'plan');
+  planCanvas.hidden = m !== 'plan'; canvas.hidden = m !== '3d';
+  document.getElementById('hinweis').textContent = m === '3d' ? 'Ziehen = drehen · Rechtsklick = schieben · Rad = zoomen' : 'Ziehen = verschieben · Rad oder zwei Finger = zoomen · Tippen = Info';
+  if (m === '3d') { groesse(); const a = ANSICHT.oben; karte('Ansicht', a.titel, a.text); requestAnimationFrame(schleife); }
+  else { planAnsicht.ganz(); karte('Gartenplan', 'Freiflächenplan von oben', 'Rote Linie = Grundstücksgrenze, gestrichelt = Obergeschoss. Ein Tipp auf eine Fläche zeigt, was dort geplant ist.'); }
+}
+document.getElementById('m-plan').addEventListener('click', () => setzeModus('plan'));
+document.getElementById('m-3d').addEventListener('click', () => setzeModus('3d'));
+document.getElementById('p-ganz').addEventListener('click', () => planAnsicht.ganz());
+const EXPORT = /[?&]export(&|$)/.test(location.search);
+// Standbild aus dem 3D-Modell: ?export3d=<ansicht>&w=..&h=..&nacht=1&autos=1
+const E3 = new URLSearchParams(location.search);
+if (E3.get('export3d')) {
+  const a = ANSICHT[E3.get('export3d')], W = +E3.get('w') || 1920, H = +E3.get('h') || 1080;
+  if (E3.get('nacht')) nacht(true); if (E3.get('autos')) autos.visible = true;
+  canvas.hidden = false; planCanvas.hidden = true; renderer.setPixelRatio(1); renderer.setSize(W, H, false); camera.aspect = W / H; camera.updateProjectionMatrix();
+  camera.position.set(...a.pos); controls.target.set(...a.ziel); controls.update();
+  renderer.render(scene, camera); renderer.render(scene, camera);
+  const o = document.createElement('pre'); o.textContent = canvas.toDataURL('image/jpeg', 0.92); document.body.replaceChildren(o);
+  throw new Error('export3d fertig');
+}
+const fertig = document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve();
+Promise.race([fertig, new Promise(r => setTimeout(r, 2500))]).then(() => setTimeout(() => {
+  const S = EXPORT ? 110 : Math.min(70, Math.max(45, Math.round(planCanvas.clientWidth * (window.devicePixelRatio || 1) * 1.6 / 47)));
+  const bild = PLAN.zeichne(S);
+  document.getElementById('laden').hidden = true;
+  if (EXPORT) { const o = document.createElement('pre'); o.id = 'export'; o.textContent = bild.toDataURL('image/png'); document.body.replaceChildren(o); return; }
+  planAnsicht.setze(bild, S);
+  setzeModus(location.hash === '#3d' ? '3d' : 'plan');
+}, 30));
+</script>
+
+</body>
+</html>
