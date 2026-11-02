@@ -561,6 +561,16 @@ const attika = mat(0xf2efe9);
 [[-1.88, 2.91, 21.49, 3.11], [-1.88, 13.45, 21.49, 13.65], [-1.88, 3.11, -1.68, 13.45], [21.29, 3.11, 21.49, 13.45]].forEach(([a, b, c, d]) => box(a, b, c, d, 0.25, attika, 6.5 - 0.25));
 flaeche(R(-1.68, 3.11, 21.29, 13.45), kiesDach, 6.3);
 flaeche(R(0.1, 0.1, 10.13, 2.81), kiesDach, 3.27);                         // Garagendach
+[[0, 0, 10.23, 0.2, 3.25], [0, 0.2, 0.2, 2.91, 3.25], [10.03, 0.2, 10.23, 2.91, 3.25],                      // Attika Garage
+ [-1.51, 16.31, 5.0, 16.51, 3.7], [-1.51, 13.65, -1.31, 16.31, 3.7], [4.8, 13.65, 5.0, 16.31, 3.7],          // Attika Hobby
+ [14.75, 14.7, 21.49, 14.9, 3.25], [14.75, 13.65, 14.95, 14.7, 3.25], [21.29, 13.65, 21.49, 14.7, 3.25]]      // Attika Wohnzimmer-Streifen
+  .forEach(([a, b, c, d, y]) => box(a, b, c, d, 0.25, attika, y));
+flaeche(R(-1.31, 13.65, 4.8, 16.31), kiesDach, 3.72); flaeche(R(14.95, 13.65, 21.29, 14.7), kiesDach, 3.27);
+(() => {   // Schornstein über dem Tunnelkamin (EG-Plan x 26,38–27,00 → Welt 14,68–15,30): Kopf verputzt, Mündung 1,2 m über dem Dach. Lage angenommen, Zug nicht im Plan
+  const s = koerper(R(14.7, 8.75, 15.3, 9.35), putz, 1.2, 6.3); s.userData = { code: 'SCH', name: 'Schornstein Kamin (Lage angenommen, mit Ofenbauer/Schornsteinfeger klären)' }; klickbar.push(s);
+  box(14.65, 8.7, 15.35, 9.4, 0.05, dunkel, 7.5);
+  const r = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 0.35, 20), mat(0x9aa0a3, { roughness: 0.35, metalness: 0.6 })); r.position.set(15.0, 7.72, 9.05); scene.add(r);
+})();
 (() => { const pv = mat(0x1d2a3a, { roughness: 0.25, metalness: 0.3 }), rahmen = mat(0xb9bcbc);
   for (const zy of [5.2, 7.7, 10.2]) for (let i = 0; i < 14; i++) {
     const m = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.04, 1.72), pv); m.position.set(2.2 + i * 1.14, 6.62, zy); m.rotation.x = 0.21; m.castShadow = true; scene.add(m);
