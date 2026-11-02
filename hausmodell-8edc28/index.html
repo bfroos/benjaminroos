@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="de"><head>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta charset="utf-8">
+<title>Hausmodell Montabaur</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<style>
+/* Layout: Modell füllt den Schirm, oben eine schmale Steuerleiste, unten eine Infokarte wie ein Planstempel. */
+:root {
+  --bg: #e7ece9; --panel: rgba(250, 251, 249, .93); --ink: #23292a; --muted: #5d6765; --line: #c9d1cd;
+  --accent: #2f6b5c; --accent-ink: #ffffff; --sel: #dbe8e3;
+  --ui: 'Instrument Sans', 'Helvetica Neue', Arial, sans-serif; --mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #161b1c; --panel: rgba(28, 34, 35, .92); --ink: #e6ebe9; --muted: #9aa6a3; --line: #3a4544; --accent: #6fb8a3; --accent-ink: #0f1716; --sel: #24403a; color-scheme: dark } }
+:root[data-theme="dark"] { --bg: #161b1c; --panel: rgba(28, 34, 35, .92); --ink: #e6ebe9; --muted: #9aa6a3; --line: #3a4544; --accent: #6fb8a3; --accent-ink: #0f1716; --sel: #24403a; color-scheme: dark }
+html, body { height: 100%; }
+[hidden] { display: none !important; }
+body { background: var(--bg); color: var(--ink); font-family: var(--ui); overflow: hidden; }
+#szene { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+.leiste { position: fixed; top: 0; left: 0; right: 0; z-index: 5; display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+  padding-top: calc(10px + env(safe-area-inset-top, 0px)); padding-bottom: 10px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); pointer-events: none; }
+.leiste > * { pointer-events: auto; }
+h1 { font-size: 15px; font-weight: 600; margin: 0 6px 0 0; letter-spacing: .01em; background: var(--panel); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--line); }
+.seg { display: flex; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 3px; gap: 2px; }
+.seg button, .knopf { font: 500 13px var(--ui); color: var(--ink); background: transparent; border: 0; border-radius: 6px; padding: 7px 11px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.seg button:hover:not([aria-pressed="true"]), .knopf:hover { background: var(--sel); }
+button:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+select { font: 500 13px var(--ui); color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; max-width: 100%; }
+.karte { position: fixed; z-index: 5; left: max(16px, env(safe-area-inset-left, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  width: min(380px, calc(100% - 32px)); background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; display: grid; gap: 6px; }
+.karte .ort { font: 500 11px var(--mono); color: var(--muted); letter-spacing: .06em; text-transform: uppercase; }
+.karte .name { font-size: 17px; font-weight: 600; text-wrap: balance; }
+.karte .text { font-size: 13px; line-height: 1.45; color: var(--muted); }
+.karte .reihe { display: flex; flex-wrap: wrap; gap: 6px; }
+.karte .knopf { border: 1px solid var(--line); background: transparent; }
+.marke { position: fixed; z-index: 4; transform: translate(-50%, -50%); font: 500 11px var(--ui); color: var(--ink); background: var(--panel);
+  border: 1px solid var(--line); border-radius: 999px; padding: 3px 8px; white-space: nowrap; pointer-events: auto; cursor: pointer; }
+.marke:hover { border-color: var(--accent); }
+.schalter { background: var(--panel); border: 1px solid var(--line); }
+.schalter[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.marke.technik { background: #b9502f; color: #fff; border-color: #8f3a20; font-weight: 600; }
+.fb { position: fixed; z-index: 8; right: max(16px, env(safe-area-inset-right, 0px)); top: calc(64px + env(safe-area-inset-top, 0px)); width: min(380px, calc(100% - 32px));
+  background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; display: grid; gap: 8px; box-shadow: 0 8px 30px rgba(0,0,0,.12); }
+.fb-kopf { display: flex; justify-content: space-between; align-items: center; font-size: 15px; }
+.fb label { display: grid; gap: 4px; font-size: 12px; color: var(--muted); }
+.fb input, .fb textarea { font: 14px var(--ui); color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 8px; resize: vertical; }
+.fb-ort { margin: 0; font: 500 11px var(--mono); color: var(--muted); letter-spacing: .04em; text-transform: uppercase; }
+.fb-hinweis { margin: 0; font-size: 12px; color: var(--muted); }
+.fb .knopf { border: 1px solid var(--line); text-decoration: none; display: inline-block; }
+.fb .knopf.voll { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+#laden { position: fixed; inset: 0; z-index: 9; display: grid; place-items: center; background: var(--bg); font: 500 14px var(--ui); color: var(--muted); }
+@media (max-width: 560px) { h1 { display: none; } .seg button { padding: 7px 8px; } }
+</style>
+
+<canvas id="szene" aria-label="3D-Modell von Haus und Garten"></canvas>
+<div id="marken"></div>
+<div class="leiste">
+  <h1>Haus Montabaur</h1>
+  <div class="seg" id="modi" role="group" aria-label="Ansicht">
+    <button data-m="aussen" aria-pressed="true">Außen</button>
+    <button data-m="og" aria-pressed="false">Obergeschoss</button>
+    <button data-m="eg" aria-pressed="false">Erdgeschoss</button>
+    <button data-m="walk" aria-pressed="false">Rundgang</button>
+  </div>
+  <select id="raum" aria-label="In einen Raum gehen"><option value="">In einen Raum gehen …</option></select>
+  <select id="achse" aria-label="Sichtachse"><option value="">Sichtachse …</option></select>
+  <button class="knopf schalter" id="b-feedback" title="Anmerkung zu dieser Ansicht an Benjamin schicken">Feedback</button>
+  <button class="knopf schalter" id="b-offen" aria-pressed="false" title="Außenwände ausblenden, durch die Fenster in die Räume sehen">Fenster offen</button>
+</div>
+<div class="karte" aria-live="polite">
+  <div class="ort" id="k-ort">Außen</div>
+  <div class="name" id="k-name">Haus und Garten von Südwesten</div>
+  <div class="text" id="k-text">Ziehen = drehen, Rad oder zwei Finger = zoomen. Zoomst du nah ans Haus, geht das Dach auf und du siehst die Räume.</div>
+  <div class="reihe" id="k-raum" hidden>
+    <button class="knopf" id="b-vor" aria-label="Voriger Raum">◀ Raum</button>
+    <button class="knopf" id="b-rein">Hineingehen</button>
+    <button class="knopf" id="b-nach" aria-label="Nächster Raum">Raum ▶</button>
+  </div>
+  <div class="reihe" id="k-knoepfe" hidden>
+    <button class="knopf" id="b-hoch">Treppe hoch</button>
+    <button class="knopf" id="b-raus">Rauszoomen</button>
+    <button class="knopf" id="b-wvor" aria-label="Voriger Raum">◀</button>
+    <button class="knopf" id="b-wnach" aria-label="Nächster Raum">▶</button>
+  </div>
+</div>
+<div class="fb" id="fb" hidden role="dialog" aria-labelledby="fb-titel">
+  <div class="fb-kopf"><b id="fb-titel">Feedback an Benjamin</b><button class="knopf" id="fb-zu" aria-label="Schließen">✕</button></div>
+  <p class="fb-ort" id="fb-ort"></p>
+  <label>Dein Name <input id="fb-name" autocomplete="name" placeholder="z. B. Inga"></label>
+  <label>Was fällt dir auf? <textarea id="fb-text" rows="5" placeholder="z. B. Die Tür schlägt gegen den Schrank, das Fenster sitzt anders …"></textarea></label>
+  <p class="fb-hinweis">Der Text geht zusammen mit einem Link auf genau diese Ansicht raus. So sieht Benjamin, was du meinst.</p>
+  <div class="reihe"><a class="knopf voll" id="fb-wa" target="_blank" rel="noopener">Per WhatsApp senden</a><a class="knopf" id="fb-mail">Per E-Mail</a><button class="knopf" id="fb-kopie">Text kopieren</button></div>
+  <p class="fb-hinweis" id="fb-status" aria-live="polite"></p>
+</div>
+<div id="laden">Haus wird gebaut …</div>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { buildHouse, roomAt, insidePoly, EG_Y, OG_Y, toWorld } from './haus3d.js?v=6';
+
+const canvas = document.getElementById('szene');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: /shot/.test(location.search) });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 1.75));
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.0; renderer.outputColorSpace = THREE.SRGBColorSpace;
+const scene = new THREE.Scene();
+scene.environment = new THREE.PMREMGenerator(renderer).fromScene(new RoomEnvironment(), 0.04).texture; scene.environmentIntensity = 0.8;
+const sky = (() => { const c = document.createElement('canvas'); c.width = 4; c.height = 256; const x = c.getContext('2d'); const g = x.createLinearGradient(0, 0, 0, 256);
+  g.addColorStop(0, '#86aacb'); g.addColorStop(.55, '#c6d8e5'); g.addColorStop(1, '#eef1ec'); x.fillStyle = g; x.fillRect(0, 0, 4, 256); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t; })();
+scene.background = sky; scene.fog = new THREE.Fog(0xdde6ea, 80, 200);
+scene.add(new THREE.HemisphereLight(0xfffaf0, 0xd6cdbf, 1.15));
+const sun = new THREE.DirectionalLight(0xfff2dc, 2.6);
+sun.position.set(-14, 34, 40); sun.target.position.set(9, 0, 10); scene.add(sun, sun.target);
+sun.castShadow = true; sun.shadow.mapSize.set(4096, 4096); sun.shadow.bias = -0.0005; sun.shadow.normalBias = 0.03;
+Object.assign(sun.shadow.camera, { left: -26, right: 26, top: 26, bottom: -26, near: 1, far: 120 });
+
+const camera = new THREE.PerspectiveCamera(45, 1, 0.05, 400);
+const controls = new OrbitControls(camera, canvas);
+controls.enableDamping = true; controls.maxPolarAngle = Math.PI * 0.49; controls.minDistance = 3; controls.maxDistance = 120;
+
+const H = buildHouse(scene);
+const { rooms, layers, G, doors } = H;
+const HAUS = G.D.haus, MITTE = new THREE.Vector3(10, 2, 8.5);
+const L = k => layers[k] || { visible: false };
+document.getElementById('laden').hidden = true;
+
+// ---------- Ansichten
+let modus = 'aussen', auto = false, ebeneWalk = 'EG';
+const $ = id => document.getElementById(id);
+function karte(ort, name, text) { $('k-ort').textContent = ort; $('k-name').textContent = name; $('k-text').textContent = text; }
+// Durchblick: Außenwände, Fenster und Haustür der Fassade weg, die Räume dahinter sichtbar; Dach, Attika und PV bleiben.
+// Im Garten (Rundgang draußen) immer, in der Außenansicht über den Knopf „Fenster offen“.
+let offenAussen = false;
+const fassadeWand = []; G.facade.traverse(o => { if (o.userData && (o.userData.code === 'Haus' || o.userData.fenster)) fassadeWand.push(o); });
+// OG-Grundfläche (Welt): draußen ist im OG, wer auf dem Balkon steht. Deckenplatte zwischen EG und OG für den Durchblick,
+// mit Löchern für Luftraum und Treppe, sonst schweben die OG-Möbel über der Terrasse (Böden sind nur von oben sichtbar).
+const OG_POLY = [[-1.88, 2.91], [21.49, 2.91], [21.49, 11.74], [10.1, 11.74], [10.1, 13.65], [-1.88, 13.65]];
+const draussenBei = (x, z, fl) => fl === 'OG' ? !insidePoly(OG_POLY, x, z) : !insidePoly(HAUS, x, z);
+const platte = new THREE.Group(); scene.add(platte); platte.visible = false;
+{ const m = new THREE.MeshStandardMaterial({ color: '#ece8e1', roughness: 0.9 });
+  for (const [a, b, c, d] of [[-1.88, 2.91, 10.15, 13.65], [10.15, 2.91, 21.49, 3.23], [12.4, 3.23, 21.49, 9.26], [10.15, 7.26, 12.4, 9.26], [14.73, 9.26, 21.49, 11.74], [10.15, 11.38, 14.73, 11.74]]) {
+    const me = new THREE.Mesh(new THREE.BoxGeometry(c - a, 0.28, d - b), m); me.position.set((a + c) / 2, EG_Y + 2.85 + 0.15, (b + d) / 2); me.receiveShadow = me.castShadow = true; platte.add(me); }
+  for (const [a, b, c, d, y] of [[14.75, 13.65, 21.49, 14.9, 3.25], [-1.5, 13.65, 4.99, 16.5, 3.7]]) {   // Flachdach über Wohnzimmer-Streifen und Hobbyraum
+    const me = new THREE.Mesh(new THREE.BoxGeometry(c - a, y - 2.95, d - b), m); me.position.set((a + c) / 2, (y + 2.95) / 2, (b + d) / 2); me.receiveShadow = me.castShadow = true; platte.add(me); } }
+function sichtbar() {
+  const draussen = modus === 'walk' && draussenBei(camera.position.x, camera.position.z, ebeneWalk);
+  const innen = modus !== 'aussen' && !draussen, offen = draussen || (modus === 'aussen' && offenAussen);
+  platte.visible = offen;
+  G.facade.visible = !innen;
+  for (const o of fassadeWand) o.visible = !offen;
+  L('EG|body').visible = innen || offen;
+  L('EG|upper').visible = (innen && modus !== 'eg') || offen;
+  L('EG|ceil').visible = (innen && modus !== 'eg') || offen;
+  L('OG|body').visible = (innen && modus !== 'eg') || offen;
+  L('OG|ceil').visible = (innen && modus === 'walk') || offen;
+  $('b-offen').hidden = modus !== 'aussen';
+}
+$('b-offen').addEventListener('click', () => { offenAussen = !offenAussen; $('b-offen').setAttribute('aria-pressed', offenAussen); sichtbar(); });
+function setzeModus(m, still) {
+  modus = m;
+  document.querySelectorAll('#modi button').forEach(b => b.setAttribute('aria-pressed', b.dataset.m === m));
+  controls.enabled = m !== 'walk';
+  $('k-knoepfe').hidden = m !== 'walk'; $('k-raum').hidden = true; fokusRaum = null;
+  sichtbar(); marken();
+  if (still) return;
+  if (m === 'aussen') { auto = false; flieg([-14, 26, 44], [9, 1, 10]); karte('Außen', 'Haus und Garten von Südwesten', 'Zoomst du nah ans Haus, geht das Dach auf. Die roten Schilder zeigen Wärmepumpe und Pooltechnik. Mit dem Raum-Menü gehst du hinein.'); }
+  if (m === 'og') { flieg([9, 24, 28], [10, OG_Y, 8.5]); karte('Obergeschoss', 'Dach abgenommen', 'Kinderzimmer, Bäder, Flur mit Empore, Hauswirtschaftsraum und Spielraum. Tippe auf einen Namen: Der Raum kommt nah heran, mit ◀ ▶ blätterst du weiter.'); }
+  if (m === 'eg') { flieg([7, 22, 27], [10, EG_Y, 9]); karte('Erdgeschoss', 'Obergeschoss abgenommen', 'Garage, Technikraum, Eingang, Büro, Hobbyraum, Küche, Essen, Treppe mit Rutsche, Wohnen, Eltern. Tippe auf einen Namen: Der Raum kommt nah heran, mit ◀ ▶ blätterst du weiter. Türen und Schranktüren gehen per Klick auf und zu.'); }
+  if (m === 'walk') geheIn(rooms.find(r => r.id === 'flur_eg'));
+}
+document.querySelectorAll('#modi button').forEach(b => b.addEventListener('click', () => setzeModus(b.dataset.m)));
+
+// ---------- Raumliste und Namensschilder
+const sel = $('raum');
+for (const fl of ['EG', 'OG']) {
+  const og = document.createElement('optgroup'); og.label = fl === 'EG' ? 'Erdgeschoss' : 'Obergeschoss';
+  rooms.filter(r => r.fl === fl && r.view).forEach(r => { const o = document.createElement('option'); o.value = r.id; o.textContent = r.name; og.appendChild(o); });
+  sel.appendChild(og);
+}
+sel.addEventListener('change', () => { const r = rooms.find(x => x.id === sel.value); if (r) geheIn(r); sel.value = ''; });
+const markenBox = $('marken');
+const schilder = rooms.map(r => {
+  const [a, b, c, d] = r.rects[0], el = document.createElement('button'); el.className = 'marke'; el.textContent = r.name.split(':')[0]; el.hidden = true;
+  el.addEventListener('click', () => fokus(r)); markenBox.appendChild(el);
+  return { r, el, p: new THREE.Vector3((a + c) / 2, (r.fl === 'OG' ? OG_Y : EG_Y) + 1.2, (b + d) / 2) };
+});
+const technikSchilder = (G.technik || []).map(t => {
+  const el = document.createElement('button'); el.className = 'marke technik'; el.textContent = t.name; el.hidden = true;
+  el.addEventListener('click', () => karte('Außen · Technik', t.name, t.text)); markenBox.appendChild(el);
+  return { el, p: new THREE.Vector3(t.x, t.h, t.z) };
+});
+function marken() {
+  const ebene = modus === 'og' ? 'OG' : modus === 'eg' ? 'EG' : null, w = innerWidth, h = innerHeight, v = new THREE.Vector3();
+  for (const s of technikSchilder) {
+    if (modus !== 'aussen') { s.el.hidden = true; continue; }
+    v.copy(s.p).project(camera); s.el.hidden = v.z > 1; s.el.style.left = ((v.x + 1) / 2 * w) + 'px'; s.el.style.top = ((1 - v.y) / 2 * h) + 'px';
+  }
+  for (const s of schilder) {
+    const an = ebene && s.r.fl === ebene;
+    if (!an) { s.el.hidden = true; continue; }
+    v.copy(s.p).project(camera);
+    s.el.hidden = v.z > 1; s.el.style.left = ((v.x + 1) / 2 * w) + 'px'; s.el.style.top = ((1 - v.y) / 2 * h) + 'px';
+  }
+}
+
+// ---------- Sichtachsen: feste Blicke aus dem Garten ins Haus und aus dem Haus in den Garten (Welt-Koordinaten, Augenhöhe)
+const ACHSEN = [
+  ['Garten Süd: das ganze Haus', [10.5, 1.7, 23.0], [10.5, 3.2, 8.0]],
+  ['Terrasse: in Essen und Küche', [7.5, 1.7, 16.2], [7.5, 1.4, 6.0]],
+  ['Pool: ins Wohnzimmer', [18.0, 1.7, 21.8], [18.0, 1.4, 11.0]],
+  ['Spielfeld: in den Hobbyraum', [1.6, 1.7, 22.0], [1.6, 1.4, 12.0]],
+  ['Rasen Ost: ins Elternzimmer', [24.2, 1.7, 6.0], [17.0, 1.4, 6.0]],
+  ['Hof: zur Haustür', [-5.0, 1.7, 8.7], [0.5, 1.5, 8.7]],
+  ['Essen: raus zu Terrasse und Pool', [7.5, 1.7, 7.6], [14.0, 1.2, 18.5]],
+  ['Wohnzimmer: raus zum Pool', [17.5, 1.7, 10.0], [17.0, 1.2, 21.0]],
+  ['Kinderzimmer 1: raus in den Garten', [7.7, 4.85, 11.0], [7.8, 3.4, 22.0]],
+  ['Balkon: Blick über den Garten', [18.0, 4.95, 12.9], [15.5, 0.8, 20.0]],
+];
+const achse = $('achse');
+ACHSEN.forEach(([n], i) => { const o = document.createElement('option'); o.value = i; o.textContent = n; achse.appendChild(o); });
+achse.addEventListener('change', () => {
+  const a = ACHSEN[+achse.value]; achse.value = ''; if (!a) return;
+  if (modus !== 'walk') setzeModus('walk', true);
+  ebeneWalk = a[1][1] > OG_Y ? 'OG' : 'EG'; gehZiel = null; stelle(a[1], a[2], 66); warDraussen = draussenBei(a[1][0], a[1][2], ebeneWalk); sichtbar(); raumKarte();
+  karte(!warDraussen ? 'Sichtachse nach draußen' : 'Sichtachse aus dem Garten', a[0], 'Ziehen = umsehen, auf den Boden tippen = hingehen. Im Garten sind die Außenwände ausgeblendet, damit du durch die Fenster in die Räume siehst.');
+});
+
+// ---------- Raum für Raum: Raum von schräg oben heranholen, blättern, hineingehen
+const reihe = [...rooms.filter(r => r.fl === 'EG' && r.view), ...rooms.filter(r => r.fl === 'OG' && r.view)];
+let fokusRaum = null;
+function fokus(r) {
+  if (!r) return;
+  setzeModus(r.fl === 'OG' ? 'og' : 'eg', true); auto = false; fokusRaum = r;
+  const xs = r.rects.flatMap(q => [q[0], q[2]]), zs = r.rects.flatMap(q => [q[1], q[3]]);
+  const cx = (Math.min(...xs) + Math.max(...xs)) / 2, cz = (Math.min(...zs) + Math.max(...zs)) / 2, gr = Math.max(3.5, Math.max(...xs) - Math.min(...xs), Math.max(...zs) - Math.min(...zs));
+  const y = r.fl === 'OG' ? OG_Y : EG_Y;
+  flieg([cx - 0.35 * gr, y + 1.25 * gr + 1.5, cz + 0.95 * gr + 1.2], [cx, y + 0.6, cz]);
+  karte(r.fl === 'OG' ? 'Obergeschoss' : 'Erdgeschoss', r.name, 'Drehen und zoomen wie gewohnt. Türen und Schranktüren per Klick auf und zu. „Hineingehen“ stellt dich in den Raum.');
+  $('k-raum').hidden = false; marken();
+}
+const blaettern = (d, rein) => { const cur = fokusRaum || roomAt(rooms, ebeneWalk, camera.position.x, camera.position.z); const i = Math.max(0, reihe.indexOf(cur)); const n = reihe[(i + d + reihe.length) % reihe.length]; rein ? geheIn(n) : fokus(n); };
+$('b-vor').addEventListener('click', () => blaettern(-1)); $('b-nach').addEventListener('click', () => blaettern(1));
+$('b-rein').addEventListener('click', () => geheIn(fokusRaum));
+$('b-wvor').addEventListener('click', () => blaettern(-1, true)); $('b-wnach').addEventListener('click', () => blaettern(1, true));
+
+// ---------- Türen: Klick dreht auf oder zu (Schranktüren eines Schranks gemeinsam)
+const tuerVon = o => { for (let p = o; p; p = p.parent) if (p.userData && p.userData.door) return p; return null; };
+function tuerKlick(d) {
+  const k = d.userData.door, auf = !k.open, alle = k.cab ? doors.filter(x => x.userData.door.cab === k.cab) : [d];
+  for (const x of alle) { x.userData.door.open = auf; x.userData.ziel = auf ? x.userData.door.max : 0; if (reduziert) x.rotation.y = x.userData.ziel; }
+}
+
+// ---------- Kameraflug
+const reduziert = matchMedia('(prefers-reduced-motion: reduce)').matches;
+let flug = null;
+function flieg(pos, ziel) {
+  const p = new THREE.Vector3(...pos), z = new THREE.Vector3(...ziel);
+  if (reduziert) { camera.position.copy(p); controls.target.copy(z); return; }
+  flug = { t0: performance.now(), von: camera.position.clone(), vonZ: controls.target.clone(), p, z };
+}
+
+// ---------- Rundgang: ziehen = umsehen, tippen = hingehen, Tasten WASD/Pfeile, Rad = vor/zurück
+const blick = { yaw: 0, pitch: 0 };
+let gehZiel = null;
+function schau() { const d = new THREE.Vector3(Math.sin(blick.yaw) * Math.cos(blick.pitch), Math.sin(blick.pitch), -Math.cos(blick.yaw) * Math.cos(blick.pitch)); camera.lookAt(camera.position.clone().add(d)); }
+function stelle(pos, target, fov) {
+  camera.position.set(...pos); const d = new THREE.Vector3(...target).sub(camera.position);
+  blick.yaw = Math.atan2(d.x, -d.z); blick.pitch = Math.max(-0.6, Math.min(0.5, Math.atan2(d.y, Math.hypot(d.x, d.z))));
+  camera.fov = Math.min(Math.max(fov || 66, 60), 75); camera.updateProjectionMatrix(); schau();
+}
+function geheIn(r) {
+  if (!r || !r.view) return;
+  if (modus !== 'walk') setzeModus('walk', true);
+  ebeneWalk = r.fl; gehZiel = null; stelle(r.view.pos, r.view.target, r.view.fov);
+  camera.position.y = (r.fl === 'OG' ? OG_Y : EG_Y) + 1.6;
+  sichtbar(); raumKarte();
+}
+function raumKarte() {
+  const r = roomAt(rooms, ebeneWalk, camera.position.x, camera.position.z);
+  const draussen = draussenBei(camera.position.x, camera.position.z, ebeneWalk);
+  karte(draussen ? 'Garten' : ebeneWalk === 'OG' ? 'Obergeschoss' : 'Erdgeschoss', draussen ? 'Im Garten' : r ? r.name : 'Unterwegs im Haus',
+    'Ziehen = umsehen. Auf den Boden tippen = dorthin gehen, auf eine Tür tippen = auf/zu. Tasten W A S D oder Pfeile, Mausrad vor und zurück. ◀ ▶ = nächster Raum.');
+  $('b-hoch').textContent = ebeneWalk === 'EG' ? 'Treppe hoch' : 'Treppe runter';
+}
+$('b-hoch').addEventListener('click', () => {
+  if (ebeneWalk === 'EG') { ebeneWalk = 'OG'; const [x, z] = toWorld('OG', 21.4, 14.4), [tx, tz] = toWorld('OG', 24.5, 16.5); stelle([x, OG_Y + 1.6, z], [tx, OG_Y + 0.4, tz], 70); }
+  else { ebeneWalk = 'EG'; const [x, z] = toWorld('EG', 21.0, 13.2), [tx, tz] = toWorld('EG', 23.0, 10.0); stelle([x, EG_Y + 1.6, z], [tx, EG_Y + 1.6, tz], 70); }
+  sichtbar(); raumKarte();
+});
+$('b-raus').addEventListener('click', () => {
+  const p = camera.position.clone(), m = ebeneWalk === 'OG' ? 'og' : 'eg';
+  setzeModus(m, true); controls.target.set(p.x, ebeneWalk === 'OG' ? OG_Y : EG_Y, p.z);
+  flieg([p.x - 4, p.y + 14, p.z + 13], [p.x, ebeneWalk === 'OG' ? OG_Y : EG_Y, p.z]); auto = false; marken();
+  karte(m === 'og' ? 'Obergeschoss' : 'Erdgeschoss', 'Von oben', 'Weiter rauszoomen bringt dich nach außen.'); auto = true;
+});
+const tasten = new Set();
+addEventListener('keydown', e => { if (modus === 'walk' && /^(Key[WASD]|Arrow)/.test(e.code)) { tasten.add(e.code); e.preventDefault(); } });
+addEventListener('keyup', e => tasten.delete(e.code));
+canvas.addEventListener('wheel', e => { if (modus !== 'walk') return; e.preventDefault(); schritt(-Math.sign(e.deltaY) * 0.45, 0); }, { passive: false });
+function schritt(vor, seit) {
+  const fx = Math.sin(blick.yaw), fz = -Math.cos(blick.yaw);
+  camera.position.x += fx * vor - fz * seit; camera.position.z += fz * vor + fx * seit; gehZiel = null;
+}
+const ray = new THREE.Raycaster(), maus = new THREE.Vector2();
+let unten = null, zuletzt = 0;
+canvas.addEventListener('pointerdown', e => { unten = { x: e.clientX, y: e.clientY, yaw: blick.yaw, pitch: blick.pitch, gezogen: false }; if (modus === 'walk') canvas.setPointerCapture(e.pointerId); });
+canvas.addEventListener('pointermove', e => {
+  if (!unten || modus !== 'walk') return;
+  const dx = e.clientX - unten.x, dy = e.clientY - unten.y; if (Math.hypot(dx, dy) > 5) unten.gezogen = true;
+  blick.yaw = unten.yaw - dx * 0.005; blick.pitch = Math.max(-1.2, Math.min(1.0, unten.pitch + dy * 0.004)); schau();
+});
+canvas.addEventListener('pointerup', e => {
+  const u = unten; unten = null; if (!u || Math.hypot(e.clientX - u.x, e.clientY - u.y) > 6) return;
+  const r = canvas.getBoundingClientRect(); maus.set((e.clientX - r.left) / r.width * 2 - 1, -(e.clientY - r.top) / r.height * 2 + 1);
+  ray.setFromCamera(maus, camera);
+  const ziele = Object.values(layers).filter(g => g.visible).concat(G.facade.visible ? [G.facade] : []), boden = scene.children.filter(c => c === H.garden);
+  const t = ray.intersectObjects([...ziele, ...boden], true).find(h => h.object.visible && !h.object.material?.transparent);
+  const doppel = performance.now() - zuletzt < 350; zuletzt = performance.now();
+  if (!t) return;
+  const tuer = tuerVon(t.object);
+  if (tuer && modus !== 'aussen' && t.distance < 30) { tuerKlick(tuer); return; }
+  if (modus === 'walk') {
+    const n = t.face ? t.face.normal.clone().transformDirection(t.object.matrixWorld) : new THREE.Vector3(0, 1, 0);
+    let p = t.point.clone();
+    if (n.y < 0.7) p.addScaledVector(ray.ray.direction, -0.5);                 // Wand getroffen: davor stehen bleiben
+    const og = p.y > OG_Y - 0.4; ebeneWalk = og ? 'OG' : 'EG';
+    gehZiel = new THREE.Vector3(p.x, (og ? OG_Y : (insidePoly(HAUS, p.x, p.z) ? EG_Y : 0)) + 1.6, p.z);
+  } else if (doppel || modus !== 'aussen') {
+    const og = t.point.y > OG_Y - 0.4 && modus !== 'eg', fl = og ? 'OG' : 'EG', rr = roomAt(rooms, fl, t.point.x, t.point.z);
+    if (rr) { if (doppel) geheIn(rr); else fokus(rr); }
+  }
+});
+
+// ---------- Schleife
+function groesse() { const w = innerWidth, h = innerHeight; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); }
+addEventListener('resize', groesse); groesse();
+let letzt = performance.now(), warDraussen = null;
+function schleife(t) {
+  const dt = Math.min(0.05, (t - letzt) / 1000); letzt = t;
+  for (const d of doors) if (d.userData.ziel !== undefined) { const z = d.userData.ziel, a = d.rotation.y; d.rotation.y = Math.abs(z - a) < 0.01 ? z : a + (z - a) * Math.min(1, dt * 7); }
+  if (modus === 'walk') {
+    const v = 2.2 * dt; let vor = 0, seit = 0;
+    if (tasten.has('KeyW') || tasten.has('ArrowUp')) vor += v; if (tasten.has('KeyS') || tasten.has('ArrowDown')) vor -= v;
+    if (tasten.has('KeyD')) seit += v; if (tasten.has('KeyA')) seit -= v;
+    if (tasten.has('ArrowLeft')) blick.yaw -= 1.6 * dt; if (tasten.has('ArrowRight')) blick.yaw += 1.6 * dt;
+    if (vor || seit) schritt(vor, seit);
+    if (gehZiel) { const d = gehZiel.clone().sub(camera.position); if (d.length() < 0.05) gehZiel = null; else camera.position.addScaledVector(d, Math.min(1, dt * 3)); }
+    schau();
+    const dr = draussenBei(camera.position.x, camera.position.z, ebeneWalk);
+    if (dr !== warDraussen || vor || seit || gehZiel) { warDraussen = dr; sichtbar(); raumKarte(); }
+  } else {
+    if (flug) { let k = Math.min(1, (t - flug.t0) / 1100); k = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+      camera.position.lerpVectors(flug.von, flug.p, k); controls.target.lerpVectors(flug.vonZ, flug.z, k); if (k >= 1) flug = null; }
+    controls.update();
+    const dist = camera.position.distanceTo(MITTE);
+    if (!flug && modus === 'aussen' && dist < 22) { auto = true; setzeModus('og', true); karte('Obergeschoss', 'Dach ist offen', 'Weiter rein oder auf „Erdgeschoss“, um das OG abzunehmen. Rauszoomen schließt das Dach wieder.'); }
+    else if (!flug && auto && modus !== 'aussen' && dist > 36) { auto = false; setzeModus('aussen', true); karte('Außen', 'Haus und Garten', 'Zoomst du nah ans Haus, geht das Dach auf.'); }
+    marken();
+  }
+  renderer.render(scene, camera);
+  requestAnimationFrame(schleife);
+}
+// Startansicht, per #og, #eg, #rundgang direkt wählbar
+// ---------- Link auf genau diese Ansicht (#v=… Rundgang, #o=… von außen/oben) und Feedback
+const r2 = v => Math.round(v * 100) / 100;
+function ansichtLink() {
+  const basis = location.href.split('#')[0], p = camera.position;
+  return modus === 'walk' ? `${basis}#v=${[p.x, p.y, p.z, blick.yaw, blick.pitch].map(r2).join(',')},${ebeneWalk}`
+    : `${basis}#o=${[p.x, p.y, p.z, controls.target.x, controls.target.y, controls.target.z].map(r2).join(',')},${modus}`;
+}
+function ortText() {
+  if (modus === 'walk') { const r = roomAt(rooms, ebeneWalk, camera.position.x, camera.position.z); return (draussenBei(camera.position.x, camera.position.z, ebeneWalk) ? 'Garten' : (ebeneWalk === 'OG' ? 'Obergeschoss' : 'Erdgeschoss')) + (r ? ' · ' + r.name : ''); }
+  return fokusRaum ? (fokusRaum.fl === 'OG' ? 'Obergeschoss · ' : 'Erdgeschoss · ') + fokusRaum.name : { aussen: 'Außenansicht', og: 'Obergeschoss von oben', eg: 'Erdgeschoss von oben' }[modus];
+}
+let fbName = ''; try { fbName = localStorage.getItem('fb-name') || ''; } catch (e) {}
+$('fb-name').value = fbName;
+function fbNachricht() {
+  const n = $('fb-name').value.trim(), t = $('fb-text').value.trim();
+  return `Hausmodell – Feedback${n ? ' von ' + n : ''}\nAnsicht: ${ortText()}\n\n${t || '(kein Text)'}\n\nLink zur Ansicht: ${ansichtLink()}`;
+}
+function fbAktualisieren() {
+  const m = fbNachricht();
+  $('fb-wa').href = 'https://wa.me/?text=' + encodeURIComponent(m);
+  $('fb-mail').href = 'mailto:?subject=' + encodeURIComponent('Hausmodell: Feedback zu ' + ortText()) + '&body=' + encodeURIComponent(m);
+  try { localStorage.setItem('fb-name', $('fb-name').value.trim()); } catch (e) {}
+}
+$('b-feedback').addEventListener('click', () => { const f = $('fb'); f.hidden = !f.hidden; if (!f.hidden) { $('fb-ort').textContent = 'Ansicht: ' + ortText(); $('fb-status').textContent = ''; fbAktualisieren(); $('fb-text').focus(); } });
+$('fb-zu').addEventListener('click', () => { $('fb').hidden = true; });
+for (const id of ['fb-name', 'fb-text']) $(id).addEventListener('input', fbAktualisieren);
+for (const id of ['fb-wa', 'fb-mail']) $(id).addEventListener('click', fbAktualisieren);
+$('fb-kopie').addEventListener('click', async () => {
+  const m = fbNachricht();
+  try { await navigator.clipboard.writeText(m); $('fb-status').textContent = 'Kopiert. Füg den Text in eine Nachricht an Benjamin ein.'; }
+  catch (e) { $('fb-text').value = m; $('fb-text').select(); $('fb-status').textContent = 'Text steht jetzt im Feld und ist markiert: mit Strg/Cmd+C kopieren.'; }
+});
+for (const el of [$('fb-name'), $('fb-text')]) el.addEventListener('keydown', e => e.stopPropagation());   // Tippen bewegt nicht die Kamera
+
+// Startansicht: #og, #eg, #rundgang oder ein geteilter Ansichts-Link
+camera.position.set(-14, 26, 44); controls.target.set(9, 1, 10);
+const h0 = location.hash.slice(1), start = { og: 'og', eg: 'eg', rundgang: 'walk' }[h0];
+const vL = /^v=(.+)$/.exec(h0), oL = /^o=(.+)$/.exec(h0);
+if (vL) {
+  const a = vL[1].split(','), n = a.slice(0, 5).map(Number);
+  setzeModus('walk', true); ebeneWalk = a[5] === 'OG' ? 'OG' : 'EG'; camera.position.set(n[0], n[1], n[2]); blick.yaw = n[3]; blick.pitch = n[4]; schau();
+  warDraussen = draussenBei(n[0], n[2], ebeneWalk); sichtbar(); raumKarte();
+} else if (oL) {
+  const a = oL[1].split(','), n = a.slice(0, 6).map(Number), m = ['aussen', 'og', 'eg'].includes(a[6]) ? a[6] : 'aussen';
+  setzeModus(m, true); camera.position.set(n[0], n[1], n[2]); controls.target.set(n[3], n[4], n[5]); controls.update(); marken();
+} else { setzeModus(start || 'aussen', !start); if (!start) sichtbar(); }
+requestAnimationFrame(schleife);
+window.__haus = { camera, controls, setzeModus, geheIn, fokus, ACHSEN, achse, doors, tuerKlick, rooms, renderer, scene, stelle, flieg: (p, z) => { camera.position.set(...p); controls.target.set(...z); controls.update(); } };
+</script>
