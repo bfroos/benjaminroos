@@ -637,6 +637,11 @@ const technik = [];
   wp.userData = { code: 'WP', name: 'Wärmepumpe Haus, Außengerät (Lage angenommen, mit Neuroth/Reeser klären)' }; klickbar.push(wp);
   const f = new THREE.Mesh(new THREE.CircleGeometry(0.3, 28), gitter); f.position.set(10.765, 0.75, 2.42); f.rotation.y = Math.PI / 2; scene.add(f);
   technik.push({ name: 'Wärmepumpe Haus', text: 'Außengerät ca. 1,1 × 0,5 × 1,4 m. Lage steht in keinem Plan, angenommen an der Ostwand des Technikraums neben dessen Außentür. Abstand zur Nordgrenze ca. 2,1 m.', x: 10.52, z: 2.42, h: 1.7 });
+  // 02.11. abends: Klima-Außengerät (Multisplit für 4 Kinderzimmer + Eltern) östlich neben der Wärmepumpe an der Treppenhaus-Nordwand, kein Schlafraum dahinter
+  const kl = koerper(R(10.95, 2.55, 11.9, 2.89), wpM, 0.8, 0.15); kl.userData = { code: 'KL', name: 'Klima-Außengerät Multisplit (Vorschlag, mit Neuroth klären)' }; klickbar.push(kl);
+  box(10.98, 2.6, 11.04, 2.86, 0.15, gitter, 0); box(11.81, 2.6, 11.87, 2.86, 0.15, gitter, 0);
+  const f2 = new THREE.Mesh(new THREE.CircleGeometry(0.26, 28), gitter); f2.position.set(11.6, 0.55, 2.545); f2.rotation.y = Math.PI; scene.add(f2);
+  technik.push({ name: 'Klima außen', text: 'Multisplit-Außengerät ca. 0,95 × 0,34 × 0,8 m auf Konsole. Neben der Wärmepumpe an der Nordwand des Treppenhauses: schattig, vom Garten nicht zu sehen, kein Schlafzimmer dahinter. Leitungen durchs Treppenhaus ins OG und durch die Decke zu den Eltern. Schall zur Nordgrenze vom Installateur rechnen lassen.', x: 11.42, z: 2.4, h: 1.2 });
   const [x1, y1, x2, y2] = bbox(fl('G02').pts);
   technik.push({ name: 'Pooltechnik', text: 'Pool-Wärmepumpe, Filter, Pumpe und Nachspeisung im Technikhäuschen nördlich der Sauna. Abstand zur Ostgrenze nur ca. 0,2 m.', x: (x1 + x2) / 2, z: (y1 + y2) / 2, h: 2.2 });
 })();

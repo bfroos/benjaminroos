@@ -3,10 +3,11 @@
 // Die Teilmodelle bleiben, wie sie sind (raum3d.js, kueche3d.js, baeder3d.js, garten3d.js); hier werden sie nur verschoben.
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import * as R3 from './raum3d.js?v=7';
-import * as K3 from './kueche3d.js?v=4';
+import * as R3 from './raum3d.js?v=8';
+import * as K3 from './kueche3d.js?v=5';
 import * as B3 from './baeder3d.js?v=3';
-import { buildGarden } from './garten3d.js?v=7';
+import { buildGarden } from './garten3d.js?v=8';
+import { buildVents } from './lueftung.js?v=1';
 
 export const EG_Y = 0.10;                          // Fußboden EG über Gelände (Terrasse liegt bei +0,16 → bündig genug)
 export const OG_Y = EG_Y + R3.CEIL.EG + 0.30;      // 3,25 = OK FFB OG laut Bauantrag
@@ -120,6 +121,8 @@ export function buildHouse(scene) {
     const w = m.matrixWorld.clone();             // stammt noch aus scene.updateMatrixWorld oben
     if (m.parent) m.parent.remove(m); w.decompose(m.position, m.quaternion, m.scale); grp.add(m);
   }
+  for (const fl of ['EG', 'OG']) if (!layers[fl + '|body']) { layers[fl + '|body'] = Object.assign(new THREE.Group(), { name: fl + '|body' }); scene.add(layers[fl + '|body']); }
+  buildVents({ EG: layers['EG|body'], OG: layers['OG|body'] }, toWorld, { EG: EG_Y, OG: OG_Y }, R3.CEIL);   // 02.11.: Lüftungsventile (Vorschlag)
   for (const d of doors) { const key = d.userData.fl + '|body'; (layers[key] || scene).attach(d); d.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); }
   return { rooms, layers, garden, G, doors };
 }
