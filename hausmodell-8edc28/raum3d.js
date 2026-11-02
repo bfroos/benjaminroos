@@ -6,6 +6,7 @@
 // Raum-Metern (Ursprung oben links), aus den Möblierungsplänen vom 22.09.2026.
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+import { LB } from './licht_bestand.js?v=1';
 
 export const CEIL = { EG: 2.85, OG: 2.55 };   // angenommen (EG wie Küche, OG wie Bäder)
 // Gesamtmodell (haus3d.js): haus = doppelte Teile weglassen (Galerie/Rutsche aus dem OG-Flur, Kamin aus dem Essbereich), tuerenOffen = Zimmertüren offen
@@ -377,6 +378,43 @@ function Pendant(g, x, z, C, kind, L, o = {}) {   // Leuchten von der Decke
   else if (kind === 'linear') { const len = o.len || 1.6; g.add(box(len, 0.04, 0.06, MAT.black(), x, y, z)); g.add(box(len - 0.04, 0.005, 0.04, MAT.glow('#fff1d0', 1.8), x, y - 0.022, z, false)); g.add(box(0.008, drop - 0.1, 0.008, MAT.black(), x + len / 2 - 0.1, C - (drop - 0.1) / 2, z, false)); }
   if (L && L.n < 5) { const p = new THREE.PointLight('#ffe2b8', o.strong ? 3 : 1.5, 6, 2); p.position.set(x, y - 0.15, z); g.add(p); L.n++; }
 }
+function DeckeFlach(g, x, z, C) {                  // flache Aufbau-Deckenleuchte Ø 45 am Bestandsauslass
+  g.add(cyl(0.225, 0.225, 0.05, MAT.col('#f2f0eb', 0.5), x, C - 0.025, z, 40));
+  const d = new THREE.Mesh(new THREE.CircleGeometry(0.2, 40), MAT.glow('#fff4dc', 1.6)); d.rotation.x = Math.PI / 2; d.position.set(x, C - 0.051, z); d.userData.lp = { t: 'spot', art: 'decke' }; g.add(d);
+}
+function Schiene(g, x, z, C, len) {                 // Stromschiene aufgesetzt, Einspeisung am Bestandsauslass, 3 Strahler
+  boxA(g, x - len / 2, C - 0.035, z - 0.018, x + len / 2, C, z + 0.018, MAT.black());
+  for (const k of [-1, 0, 1]) { const sx = x + k * len / 3; g.add(cyl(0.035, 0.035, 0.11, MAT.black(), sx, C - 0.1, z, 16));
+    const d = new THREE.Mesh(new THREE.CircleGeometry(0.028, 16), MAT.glow('#fff4dc', 2.2)); d.rotation.x = Math.PI / 2; d.position.set(sx, C - 0.156, z); if (k === 0) d.userData.lp = { t: 'spot', art: 'schiene', len }; g.add(d); }
+}
+function Dose(g, side, line, at, y, txt) {         // Geräte-Steckdose (Plan 02.11.): Rahmen 8 × 8 cm an der Wand, im Lichtplan mit Text und Höhe
+  const f = { N: 'S', S: 'N', W: 'E', E: 'W' }[side], along = side === 'N' || side === 'S';
+  const d = new THREE.Group(); const m = boxA(d, -0.04, -0.04, 0, 0.04, 0.04, 0.012, MAT.col('#f4f3f0', 0.4), false);
+  m.userData.lp = { t: 'gdose', txt, h: y }; put(g, d, along ? at : line, along ? line : at, 0, 0, f, y);
+}
+// Geräte-Steckdosen je Raum (Blatt-Meter): [Wand, Wandlinie, Lage entlang der Wand, Höhe, Text]. Kinderzimmer: aus den Möbeln in kidsRoom().
+const DOSEN = {
+  buero: [['N', 14.73, 11.65, 0.3, '2× Dreifach + 2× LAN hinter dem Hubtisch (Kabelschlaufe)']],
+  hobby: [['E', 16.24, 19.9, 0.95, 'Dreifach + LAN über Ingas Schreibtisch']],
+  flur_eg: [['N', 11.95, 12.2, 0.3, 'Im Schuhschrank: Ladestation Akkusauger']],
+  eltern: [['S', 13.25, 29.55, 0.7, 'Doppel + USB-C am Nachttisch links'], ['S', 13.25, 32.05, 0.7, 'Doppel + USB-C am Nachttisch rechts'], ['W', 27.66, 9.4, 1.2, 'Hinter dem TV: Doppel + LAN']],
+  wohnen: [['W', 26.71, 16.55, 0.3, 'Hinter dem Lowboard: 2× Dreifach + LAN + Antenne/SAT'], ['E', 32.73, 15.3, 0.3, 'Neben dem Sofa: Doppel + USB-C']],
+  rutsche: [['W', 16.46, 15.5, 0.3, 'Hinter dem Sideboard: 2× Doppel + LAN + Antenne/SAT (TV Essen)'], ['W', 16.46, 12.44, 0.5, 'US-Kühlschrank: eigener Stromkreis, daneben Wasseranschluss'], ['N', 11.86, 25.8, 0.3, 'Sideboard: Deko-Licht']],
+  spiel: [['W', 25.69, 14.9, 0.3, 'Konsole/Beamer: Dreifach + LAN']],
+  hwr: [['W', 23.19, 10.01, 1.2, 'Waschturm 1: Waschmaschine + Trockner, je eigener Stromkreis'], ['W', 23.19, 11.18, 1.2, 'Waschturm 2: Waschmaschine + Trockner, je eigener Stromkreis']],
+};
+function HKV(g, x0, z0, x1, z1, y0 = 0.15, y1 = 0.95) {   // Heizkreisverteiler: Unterputz-Schrank, weiße Stahltür flächenbündig (Lage nach Neuroth bzw. Vorschlag 02.11.)
+  const sx = Math.abs(x1 - x0) > Math.abs(z1 - z0), e = 0.012;
+  boxA(g, sx ? x0 - e : x0, y0 - e, sx ? z0 : z0 - e, sx ? x1 + e : x1 - 0.005, y1 + e, sx ? z1 - 0.005 : z1 + e, MAT.col('#8d8a84', 0.6));   // Rahmen/Schattenfuge
+  const d = boxA(g, sx ? x0 : x0 - 0.002, y0, sx ? z0 - 0.002 : z0, sx ? x1 : x1 + 0.002, y1, sx ? z1 + 0.002 : z1, MAT.col('#f7f7f5', 0.45)); d.userData = { code: 'HKV', name: 'Heizkreisverteiler' };
+  boxA(g, sx ? x1 - 0.12 : x0 - 0.004, y1 - 0.2, sx ? z0 - 0.004 : z1 - 0.12, sx ? x1 - 0.1 : x1 + 0.004, y1 - 0.12, sx ? z1 + 0.004 : z1 - 0.1, MAT.col('#3a3a38', 0.5));   // Schloss
+}
+function Klima(g, side, line, at, y = 2.32) {      // Klima-Innengerät (Wandgerät ca. 80 × 29 × 21 cm), bläst in den Raum
+  const f = { N: 'S', S: 'N', W: 'E', E: 'W' }[side], along = side === 'N' || side === 'S';
+  const k = new THREE.Group(); k.userData = { code: 'KL', name: 'Klimagerät innen (Vorschlag 02.11.)' };
+  boxA(k, -0.4, -0.145, 0, 0.4, 0.145, 0.2, MAT.col('#f4f3f0', 0.35)); boxA(k, -0.36, -0.145, 0.12, 0.36, -0.13, 0.19, MAT.col('#3a3a38', 0.6));
+  put(g, k, along ? at : line, along ? line : at, 0, 0, f, y);
+}
 function Sconce(g, side, line, at, y, o = {}) {   // Wandleuchte: Licht nach oben und unten
   const f = { N: 'S', S: 'N', W: 'E', E: 'W' }[side], along = side === 'N' || side === 'S', w = o.w || 0.1;
   const s = new THREE.Group(); s.userData.lp = { t: 'wand', side };
@@ -391,7 +429,9 @@ function Doormat(g, x0, z0, x1, z1) {               // eingelassene Sauberlaufma
   const t = std('#ffffff', { map: ribTex.clone(), roughness: 1 }); t.map.repeat.set(1, (z1 - z0) / 0.06); t.map.needsUpdate = true;
   boxA(g, x0, 0, z0, x1, 0.003, z1, MAT.steel(), false); boxA(g, x0 + 0.02, 0, z0 + 0.02, x1 - 0.02, 0.004, z1 - 0.02, t, false);
 }
-function Spot(g, x, z, C) {                       // Einbaustrahler
+let LBR = null;                                    // 02.11.: Deckenlicht nur an vorhandenen Auslässen (licht_bestand.js); geplante Spots entfallen dann
+function Spot(g, x, z, C, force = false) {        // Einbaustrahler
+  if (LBR && !force) return;
   g.add(cyl(0.045, 0.045, 0.004, MAT.col('#d9d4cc', 0.5), x, C - 0.002, z, 16));
   const d = new THREE.Mesh(new THREE.CircleGeometry(0.03, 16), MAT.glow('#fff4dc', 2.2)); d.rotation.x = Math.PI / 2; d.position.set(x, C - 0.005, z); d.userData.lp = { t: 'spot' }; g.add(d);
 }
@@ -415,10 +455,12 @@ function helixSlide(g, cx, cz, top, y0 = 0) {      // Röhrenrutsche Ø 80: Eins
   // 02.11.: Einstieg beginnt bündig an der Galeriekante (z 14,60) als offene Mulde, kein Tor, keine Stangen zur Decke;
   // Auslauf als geneigte Halbschale mit Endwulst auf zwei Stützen, Matte davor
   const G = new THREE.Group(); G.userData.keep = true; g.add(G); g = G;
-  const r = 0.8, yT = y0 + top, ex = cx - 1.2, ez = cz - 0.62, zE0 = 14.60, zE1 = 14.98;
+  // 02.11. abends (Benjamin: Auslauf zu lang, zu nah am Esstisch): Röhre endet 25 cm früher, Halbschale 0,7 statt 1,3 m, Matte 1,0 statt 1,3 m.
+  // Auslaufende jetzt bei x 22,9 statt 22,05, Matte endet 21,9 statt 20,7 (Stuhl am Tischende steht bei 20,85). Mindestlänge mit Wiegand klären.
+  const r = 0.8, yT = y0 + top, ex = cx - 1.2, ox = cx - 0.95, ez = cz - 0.62, zE0 = 14.60, zE1 = 14.98;
   const pts = [new THREE.Vector3(ex, yT, zE1), new THREE.Vector3(ex + 0.12, yT - 0.05, zE1 + 0.16)];
   for (let i = 1; i <= 60; i++) { const t = i / 60, th = Math.PI - t * 1.5 * Math.PI; pts.push(new THREE.Vector3(cx + r * Math.cos(th), yT - 0.1 - t * (top - 0.1 - 0.7), cz + r * Math.sin(th))); }
-  pts.push(new THREE.Vector3(cx - 0.6, y0 + 0.6, ez), new THREE.Vector3(ex, y0 + 0.52, ez));
+  pts.push(new THREE.Vector3(cx - 0.5, y0 + 0.6, ez), new THREE.Vector3(ox, y0 + 0.52, ez));
   const curve = new THREE.CatmullRomCurve3(pts), tm = new THREE.MeshStandardMaterial({ color: '#d9dcdf', metalness: 0.6, roughness: 0.28, side: THREE.DoubleSide });
   const tube = new THREE.Mesh(new THREE.TubeGeometry(curve, 240, 0.41, 28, false), tm); tube.castShadow = true; g.add(tube);
   for (let i = 3; i < 64; i += 7) { const p = curve.getPoint(i / 64); const ring = new THREE.Mesh(new THREE.TorusGeometry(0.415, 0.012, 6, 28), MAT.steel()); ring.position.copy(p); ring.lookAt(curve.getPoint(i / 64 + 0.01)); g.add(ring); }
@@ -428,14 +470,14 @@ function helixSlide(g, cx, cz, top, y0 = 0) {      // Röhrenrutsche Ø 80: Eins
   const mu = new THREE.Mesh(new THREE.ExtrudeGeometry(half(0.395, 0.42), { depth: zE1 - zE0, bevelEnabled: false, curveSegments: 24 }), tm);
   mu.position.set(ex, yT, zE0); g.add(mu);
   const lip = new THREE.Mesh(new THREE.TorusGeometry(0.41, 0.03, 8, 24, Math.PI), MAT.col('#e8730c', 0.5)); lip.rotation.z = Math.PI; lip.position.set(ex, yT, zE0 + 0.01); g.add(lip);
-  // Auslauf: Halbschale 1,3 m, fällt von 0,52 auf 0,36 m, Endwulst, zwei Stützen, Matte
-  const L = 1.3, drop = 0.16, ang = Math.atan2(drop, L), au = new THREE.Group(); au.position.set(ex, y0 + 0.52, ez); au.rotation.z = ang; g.add(au);
+  // Auslauf: Halbschale 0,7 m, fällt von 0,52 auf 0,40 m, Endwulst, zwei Stützen, Matte
+  const L = 0.7, drop = 0.12, ang = Math.atan2(drop, L), au = new THREE.Group(); au.position.set(ox, y0 + 0.52, ez); au.rotation.z = ang; g.add(au);
   const sh = new THREE.Mesh(new THREE.ExtrudeGeometry(half(0.395, 0.42), { depth: L, bevelEnabled: false, curveSegments: 24 }), tm); sh.rotation.y = -Math.PI / 2; au.add(sh); sh.castShadow = true;
   const endw = new THREE.Mesh(new THREE.TorusGeometry(0.41, 0.03, 8, 24, Math.PI), MAT.col('#e8730c', 0.5)); endw.rotation.set(0, Math.PI / 2, Math.PI); endw.position.set(-L, 0, 0); au.add(endw);
-  for (const d of [0.25, L - 0.2]) { const xx = ex - d * Math.cos(ang), yy = y0 + 0.52 - d * Math.sin(ang) - 0.42;
+  for (const d of [0.15, L - 0.12]) { const xx = ox - d * Math.cos(ang), yy = y0 + 0.52 - d * Math.sin(ang) - 0.42;
     boxA(g, xx - 0.03, y0, ez - 0.32, xx + 0.03, yy, ez - 0.26, MAT.steel()); boxA(g, xx - 0.03, y0, ez + 0.26, xx + 0.03, yy, ez + 0.32, MAT.steel()); boxA(g, xx - 0.03, yy - 0.04, ez - 0.32, xx + 0.03, yy, ez + 0.32, MAT.steel()); }
   g.add(cyl(0.06, 0.06, top - 0.45, MAT.steel(), cx, y0 + (top - 0.45) / 2, cz, 12));                // Mittelsäule bis unter die oberste Windung
-  g.add(rbox(1.3, 0.06, 1.1, 0.03, MAT.fabric('#3b6fa0'), ex - L - 0.7, y0 + 0.03, ez));
+  g.add(rbox(1.0, 0.06, 1.0, 0.03, MAT.fabric('#3b6fa0'), ox - L - 0.5, y0 + 0.03, ez));
 }
 // Galerie im OG zwischen Treppenloch und Luftraum (EG-Blattmaße, y = Oberkante Rohdecke): Deckenkanten, Glasgeländer,
 // Lücke für den Rutscheneinstieg mit zwei Haltegriffen; gemeinsam für Essbereich (EG) und OG-Flur
@@ -728,6 +770,7 @@ const ROOMS = {
       put(g, Nightstand(0.4, 0.35, MAT.walnut(), { y0: 0.35 }), bx + 2.05, 12.84, 0.4, 0.35, 'N');
       Pendant(g, bx - 0.25, 12.95, C, 'globe', L, { r: 0.1, drop: 1.9 }); Pendant(g, bx + 2.25, 12.95, C, 'globe', L, { r: 0.1, drop: 1.9 });
       put(g, Rbench(1.4, 0.4, '#8f8576'), bx + 0.3, bz - 0.47, 1.4, 0.4, 'N');
+      Klima(g, 'S', 13.25, bx + 1.0, 2.4);   // 02.11.: Klimagerät über dem Kopfende, bläst über das Bett zum Schrank
       const tv = TV(1.1); put(g, tv, 27.66, 8.85, 0.03, 1.1, 'E', 1.35);
       boxA(g, 27.66, 1.3, 9.35, 27.72, 1.4, 9.45, MAT.black());
       put(g, Rug(2.6, 2.5, '#ddd2c0', '#b9ab95'), bx - 0.3, 10.45, 2.6, 2.5, 'S');
@@ -813,10 +856,15 @@ const ROOMS = {
       put(g, DiningChair('#c9bca8'), tx - 0.55, tz + 0.25, 0.5, 0.5, 'E'); put(g, DiningChair('#c9bca8'), tx + 2.45, tz + 0.25, 0.5, 0.5, 'W');
       g.add(vase(tx + 1.2, 0.76, tz + 0.5, 0.08, 0.3, '#e9e2d6'));
       Pendant(g, tx + 1.2, tz + 0.5, C, 'linear', L, { len: 1.7, drop: 1.25, strong: true });
-      put(g, Cab(2.1, 0.45, 0.62, MAT.oak(), { y0: 0.12, door: 0.7, handle: 'grip', led: true }), 24.25, 11.93, 2.1, 0.45, 'S');
-      put(g, Picture(1.2, 0.8, 1), 24.7, 11.86, 1.2, 0.03, 'S', 1.6);
-      g.add(vase(24.5, 0.74, 12.15, 0.06, 0.32, '#a9573c')); put(g, Plant(0.5, '#e9e2d6', 7), 25.7, 11.98, 0.3, 0.3, 'S', 0.74);
-      put(g, Plant(1.7, '#3b3733', 11), 16.75, 16.05, 0.4, 0.4, 'S');
+      // 02.11. abends: HKV2 (Neuroth, 9 Kreise, UP-Schrank 87 cm) am Westende der Wand zum Elternbad; Sideboard dafür auf 1,25 m gekürzt
+      HKV(g, 24.15, 11.86, 25.02, 11.875);
+      put(g, Cab(1.25, 0.45, 0.62, MAT.oak(), { y0: 0.12, door: 0.625, handle: 'grip', led: true }), 25.12, 11.93, 1.25, 0.45, 'S');
+      put(g, Picture(1.0, 0.7, 1), 25.25, 11.86, 1.0, 0.03, 'S', 1.6);
+      g.add(vase(25.35, 0.74, 12.15, 0.06, 0.32, '#a9573c')); put(g, Plant(0.5, '#e9e2d6', 7), 25.7, 11.98, 0.3, 0.3, 'S', 0.74);
+      // 02.11. abends: Westwand am Esstisch (z 14,40–16,57, südlich der Glastür zum Eingang): Sideboard 1,80 m und Fernseher 65 Zoll darüber
+      put(g, Cab(1.8, 0.45, 0.62, MAT.oak(), { y0: 0.12, door: 0.6, handle: 'grip', led: true }), 16.46, 14.6, 0.45, 1.8, 'E');
+      put(g, TV(1.45), 16.46, 14.775, 0.03, 1.45, 'E', 1.32);
+      g.add(vase(16.7, 0.74, 16.25, 0.06, 0.32, '#a9573c'));
       Spot(g, 18.0, 12.6, C); Spot(g, 20.0, 12.6, C); Spot(g, 25.2, 12.6, C);
       galerie(g, C); const y = C + SLAB;
       boxA(g, 21.897, 2.51, 16.57, 26.107, 3.30, 16.57 + T, MAT.col('#d8d3ca', 0.9));                     // Betonsturz zwischen Schiebetür und Oberlicht
@@ -841,6 +889,7 @@ const ROOMS = {
       const pax = (x, z, w, d, f) => put(g, Cab(LW(w, d, f)[0], LW(w, d, f)[1], C - 0.02, '#f2efe9', { door: 0.5, handle: 'knob' }), x, z, w, d, f);
       pax(11.41, 14.62, 2.05, 0.4, 'N'); pax(13.59, 12.76, 1.0, 0.57, 'S'); pax(13.59, 14.57, 1.0, 0.58, 'N'); pax(16.2, 14.62, 1.08, 0.4, 'N'); pax(18.66, 14.62, 1.92, 0.4, 'N');
       put(g, Rug(10.6, 0.8, '#d9cdb8', '#8a9a7b'), 9.3, 13.54, 10.6, 0.8, 'S');
+      HKV(g, 13.655, 12.73, 14.525, 12.745);   // 02.11.: HKV3 (Neuroth, 11 Kreise) an der Rückwand der Nische am Kinderbad Nord; PAX davor unten ohne Rückwand
       for (const [x, i] of [[11.6, 0], [12.5, 3], [14.95, 2], [17.8, 1]]) put(g, Picture(0.5, 0.4, i, MAT.oak()), x, 13.33, 0.5, 0.03, 'S', 1.5);
       for (const [x, z] of [[9.9, 13.95], [12.4, 14.1], [14.1, 13.9], [16.7, 14.1], [19.6, 14.1], [22.0, 13.5], [24.4, 13.5]]) Spot(g, x, z, C);
       const p = new THREE.PointLight('#ffe2b8', 1.5, 7, 2); p.position.set(14.5, 2.2, 13.9); g.add(p);
@@ -881,6 +930,7 @@ const ROOMS = {
       boxA(g, x, 0.88, 11.54, x + D, 0.92, 12.19, MAT.col('#2b2a28', 0.4));
       boxA(g, x + 0.12, 0.86, 11.64, x + 0.52, 0.921, 12.09, MAT.col('#d9d6d0', 0.3));
       g.add(cyl(0.012, 0.012, 0.3, MAT.steel(), x + 0.08, 1.07, 11.865, 8)); boxA(g, x + 0.08, 1.2, 11.86, x + 0.26, 1.215, 11.875, MAT.steel());
+      HKV(g, 25.445, 11.45, 25.46, 12.12, 0.2, 1.0);   // 02.11.: HKV4 (Neuroth, 7 Kreise, UP 67 cm) an der Ostwand unter den Wandtrocknern
       put(g, Cab(3.04, 0.4, C - 2.02 - 0.01, oak, { y0: 2.02, door: 0.5, handle: 'grip', led: true }), x, 9.15, 0.4, 3.04, 'E');
       // Zwei Wandtrockner, einer ausgeklappt mit Wäsche
       for (const [z, open] of [[9.3, true], [10.4, false]]) {
@@ -951,6 +1001,12 @@ function kidsRoom(g, b, L, C, k) {
   const [bx, bz, bw, bd, bf] = k.bed, [bW, bD] = LW(bw, bd, bf);
   put(g, Bed(bW, bD, { frame: '#d6cab6', head: '#c7b9a3', hbH: k.hbH || 0.01, duvet: k.duvet, throw: k.accent, cushion: k.accent2 }), bx, bz, bw, bd, bf);
   if (k.head) { const [hx, hz, hw, hd, hf, hh] = k.head; const [W] = LW(hw, hd, hf); const p = new THREE.Group(); const n = Math.max(2, Math.round(W / 0.38)); for (let i = 0; i < n; i++) p.add(rbox(W / n - 0.012, hh, 0.07, 0.025, MAT.fabric('#c7b9a3'), -W / 2 + (i + 0.5) * W / n, 0.08 + hh / 2, 0)); put(g, p, hx, hz, hw, hd, hf); }
+  // Geräte-Steckdosen aus den Möbeln: hinter Nachttisch, über Schreibtisch, hinter Lowboard (Wand = Rückseite des Möbels)
+  const back = ([x, z, w, d, f]) => f === 'S' ? ['N', z, x + w / 2] : f === 'N' ? ['S', z + d, x + w / 2] : f === 'E' ? ['W', x, z + d / 2] : ['E', x + w, z + d / 2];
+  if (k.nt) Dose(g, ...back(k.nt), 0.7, 'Doppel + USB-C am Bett');
+  if (k.desk) Dose(g, ...back(k.desk), 0.95, 'Dreifach + LAN über dem Schreibtisch');
+  if (k.low) Dose(g, ...back(k.low), 0.3, 'Hinter dem Lowboard: Doppel + LAN');
+  if (k.ac) Klima(g, ...k.ac);   // 02.11.: Klimagerät an der Wand zum Kinderbad (Kondensat ins Bad), Kind 1 über der Tür
   if (k.lamBed) { const [lx, lz, lw, ld, lf] = k.lamBed; put(g, Lamellas(LW(lw, ld, lf)[0], C, oak, { led: true }), lx, lz, lw, ld, lf); }
   { const [nx, nz, nw, nd, nf] = k.nt; put(g, Nightstand(LW(nw, nd, nf)[0], LW(nw, nd, nf)[1], sage, { lamp: k.accent, led: true }), nx, nz, nw, nd, nf); }
   { const [tx, tz, tw, td, tf] = k.tvLam; put(g, Lamellas(LW(tw, td, tf)[0], C, oak, { led: true }), tx, tz, tw, td, tf); }
@@ -970,28 +1026,28 @@ function kidsRoom(g, b, L, C, k) {
   for (const c of k.curt) Curtain(wallGroup(b, c[0], c[3]), ...c, C);
 }
 const KIDS = {
-  kind1: { wacc: [{ s: 'N', at: 0, c: '#d9dfcf' }], name: 'Kinderzimmer 1', rects: [[0, 0, 4.39, 2.16], [0, 2.16, 4.26, 4.10]],
+  kind1: { ac: ['N', 0, 1.6], wacc: [{ s: 'N', at: 0, c: '#d9dfcf' }], name: 'Kinderzimmer 1', rects: [[0, 0, 4.39, 2.16], [0, 2.16, 4.26, 4.10]],
     open: [{ s: 'S', a: [0.79, 3.47], t: 'ftc', pane: 1.35 }, { s: 'N', a: [1.30, 2.17], t: 'door' }],
     rug: [0.80, 1.00, 2.70, 2.40], rugC: '#e6dccb', bed: [2.39, 0.55, 2.00, 1.40, 'W'], lamBed: [4.32, 0.05, 0.07, 2.06, 'W'], nt: [3.87, 0.08, 0.45, 0.40, 'S'],
     tvLam: [0, 0.35, 0.06, 1.95, 'E'], low: [0.06, 0.75, 0.40, 1.20, 'E'], tv: [0.06, 0.85, 0.03, 1.0], ward: [0, 2.35, 0.60, 1.75, 'E'],
     desk: [3.66, 2.40, 0.60, 1.60, 'W'], deskShelf: true, chair: [3.26, 3.20, 'E'], bean: [1.30, 3.30, 0.42], pic: [0.4, 0.0, 0.5, 0.03, 'S'],
     duvet: '#eef0ea', accent: '#d8a53a', accent2: '#7d8a74', art: 3, spots: [[1.2, 1.2], [3.2, 1.2], [1.2, 3.2], [3.2, 3.2]], curt: [['S', 0.79, 3.47, 4.10]],
     view: { pos: [1.75, 0.45, 1.5], target: [3.0, 2.6, 0.8], fov: 74 }, dir: [-0.3, 1] },
-  kind2: { wacc: [{ s: 'N', at: 0, c: '#c6d2db' }], name: 'Kinderzimmer 2', rects: [[0, 0, 4.5, 4.0]],
+  kind2: { ac: ['W', 0, 3.1], wacc: [{ s: 'N', at: 0, c: '#c6d2db' }], name: 'Kinderzimmer 2', rects: [[0, 0, 4.5, 4.0]],
     open: [{ s: 'N', a: [0.94, 3.79], t: 'win', sill: 0.9, head: 2.25 }, { s: 'S', a: [1.98, 2.85], t: 'door' }],
     rug: [0.30, 2.20, 3.30, 1.20], rugC: '#dfe4e8', bed: [0, 0.08, 1.40, 2.00, 'S'], head: [0, 0, 2.30, 0.07, 'S', 0.78], nt: [1.45, 0.08, 0.45, 0.30, 'S'],
     tvLam: [0.05, 3.94, 1.85, 0.06, 'N'], low: [0.37, 3.54, 1.20, 0.40, 'N'], tv: [0.47, 3.90, 1.0, 0.03], ward: [3.90, 1.70, 0.60, 2.30, 'W'],
     desk: [3.90, 0.05, 0.60, 1.60, 'W'], deskShelf: false, chair: [3.50, 0.85, 'E'], bean: [3.05, 2.85, 0.42], pic: [0.0, 1.0, 0.03, 0.5, 'E'],
     duvet: '#e9eef2', accent: '#5f7f99', accent2: '#c9a06a', art: 2, spots: [[1.1, 1.0], [3.3, 1.0], [1.1, 3.0], [3.3, 3.0]], curt: [['N', 0.94, 3.79, 0]],
     view: { pos: [2.4, 3.7, 1.5], target: [2.3, 0.4, 0.85], fov: 76 }, dir: [0.4, 1] },
-  kind3: { wacc: [{ s: 'N', at: 0, c: '#e1c3b0' }], name: 'Kinderzimmer 3', rects: [[0, 0, 4.37, 4.02]],
+  kind3: { ac: ['E', 4.37, 3.2], wacc: [{ s: 'N', at: 0, c: '#e1c3b0' }], name: 'Kinderzimmer 3', rects: [[0, 0, 4.37, 4.02]],
     open: [{ s: 'N', a: [0.12, 1.68], t: 'win', sill: 0.9, head: 2.25 }, { s: 'W', a: [0.12, 1.70], t: 'win', sill: 0.9, head: 2.25 }, { s: 'S', a: [1.60, 2.47], t: 'door' }],
     rug: [0.85, 1.0, 2.0, 2.3], rugC: '#eadfd3', bed: [2.97, 0.08, 1.40, 2.0, 'S'], head: [2.45, 0, 1.92, 0.07, 'S', 1.05], nt: [2.50, 0.08, 0.45, 0.30, 'S'],
     tvLam: [2.60, 3.96, 1.75, 0.06, 'N'], low: [2.87, 3.56, 1.20, 0.40, 'N'], tv: [2.97, 3.92, 1.0, 0.03], ward: [0, 1.80, 0.60, 2.15, 'E'],
     desk: [0.05, 0.10, 0.60, 1.60, 'E'], deskShelf: false, chair: [1.0, 0.90, 'W'], bean: [1.50, 2.75, 0.42], pic: [4.34, 2.4, 0.03, 0.5, 'W'],
     duvet: '#f2ebe4', accent: '#b5653f', accent2: '#8a9a7b', art: 1, spots: [[1.1, 1.0], [3.3, 1.0], [1.1, 3.0], [3.3, 3.0]], curt: [['N', 0.12, 1.68, 0], ['W', 0.12, 1.70, 0]],
     view: { pos: [2.05, 3.7, 1.5], target: [2.0, 0.4, 0.85], fov: 76 }, dir: [0.4, 1] },
-  kind4: { wacc: [{ s: 'S', at: 4.25, c: '#e8d6a8' }], name: 'Kinderzimmer 4', rects: [[0, 0, 2.35, 4.25], [2.35, 0.16, 4.25, 4.25]],
+  kind4: { ac: ['E', 4.25, 0.95], wacc: [{ s: 'S', at: 4.25, c: '#e8d6a8' }], name: 'Kinderzimmer 4', rects: [[0, 0, 2.35, 4.25], [2.35, 0.16, 4.25, 4.25]],
     open: [{ s: 'S', a: [0.12, 1.90], t: 'win', sill: 0.9, head: 2.25 }, { s: 'W', a: [2.79, 4.13], t: 'win', sill: 0.9, head: 2.25 }, { s: 'N', a: [1.21, 2.08], t: 'door' }],
     rug: [0.85, 0.96, 2.0, 2.3], rugC: '#efe4cc', bed: [2.85, 2.17, 1.40, 2.0, 'N'], head: [2.33, 4.18, 1.92, 0.07, 'N', 1.05], nt: [2.38, 3.87, 0.45, 0.30, 'N'],
     tvLam: [2.45, 0.16, 1.75, 0.06, 'S'], low: [2.70, 0.22, 1.25, 0.40, 'S'], tv: [2.82, 0.24, 1.0, 0.03], ward: [0, 0.06, 0.60, 2.40, 'E'],
@@ -999,7 +1055,8 @@ const KIDS = {
     duvet: '#f3eee2', accent: '#c99a3a', accent2: '#5f7f99', art: 0, spots: [[1.1, 1.1], [3.2, 1.1], [1.1, 3.2], [3.2, 3.2]], curt: [['S', 0.12, 1.90, 4.25], ['W', 2.79, 4.13, 0]],
     view: { pos: [1.65, 0.45, 1.5], target: [3.0, 3.4, 0.8], fov: 76 }, dir: [-0.4, -1] },
 };
-for (const id in KIDS) ROOMS[id] = { ...KIDS[id], fl: 'OG', floor: 'plank', build(g, b, L, C) { kidsRoom(g, b, L, C, KIDS[id]); } };
+for (const id in KIDS) ROOMS[id] = { ...KIDS[id], fl: 'OG',   // 02.11.: Fischgrät wie im übrigen Haus (vorher Diele)
+  build(g, b, L, C) { kidsRoom(g, b, L, C, KIDS[id]); } };
 
 function Car(Lg, W, c) {                          // Auto vereinfacht, Front nach +Z
   const g = new THREE.Group(), lack = mat('car' + c, () => std(c, { metalness: 0.5, roughness: 0.3 })), win = MAT.col('#56636d', 0.12);
@@ -1052,7 +1109,10 @@ export function buildRoom(_data, rid) {
   const bx0 = Math.min(...xs), bx1 = Math.max(...xs), bz0 = Math.min(...zs), bz1 = Math.max(...zs);
   const g = new THREE.Group(), built = { group: g, walls: [], ceilings: [], room: { id: rid, name: R.name, fl: R.fl }, C, center: [(bx0 + bx1) / 2, (bz0 + bz1) / 2], size: [bx1 - bx0, bz1 - bz0] };
   shell(g, R, C, built);
-  R.build(g, built, { n: 0 }, C);
+  LBR = LB[rid] || null; R.build(g, built, { n: 0 }, C);
+  if (LBR) { for (const [x, z] of LBR.spots) Spot(g, x, z, C, true); for (const [x, z] of LBR.decke) DeckeFlach(g, x, z, C); for (const [x, z, l] of LBR.schienen || []) Schiene(g, x, z, C, l); }
+  LBR = null;
+  for (const [sd, ln, at, y, t] of DOSEN[rid] || []) Dose(g, sd, ln, at, y, t);
   // Hohe Möbel und Wandteile direkt an einer Wand gehören zu ihr: in der Ansicht von oben verschwinden sie mit
   const wallSet = new Set(built.walls.map(w => w.grp)), bb = new THREE.Box3();
   for (const w of built.walls) w.extra = [];
@@ -1083,7 +1143,8 @@ export function lightPoints(rid) {
     if (lp.t === 'steh' || lp.t === 'tisch') o.getWorldPosition(c);   // Fuß der Leuchte, dort kommt die Steckdose hin
     out.push({ ...lp, x: +c.x.toFixed(3), z: +c.z.toFixed(3), y: +c.y.toFixed(3), y1: +bb.max.y.toFixed(3), x0: +bb.min.x.toFixed(3), x1: +bb.max.x.toFixed(3), z0: +bb.min.z.toFixed(3), z1: +bb.max.z.toFixed(3), sx: +sz.x.toFixed(3), sz: +sz.z.toFixed(3) });
   });
-  return { id: rid, name: R.name, fl: R.fl, C: b.C, rects: R.rects, voids: R.voids || [], open: R.open || [], walls: b.walls.map(w => ({ side: w.side, line: w.line, a0: w.a0, a1: w.a1 })), lights: out };
+  return { id: rid, name: R.name, fl: R.fl, C: b.C, rects: R.rects, voids: R.voids || [], open: R.open || [], walls: b.walls.map(w => ({ side: w.side, line: w.line, a0: w.a0, a1: w.a1 })), lights: out,
+    tall: b.walls.flatMap(w => w.extra.map(o => { bb.setFromObject(o); return [+bb.min.x.toFixed(3), +bb.min.z.toFixed(3), +bb.max.x.toFixed(3), +bb.max.z.toFixed(3), +bb.min.y.toFixed(2), +bb.max.y.toFixed(2)]; })) };   // hohe Möbel an Wänden (verdecken Dosen)
 }
 
 export function makeRenderer(canvas, w, h) {

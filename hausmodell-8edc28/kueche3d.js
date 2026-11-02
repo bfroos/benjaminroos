@@ -273,14 +273,18 @@ function island(r) {
   const pop = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.006, 24), M.blackMetal); pop.position.set(xs + 0.90, WH + 0.003, z + 0.92); r.add(pop);
 }
 
-// ---------- Wand zum Eingang: Kühlschrank-Hochschrank (02.11., Benjamin: dort, wo die Kaffeestation vorgeschlagen war, steht jetzt der Kühlschrank) ----------
+// ---------- Ecke an der Wand zum Eingang: amerikanischer Kühlschrank (02.11. abends, Benjamin; vorher 60er-Einbaukühlschrank mit Apothekerauszug) ----------
+// Side-by-Side frei stehend ca. 91 × 72 × 178 cm in einer verputzten Nische bis zur Decke, 3 cm Luft je Seite und oben.
+// Braucht Festwasseranschluss (Eis/Wasser) und eigene Steckdose hinter dem Gerät: mit BEWA und Installateur klären.
 function station(r) {
-  const x = -1.251, z0 = 1.70, w = 0.90;
-  r.box(x, z0, 0.58, w, 0.10, TOP, M.korpus);
-  r.box(x + 0.02, z0 + 0.01, 0.52, w - 0.02, 0, 0.10, oakMat(0.5, 0.1));
-  front(r, z0, x + 0.58, 0.30, 0.10, TOP, null, false);                                                       // Apothekerauszug 30
-  front(r, z0 + 0.30, x + 0.58, 0.60, 0.10, 1.88, null, false); front(r, z0 + 0.30, x + 0.58, 0.60, 1.88, TOP, null, false);   // Kühlschrank 178
-  r.box(x, z0, 0.62, w, TOP + 0.03, CEIL, M.plaster);                                                         // Kofferung bis zur Decke
+  const x = -1.251, z0 = 1.70, w = 0.97, fw = 0.91, fd = 0.72, fh = 1.78, zf = z0 + 0.03;
+  const steel = new THREE.MeshStandardMaterial({ color: '#b9bcbd', roughness: 0.32, metalness: 0.75 });
+  r.box(x, z0, 0.78, 0.03, 0, CEIL, M.plaster); r.box(x, z0 + w - 0.03, 0.78, 0.03, 0, CEIL, M.plaster);    // Nischenwangen
+  r.box(x, z0, 0.78, w, fh + 0.05, CEIL, M.plaster);                                                          // Kofferung über dem Gerät
+  r.box(x + 0.02, zf, fd - 0.04, fw, 0.02, fh, M.white);                                                      // Korpus
+  r.box(x + fd - 0.02, zf, 0.05, fw / 2 - 0.004, 0.02, fh, steel); r.box(x + fd - 0.02, zf + fw / 2 + 0.004, 0.05, fw / 2 - 0.004, 0.02, fh, steel);  // zwei Türen
+  for (const dz of [fw / 2 - 0.05, fw / 2 + 0.04]) r.box(x + fd + 0.03, zf + dz, 0.025, 0.012, 0.75, 1.45, M.blackMetal);   // Griffe
+  r.box(x + fd + 0.025, zf + 0.12, 0.006, 0.22, 1.05, 1.38, M.blackGlass);                                    // Eis-/Wasserspender
 }
 
 // ---------- Essplatz (Bestand, Lage nach Elektroplan F18.1) ----------
@@ -350,8 +354,9 @@ function pantry(r) {
     const x = i * 0.6, zb = ZS - 0.40; r.box(x, zb, 0.6, 0.40, PH, H, M.korpus); r.box(x + 0.01, zb + 0.04, 0.58, 0.36, 0, PH, sg);
     front(r, x, zb - 0.019, 0.3, PH, H, sg); front(r, x + 0.3, zb - 0.019, 0.3, PH, H, sg); r.box(x + 0.05, zb - 0.031, 0.5, 0.012, 1.25, 1.262, M.bronze);
   }
-  // Ostwand: Element 70 cm laut BEWA-Plan (Pos. 3, Lage 0,60–1,30 m ab Nordwand); vermutlich Heizkreisverteiler-Nische, mit BEWA klären
-  r.box(xe - 0.02, Z0 + 0.6, 0.02, 0.7, 0.3, 1.1, M.frame);
+  // Ostwand: HKV1 (Neuroth: 9 Kreise, Schütz UP 90-2, 87 cm breit). Vorschlag 02.11.: hierher statt Westende der Südwand, dort stünde er hinter dem ersten
+  // Geschirrschrank. BEWA hat an dieser Stelle schon ein 70-cm-Element (0,60–1,30 m ab Nordwand) – auf 90 cm verbreitern lassen.
+  r.box(xe - 0.015, Z0 + 0.62, 0.015, 0.87, 0.2, 1.05, M.white); r.box(xe - 0.02, Z0 + 1.37, 0.006, 0.02, 0.85, 0.93, M.blackMetal);
 }
 
 function stair(r) {    // Treppe neben der Küche, vereinfacht (18 Stufen 18,06 / 26,89)
