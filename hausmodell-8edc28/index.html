@@ -40,6 +40,7 @@ select { font: 500 13px var(--ui); color: var(--ink); background: var(--panel); 
 .karte .text { font-size: 13px; line-height: 1.45; color: var(--muted); }
 .karte .reihe { display: flex; flex-wrap: wrap; gap: 6px; }
 .karte .knopf { border: 1px solid var(--line); background: transparent; }
+.karte .halt { touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
 .marke { position: fixed; z-index: 4; transform: translate(-50%, -50%); font: 500 11px var(--ui); color: var(--ink); background: var(--panel);
   border: 1px solid var(--line); border-radius: 999px; padding: 3px 8px; white-space: nowrap; pointer-events: auto; cursor: pointer; }
 .marke:hover { border-color: var(--accent); }
@@ -84,6 +85,10 @@ select { font: 500 13px var(--ui); color: var(--ink); background: var(--panel); 
     <button class="knopf" id="b-nach" aria-label="Nächster Raum">Raum ▶</button>
   </div>
   <div class="reihe" id="k-knoepfe" hidden>
+    <button class="knopf halt" data-halt="vor" aria-label="Vorwärts gehen">▲ Vor</button>
+    <button class="knopf halt" data-halt="zur" aria-label="Rückwärts gehen">▼ Zurück</button>
+    <button class="knopf halt" data-halt="hoch" aria-label="Höher schweben">⬆ Höher</button>
+    <button class="knopf halt" data-halt="tief" aria-label="Tiefer schweben">⬇ Tiefer</button>
     <button class="knopf" id="b-hoch">Treppe hoch</button>
     <button class="knopf" id="b-raus">Rauszoomen</button>
     <button class="knopf" id="b-wvor" aria-label="Voriger Raum">◀</button>
@@ -105,7 +110,7 @@ select { font: 500 13px var(--ui); color: var(--ink); background: var(--panel); 
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
-import { buildHouse, roomAt, insidePoly, EG_Y, OG_Y, toWorld } from './haus3d.js?v=6';
+import { buildHouse, roomAt, insidePoly, EG_Y, OG_Y, toWorld } from './haus3d.js?v=7';
 
 const canvas = document.getElementById('szene');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: /shot/.test(location.search) });
@@ -174,7 +179,7 @@ function setzeModus(m, still) {
   if (still) return;
   if (m === 'aussen') { auto = false; flieg([-14, 26, 44], [9, 1, 10]); karte('Außen', 'Haus und Garten von Südwesten', 'Zoomst du nah ans Haus, geht das Dach auf. Die roten Schilder zeigen Wärmepumpe und Pooltechnik. Mit dem Raum-Menü gehst du hinein.'); }
   if (m === 'og') { flieg([9, 24, 28], [10, OG_Y, 8.5]); karte('Obergeschoss', 'Dach abgenommen', 'Kinderzimmer, Bäder, Flur mit Empore, Hauswirtschaftsraum und Spielraum. Tippe auf einen Namen: Der Raum kommt nah heran, mit ◀ ▶ blätterst du weiter.'); }
-  if (m === 'eg') { flieg([7, 22, 27], [10, EG_Y, 9]); karte('Erdgeschoss', 'Obergeschoss abgenommen', 'Garage, Technikraum, Eingang, Büro, Hobbyraum, Küche, Essen, Treppe mit Rutsche, Wohnen, Eltern. Tippe auf einen Namen: Der Raum kommt nah heran, mit ◀ ▶ blätterst du weiter. Türen und Schranktüren gehen per Klick auf und zu.'); }
+  if (m === 'eg') { flieg([7, 22, 27], [10, EG_Y, 9]); karte('Erdgeschoss', 'Obergeschoss abgenommen', 'Garage, Technikraum, Eingang, Büro, Hobbyraum, Küche, Essen, Treppe mit Rutsche, Wohnen, Eltern. Tippe auf einen Namen: Der Raum kommt nah heran, mit ◀ ▶ blätterst du weiter. Zimmertüren sind ausgeblendet, Schranktüren gehen per Klick auf und zu.'); }
   if (m === 'walk') geheIn(rooms.find(r => r.id === 'flur_eg'));
 }
 document.querySelectorAll('#modi button').forEach(b => b.addEventListener('click', () => setzeModus(b.dataset.m)));
@@ -244,7 +249,7 @@ function fokus(r) {
   const cx = (Math.min(...xs) + Math.max(...xs)) / 2, cz = (Math.min(...zs) + Math.max(...zs)) / 2, gr = Math.max(3.5, Math.max(...xs) - Math.min(...xs), Math.max(...zs) - Math.min(...zs));
   const y = r.fl === 'OG' ? OG_Y : EG_Y;
   flieg([cx - 0.35 * gr, y + 1.25 * gr + 1.5, cz + 0.95 * gr + 1.2], [cx, y + 0.6, cz]);
-  karte(r.fl === 'OG' ? 'Obergeschoss' : 'Erdgeschoss', r.name, 'Drehen und zoomen wie gewohnt. Türen und Schranktüren per Klick auf und zu. „Hineingehen“ stellt dich in den Raum.');
+  karte(r.fl === 'OG' ? 'Obergeschoss' : 'Erdgeschoss', r.name, 'Drehen und zoomen wie gewohnt. Schranktüren per Klick auf und zu. „Hineingehen“ stellt dich in den Raum.');
   $('k-raum').hidden = false; marken();
 }
 const blaettern = (d, rein) => { const cur = fokusRaum || roomAt(rooms, ebeneWalk, camera.position.x, camera.position.z); const i = Math.max(0, reihe.indexOf(cur)); const n = reihe[(i + d + reihe.length) % reihe.length]; rein ? geheIn(n) : fokus(n); };
@@ -288,7 +293,7 @@ function raumKarte() {
   const r = roomAt(rooms, ebeneWalk, camera.position.x, camera.position.z);
   const draussen = draussenBei(camera.position.x, camera.position.z, ebeneWalk);
   karte(draussen ? 'Garten' : ebeneWalk === 'OG' ? 'Obergeschoss' : 'Erdgeschoss', draussen ? 'Im Garten' : r ? r.name : 'Unterwegs im Haus',
-    'Ziehen = umsehen. Auf den Boden tippen = dorthin gehen, auf eine Tür tippen = auf/zu. Tasten W A S D oder Pfeile, Mausrad vor und zurück. ◀ ▶ = nächster Raum.');
+    'Ziehen = umsehen, auf den Boden tippen = dorthin gehen. ▲ ▼ vor und zurück, ⬆ ⬇ höher und tiefer (gedrückt halten). Tastatur: W A S D oder Pfeile, E und Q hoch und runter. ◀ ▶ = nächster Raum.');
   $('b-hoch').textContent = ebeneWalk === 'EG' ? 'Treppe hoch' : 'Treppe runter';
 }
 $('b-hoch').addEventListener('click', () => {
@@ -303,7 +308,13 @@ $('b-raus').addEventListener('click', () => {
   karte(m === 'og' ? 'Obergeschoss' : 'Erdgeschoss', 'Von oben', 'Weiter rauszoomen bringt dich nach außen.'); auto = true;
 });
 const tasten = new Set();
-addEventListener('keydown', e => { if (modus === 'walk' && /^(Key[WASD]|Arrow)/.test(e.code)) { tasten.add(e.code); e.preventDefault(); } });
+addEventListener('keydown', e => { if (modus === 'walk' && /^(Key[WASDEQ]|Arrow|Page)/.test(e.code)) { tasten.add(e.code); e.preventDefault(); } });
+// Knöpfe zum Gedrückthalten (Handy hat keine Tastatur): vor, zurück, höher, tiefer
+for (const b of document.querySelectorAll('[data-halt]')) {
+  const an = e => { e.preventDefault(); tasten.add('halt-' + b.dataset.halt); }, aus = () => tasten.delete('halt-' + b.dataset.halt);
+  b.addEventListener('pointerdown', an); for (const ev of ['pointerup', 'pointerleave', 'pointercancel']) b.addEventListener(ev, aus);
+  b.addEventListener('contextmenu', e => e.preventDefault());
+}
 addEventListener('keyup', e => tasten.delete(e.code));
 canvas.addEventListener('wheel', e => { if (modus !== 'walk') return; e.preventDefault(); schritt(-Math.sign(e.deltaY) * 0.45, 0); }, { passive: false });
 function schritt(vor, seit) {
@@ -349,7 +360,12 @@ function schleife(t) {
   for (const d of doors) if (d.userData.ziel !== undefined) { const z = d.userData.ziel, a = d.rotation.y; d.rotation.y = Math.abs(z - a) < 0.01 ? z : a + (z - a) * Math.min(1, dt * 7); }
   if (modus === 'walk') {
     const v = 2.2 * dt; let vor = 0, seit = 0;
-    if (tasten.has('KeyW') || tasten.has('ArrowUp')) vor += v; if (tasten.has('KeyS') || tasten.has('ArrowDown')) vor -= v;
+    if (tasten.has('KeyW') || tasten.has('ArrowUp') || tasten.has('halt-vor')) vor += v; if (tasten.has('KeyS') || tasten.has('ArrowDown') || tasten.has('halt-zur')) vor -= v;
+    let hoch = 0; if (tasten.has('KeyE') || tasten.has('PageUp') || tasten.has('halt-hoch')) hoch += 1.6 * dt; if (tasten.has('KeyQ') || tasten.has('PageDown') || tasten.has('halt-tief')) hoch -= 1.6 * dt;
+    if (hoch) {   // schweben: über 9 m sieht man aufs Dach, die Ebene folgt der Augenhöhe
+      camera.position.y = Math.max(EG_Y + 0.4, Math.min(12, camera.position.y + hoch)); gehZiel = null;
+      const neu = camera.position.y > OG_Y + 0.3 ? 'OG' : 'EG'; if (neu !== ebeneWalk) { ebeneWalk = neu; vor = vor || 1e-9; }
+    }
     if (tasten.has('KeyD')) seit += v; if (tasten.has('KeyA')) seit -= v;
     if (tasten.has('ArrowLeft')) blick.yaw -= 1.6 * dt; if (tasten.has('ArrowRight')) blick.yaw += 1.6 * dt;
     if (vor || seit) schritt(vor, seit);

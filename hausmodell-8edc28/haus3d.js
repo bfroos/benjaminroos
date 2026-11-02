@@ -3,10 +3,10 @@
 // Die Teilmodelle bleiben, wie sie sind (raum3d.js, kueche3d.js, baeder3d.js, garten3d.js); hier werden sie nur verschoben.
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import * as R3 from './raum3d.js?v=6';
+import * as R3 from './raum3d.js?v=7';
 import * as K3 from './kueche3d.js?v=4';
-import * as B3 from './baeder3d.js?v=2';
-import { buildGarden } from './garten3d.js?v=6';
+import * as B3 from './baeder3d.js?v=3';
+import { buildGarden } from './garten3d.js?v=7';
 
 export const EG_Y = 0.10;                          // Fußboden EG über Gelände (Terrasse liegt bei +0,16 → bündig genug)
 export const OG_Y = EG_Y + R3.CEIL.EG + 0.30;      // 3,25 = OK FFB OG laut Bauantrag
@@ -31,7 +31,7 @@ const viewWorld = (v, fl, ox, oz) => {
 };
 
 export function buildHouse(scene) {
-  R3.OPTS.haus = true; R3.OPTS.tuerenOffen = true;   // doppelte Galerie/Rutsche/Kamin weglassen, Zimmertüren offen
+  R3.OPTS.haus = true; R3.OPTS.tuerenOffen = true;   // doppelte Galerie/Rutsche/Kamin weglassen, Zimmertüren offen (und unten ganz entfernt)
   const rooms = [], parts = [];                    // parts: { fl, obj, ceilings:Set }
   // ---------- Räume aus raum3d.js
   for (const id of R3.ROOM_IDS) {
@@ -47,7 +47,7 @@ export function buildHouse(scene) {
   for (const [id, [fl, sx, sz]] of Object.entries(BATHPOS)) {
     const b = B3.BATHS[id](), [wx, wz] = toWorld(fl, sx, sz);
     b.root.position.set(wx, fl === 'OG' ? OG_Y : EG_Y, wz);
-    b.root.traverse(m => { if (m.userData.cutHide) m.visible = true; });
+    b.root.traverse(m => { if (m.userData.cutHide) m.visible = false; });   // 02.11.: Badtüren weg, damit man frei durchgeht
     b.marks.forEach(m => (m.visible = false));
     stripLights(b.root); scene.add(b.root);
     parts.push({ fl, obj: b.root, ceilings: new Set(b.ceilings) });
@@ -84,7 +84,8 @@ export function buildHouse(scene) {
     obj.traverse(m => { if (m.userData.door) mine.push(m); });
     obj.traverse(m => {
       if (!visibleChain(m) || inDoor(m)) return;
-      if (m.isMesh && m.material && m.material.type === 'ShaderMaterial' && m.material.uniforms && m.material.uniforms.tDiffuse) m.material = mirror;   // Reflector-Spiegel: im Gesamtmodell als Metallspiegel (sonst schwarz)
+      if (m.isMesh && m.material && m.material.type === 'ShaderMaterial' && m.material.uniforms && m.material.uniforms.tDiffuse) m.material = mirror;
+      if (m.isMesh && m.material && m.material.metalness > 0.9 && m.material.roughness < 0.1) m.material = mirror;   // Vollmetall-Spiegel (MAT.mirror) wirkt hier ebenfalls schwarz   // Reflector-Spiegel: im Gesamtmodell als Metallspiegel (sonst schwarz)
       if (m.isLine || m.isSprite || m.isInstancedMesh || m.isPoints) { keep.push({ fl, m }); return; }
       if (!m.isMesh || Array.isArray(m.material)) return;
       let cat = 'body';
@@ -98,7 +99,10 @@ export function buildHouse(scene) {
       const key = fl + '|' + cat; (buckets[key] ||= new Map());
       const list = buckets[key].get(m.material) || []; list.push(g); buckets[key].set(m.material, list);
     });
-    for (const d of mine) { scene.attach(d); d.userData.fl = fl; doors.push(d); }
+    for (const d of mine) {
+      if (!d.userData.door.cab) { d.parent.remove(d); continue; }   // 02.11.: alle Türblätter weg (Zimmer, Haustür innen, Speisekammer, Geheimtür), damit man frei durchgeht; Schranktüren bleiben
+      scene.attach(d); d.userData.fl = fl; doors.push(d);
+    }
     obj.parent.remove(obj);
   }
   const layers = {};                               // 'EG|body' → Group

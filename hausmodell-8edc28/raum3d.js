@@ -554,7 +554,7 @@ function wallRun(g, S, side, line, a0, a1, C, built) {
         if (t === 'front') { leaf(w - 0.085, w - 0.06, 0.6, 1.6, -0.06, -0.02, MAT.steel()); leaf(w - 0.085, w - 0.06, 0.6, 1.6, 0.02, 0.06, MAT.steel()); }
         else for (const c of [-1, 1]) { leaf(w - 0.13, w - 0.01, 1.03, 1.05, c < 0 ? -0.05 : 0.03, c < 0 ? -0.03 : 0.05, MAT.steel()); }
         const max = (along ? out : -out) * dir * 1.65;
-        piv.userData.door = { max, open: !!OPTS.tuerenOffen }; piv.rotation.y = OPTS.tuerenOffen ? max : 0;
+        piv.userData.door = { max, open: !!OPTS.tuerenOffen, front: t === 'front' }; piv.rotation.y = OPTS.tuerenOffen ? max : 0;
       } else if (t === 'gdoor') {
         recess(u0 + 0.02, u1 - 0.02, 0.008, head - 0.02, 0.05, 0.06, MAT.glass());
         for (const [p, q] of [[u0 + 0.02, u0 + 0.07], [u1 - 0.07, u1 - 0.02]]) recess(p, q, 0.008, head - 0.02, 0.045, 0.065, MAT.black());
@@ -663,7 +663,7 @@ const ROOMS = {
       put(g, Cab(1.78, 0.97, C - 0.02, MAT.oak(), { door: 0.45, handle: 'grip' }), 14.42, 14.4, 1.78, 0.97, 'N');
       // Geheimtür zum Flur: Schrankfront, angelehnt offen
       boxA(g, 13.24, 2.1, 14.4, 14.32, C, 14.7, MAT.oak());
-      const dg = new THREE.Group(); dg.position.set(13.26, 0, 14.42); dg.rotation.y = 1.1; g.add(dg);
+      const dg = new THREE.Group(); dg.position.set(13.26, 0, 14.42); dg.rotation.y = 1.1; dg.userData.door = { max: 1.1, open: true }; g.add(dg);   // als Tür markiert: das Gesamtmodell lässt sie weg
       boxA(dg, 0, 0.01, -0.02, 1.0, 2.08, 0.0, MAT.oak()); boxA(dg, 0.95, 2.05, -0.02, 1.0, 2.075, 0.002, MAT.col('#2d2a26', 0.8));
       Doormat(g, 11.98, 13.25, 13.18, 14.29);      // eingelassene Matte vor der Haustür
       boxA(g, 12.6, 0.85, 14.27, 13.22, 0.88, 14.4, MAT.oak());               // Ablage mit Spiegel
