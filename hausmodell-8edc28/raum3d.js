@@ -401,7 +401,7 @@ const DOSEN = {
   wohnen: [['W', 26.71, 16.55, 0.3, 'Hinter dem Lowboard: 2× Dreifach + LAN + Antenne/SAT'], ['E', 32.73, 15.3, 0.3, 'Neben dem Sofa: Doppel + USB-C']],
   rutsche: [['W', 16.46, 15.5, 0.3, 'Hinter dem Sideboard: 2× Doppel + LAN + Antenne/SAT (TV Essen)'], ['W', 16.46, 12.44, 0.5, 'US-Kühlschrank: eigener Stromkreis, daneben Wasseranschluss'], ['N', 11.86, 25.8, 0.3, 'Sideboard: Deko-Licht']],
   spiel: [['W', 25.69, 14.9, 0.3, 'Konsole/Beamer: Dreifach + LAN']],
-  hwr: [['W', 23.19, 10.01, 1.2, 'Waschturm 1: Waschmaschine + Trockner, je eigener Stromkreis'], ['W', 23.19, 11.18, 1.2, 'Waschturm 2: Waschmaschine + Trockner, je eigener Stromkreis']],
+  hwr: [['W', 23.19, 9.95, 0.35, 'Waschmaschine: eigener Stromkreis, Wasser + Ablauf'], ['W', 23.19, 10.62, 0.35, 'Waschtrockner: eigener Stromkreis, Wasser + Ablauf'], ['W', 23.19, 11.29, 0.35, 'Trockner: eigener Stromkreis, Kondensat in den Ablauf'], ['W', 23.19, 12.1, 0.55, 'Roboter-Station: Steckdose, Kaltwasser mit Eckventil, Ablauf DN 40/50']],
 };
 function HKV(g, x0, z0, x1, z1, y0 = 0.15, y1 = 0.95) {   // Heizkreisverteiler: Unterputz-Schrank, weiße Stahltür flächenbündig (Lage nach Neuroth bzw. Vorschlag 02.11.)
   const sx = Math.abs(x1 - x0) > Math.abs(z1 - z0), e = 0.012;
@@ -435,6 +435,73 @@ function Spot(g, x, z, C, force = false) {        // Einbaustrahler
   g.add(cyl(0.045, 0.045, 0.004, MAT.col('#d9d4cc', 0.5), x, C - 0.002, z, 16));
   const d = new THREE.Mesh(new THREE.CircleGeometry(0.03, 16), MAT.glow('#fff4dc', 2.2)); d.rotation.x = Math.PI / 2; d.position.set(x, C - 0.005, z); d.userData.lp = { t: 'spot' }; g.add(d);
 }
+// ---------- 26.11.2026: Vorschläge der Innenarchitektin (Frau Gillis) als abschaltbare Variante ----------
+// Var(): eigene Gruppe, die das Gesamtmodell nicht verschmilzt; 'gillis' = Vorschlag, 'bestand' = was der Vorschlag ersetzt.
+function Var(g, name, o = {}) { const v = new THREE.Group(); v.userData.variante = name; v.userData.keep = true; if (o.schicht) v.userData.schicht = o.schicht; g.add(v); return v; }
+function AufSpot(g, x, z, C, o = {}) {             // Aufbaustrahler (Zylinder Ø 8 cm, 12 cm hoch), Gillis: „Aufbau statt Einbau“
+  const top = C - (o.ab || 0), h = 0.12, c = o.c || '#f2f0eb';
+  g.add(cyl(0.04, 0.04, h, MAT.col(c, 0.45), x, top - h / 2, z, 20));
+  const d = new THREE.Mesh(new THREE.CircleGeometry(0.03, 16), MAT.glow('#fff4dc', 2.4)); d.rotation.x = Math.PI / 2; d.position.set(x, top - h - 0.001, z); d.userData.lp = { t: 'spot', art: 'aufbau' }; g.add(d);
+}
+function DoseMarke(g, side, line, at, y, txt) {    // schaltbare Steckdose, mit orangem Ring hervorgehoben
+  Dose(g, side, line, at, y, txt);
+  const along = side === 'N' || side === 'S', off = (side === 'N' || side === 'W') ? 0.02 : -0.02;
+  const r = new THREE.Mesh(new THREE.TorusGeometry(0.09, 0.012, 8, 24), MAT.glow('#ff8a3d', 1.2));
+  if (along) r.position.set(at, y, line + off); else { r.position.set(line + off, y, at); r.rotation.y = Math.PI / 2; } g.add(r);
+}
+function Eckkamin(g, C) {                         // Eckkamin statt Tunnelkamin: Durchgang Essen–Wohnen bleibt 55 cm, seitlich Schlitz als Holzlager
+  const m = MAT.col('#ece7df', 0.85), x0 = 26.30, x1 = 27.30, z0 = 13.84, z1 = 15.00;   // Durchgang 13,29–13,84 = 55 cm
+  boxA(g, x0, 0, z0, x1, 0.40, z1, m);                                   // Sockel
+  boxA(g, x0, 1.05, z0, x1, C, z1, m);                                   // Haube bis zur Decke
+  boxA(g, x0, 0.40, z0, x0 + 0.30, 1.05, z1, m);                         // Rückwand zur Essseite
+  boxA(g, x0 + 0.30, 0.40, z0, x1, 1.05, z0 + 0.08, m);                  // Nordwange
+  boxA(g, x0 + 0.32, 0.40, z0 + 0.1, x1 - 0.02, 0.44, z1 - 0.02, MAT.col('#1a1817', 0.9));
+  const fire = new THREE.MeshStandardMaterial({ color: '#2a1a10', emissive: '#ff7a2a', emissiveIntensity: 1.8 });
+  for (let i = 0; i < 5; i++) { const f = new THREE.Mesh(new THREE.ConeGeometry(0.06 + (i % 2) * 0.03, 0.22 + (i % 3) * 0.08, 8), fire); f.position.set(x0 + 0.55 + (i % 2) * 0.2, 0.58, z0 + 0.35 + i * 0.17); g.add(f); }
+  boxA(g, x1 - 0.004, 0.40, z0 + 0.08, x1, 1.05, z1, MAT.glass(), false);   // Glas zum Wohnzimmer
+  boxA(g, x0 + 0.30, 0.40, z1 - 0.004, x1, 1.05, z1, MAT.glass(), false);   // Glas nach Süden (Eckscheibe)
+  // Holzlager: senkrechter Schlitz 25 cm an der Südseite, raumhoch bis 2,10
+  const hz0 = z1, hz1 = z1 + 0.25;
+  boxA(g, x0, 0, hz0, x1, 0.06, hz1, m); boxA(g, x0, 2.1, hz0, x1, C, hz1, m); boxA(g, x0, 0, hz1, x1, C, hz1 + 0.04, m);
+  const holz = MAT.col('#8a6a4c', 0.9);
+  for (let r = 0; r < 13; r++) for (let k = 0; k < 4; k++) { const l = cyl(0.055, 0.055, 0.42, holz, x0 + 0.14 + k * 0.27, 0.12 + r * 0.155, hz0 + 0.125, 10); l.rotation.x = Math.PI / 2; g.add(l); }
+  boxA(g, x0 - 0.3, 0, z0 - 0.1, x1 + 0.35, 0.02, z1 + 0.4, MAT.col('#4a4541', 0.7));   // Funkenschutzplatte
+}
+function KugelLeuchte(g, x, z, yTop) {            // Galerie: Glaskugel-Kaskade im Luftraum (Vorschlag mit Fragezeichen)
+  g.add(cyl(0.25, 0.25, 0.04, MAT.black(), x, yTop - 0.02, z, 32));
+  const pts = [[0, 0, 1.3], [0.18, 0.1, 1.6], [-0.2, 0.12, 1.9], [0.05, -0.2, 2.1], [0.22, -0.12, 1.4], [-0.15, -0.1, 1.7], [0.1, 0.22, 2.3], [-0.06, 0.02, 2.55], [0.2, 0.05, 2.0]];
+  for (const [dx, dz, drop] of pts) {
+    g.add(box(0.006, drop, 0.006, MAT.black(), x + dx, yTop - drop / 2, z + dz, false));
+    const s = new THREE.Mesh(new THREE.SphereGeometry(0.09 + (drop % 0.3) * 0.15, 20, 12), MAT.glow('#ffe7bf', 1.3)); s.position.set(x + dx, yTop - drop - 0.08, z + dz); g.add(s);
+  }
+}
+// Je Raum (Blatt-Meter, wie im Raum selbst). Was schon im Modell war (Kühlschrank-Einbau, Inselpendel, Gardinen Wohnen) bleibt unverändert.
+const GILLIS = {
+  wohnen(g, C) {
+    // Grundlicht nach Gillis: 1 Spot je 2,5 m² ≈ 150 lm/m² ≈ 6.000 lm → 13 Aufbaustrahler à 450 lm im Raster statt 4 Bestandsauslässen
+    for (const x of [27.45, 28.9, 30.35, 31.8]) for (const z of [15.0, 16.95, 18.9]) AufSpot(g, x, z, C);
+    AufSpot(g, 27.7, 13.9, C);
+    Eckkamin(g, C);
+    DoseMarke(g, 'E', 32.73, 19.2, 0.3, 'Schaltbare Steckdose: Stehleuchte (Vorschlag Gillis 26.11.)');
+    DoseMarke(g, 'S', 19.95, 27.05, 0.3, 'Schaltbare Steckdose: Weihnachtsbaum (Vorschlag Gillis 26.11.)');
+  },
+  flur_eg(g, C) {                                  // Decke bis hinten 10 cm abgehängt, Aufbaustrahler nach der neuen Geometrie
+    for (const [x, z] of [[12.5, 13.25], [13.5, 13.25], [14.5, 13.25], [15.5, 13.25], [13.78, 15.2], [13.78, 16.4]]) AufSpot(g, x, z, C, { ab: 0.10 });
+    // Oberlicht Gäste-WC zum Hobbyraum (Tageslicht über den Hobbyraum-Fenstern), über Türhöhe
+    boxA(g, 14.55, 2.2, 17.53, 16.1, 2.65, 17.71, MAT.glass(), false);
+    boxA(g, 14.55, 2.2, 17.525, 16.1, 2.22, 17.715, MAT.black()); boxA(g, 14.55, 2.63, 17.525, 16.1, 2.65, 17.715, MAT.black());
+  },
+  rutsche(g, C, b, gRaum) {
+    // Esstisch mittig vor die westliche Hebeschiebetür (17,203–21,413 → Mitte 19,31; Tisch war bei 19,10)
+    if (b.tisch) { const t = b.tisch.clone(); t.userData = { variante: 'gillis', keep: true }; t.position.x += 0.21; gRaum.add(t); }
+    for (const x of [18.0, 19.8, 21.6, 23.4, 25.2]) AufSpot(g, x, 12.65, C);   // Aufbaustrahler entlang des „Flurs“ Küche → Wohnen
+    KugelLeuchte(Var(gRaum, 'gillis', { schicht: 'upper' }), 24.15, 15.5, C + SLAB + CEIL.OG);
+  },
+  eltern(g, C) {                                   // Licht vor dem Schrank und am Eingang (Staubsaugen, Schrank)
+    for (const x of [29.4, 30.8, 32.2]) AufSpot(g, x, 9.65, C);
+    AufSpot(g, 28.25, 11.0, C);
+  },
+};
 // Vorhang: Schiene in einer Schattenfuge in der Decke, Stoff in Falten an beiden Enden zusammengeschoben.
 function Curtain(g, side, a0, a1, line, C, o = {}) {
   const along = side === 'N' || side === 'S', off = (side === 'N' || side === 'W') ? 0.09 : -0.09, L = line + off;
@@ -791,7 +858,7 @@ const ROOMS = {
       put(g, Cab(3.4, 0.45, C - 2.02 - 0.02, MAT.walnut(), { y0: 2.02, door: 0.85, handle: 'none' }), 29.0, 13.3, 3.4, 0.45, 'S');   // oben zu
       Sconce(g, 'N', 13.82, 28.85, 1.75, { w: 0.08 }); Sconce(g, 'N', 13.82, 32.57, 1.75, { w: 0.08 });               // Wandleuchten an den Nischenpfeilern
       Sconce(g, 'E', 32.73, 15.45, 1.75); Sconce(g, 'E', 32.73, 18.55, 1.75);                                      // und neben dem Bild
-      kamin(g, C, 26.38, 13.4, 0.62, 1.75);
+      kamin(Var(g, 'bestand'), C, 26.38, 13.4, 0.62, 1.75);   // 26.11.: Tunnelkamin = Bestand; Vorschlag Gillis siehe GILLIS.wohnen
       put(g, Cab(2.4, 0.45, 0.42, MAT.walnut(), { y0: 0.22, door: 0.6, handle: 'grip', led: true }), 26.71, 15.3, 0.45, 2.4, 'E');
       put(g, TV(1.4), 26.71, 15.85, 0.03, 1.4, 'E', 1.3);
       put(g, Picture(2.4, 1.1, 0), 32.7, 15.8, 0.03, 2.4, 'W', 1.55);
@@ -848,14 +915,15 @@ const ROOMS = {
       stairs(g, 21.85, 8.42, 24.10, 11.86, C);
       if (!OPTS.haus) kamin(g, C, 26.38, 13.4, 0.62, 1.75);   // im Gesamtmodell kommt der Kamin aus dem Wohnzimmer
       // Esstisch Eiche 2,40 mit acht Stühlen und langer Pendelleuchte
+      const tg = Var(g, 'bestand'); b.tisch = tg;   // 26.11.: Esstisch als Bestand, Vorschlag Gillis verschiebt ihn mittig vor die Schiebetür
       const tx = 17.9, tz = 14.55;
-      boxA(g, tx, 0.72, tz, tx + 2.4, 0.76, tz + 1.0, MAT.oak());
-      for (const dx of [0.35, 2.05]) { boxA(g, tx + dx - 0.04, 0, tz + 0.15, tx + dx + 0.04, 0.72, tz + 0.85, MAT.oak()); }
-      boxA(g, tx + 0.35, 0.05, tz + 0.46, tx + 2.05, 0.1, tz + 0.54, MAT.oak());
-      for (let i = 0; i < 3; i++) { put(g, DiningChair('#c9bca8'), tx + 0.3 + i * 0.75, tz - 0.55, 0.5, 0.5, 'S'); put(g, DiningChair('#c9bca8'), tx + 0.3 + i * 0.75, tz + 1.05, 0.5, 0.5, 'N'); }
-      put(g, DiningChair('#c9bca8'), tx - 0.55, tz + 0.25, 0.5, 0.5, 'E'); put(g, DiningChair('#c9bca8'), tx + 2.45, tz + 0.25, 0.5, 0.5, 'W');
-      g.add(vase(tx + 1.2, 0.76, tz + 0.5, 0.08, 0.3, '#e9e2d6'));
-      Pendant(g, tx + 1.2, tz + 0.5, C, 'linear', L, { len: 1.7, drop: 1.25, strong: true });
+      boxA(tg, tx, 0.72, tz, tx + 2.4, 0.76, tz + 1.0, MAT.oak());
+      for (const dx of [0.35, 2.05]) { boxA(tg, tx + dx - 0.04, 0, tz + 0.15, tx + dx + 0.04, 0.72, tz + 0.85, MAT.oak()); }
+      boxA(tg, tx + 0.35, 0.05, tz + 0.46, tx + 2.05, 0.1, tz + 0.54, MAT.oak());
+      for (let i = 0; i < 3; i++) { put(tg, DiningChair('#c9bca8'), tx + 0.3 + i * 0.75, tz - 0.55, 0.5, 0.5, 'S'); put(tg, DiningChair('#c9bca8'), tx + 0.3 + i * 0.75, tz + 1.05, 0.5, 0.5, 'N'); }
+      put(tg, DiningChair('#c9bca8'), tx - 0.55, tz + 0.25, 0.5, 0.5, 'E'); put(tg, DiningChair('#c9bca8'), tx + 2.45, tz + 0.25, 0.5, 0.5, 'W');
+      tg.add(vase(tx + 1.2, 0.76, tz + 0.5, 0.08, 0.3, '#e9e2d6'));
+      Pendant(tg, tx + 1.2, tz + 0.5, C, 'linear', L, { len: 1.7, drop: 1.25, strong: true });
       // 02.11. abends: HKV2 (Neuroth, 9 Kreise, UP-Schrank 87 cm) am Westende der Wand zum Elternbad; Sideboard dafür auf 1,25 m gekürzt
       HKV(g, 24.15, 11.86, 25.02, 11.875);
       put(g, Cab(1.25, 0.45, 0.62, MAT.oak(), { y0: 0.12, door: 0.625, handle: 'grip', led: true }), 25.12, 11.93, 1.25, 0.45, 'S');
@@ -905,33 +973,80 @@ const ROOMS = {
     },
   },
   hwr: {
-    name: 'Hauswirtschaftsraum', fl: 'OG', floor: 'tile', paint: '#ebe6dc', rects: [[23.19, 9.13, 25.46, 12.26]],
+    name: 'Hauswirtschaftsraum', fl: 'OG', paint: '#ebe6dc', rects: [[23.19, 9.13, 25.46, 12.26]],
     open: [{ s: 'N', a: [23.95, 24.75], t: 'win', sill: 1.0, head: 2.2 }, { s: 'S', a: [24.46, 25.33], t: 'door' }],
     view: { pos: [25.2, 12.05, 1.65], target: [23.3, 10.4, 1.1], fov: 74 }, dir: [0.8, 1],
     build(g, b, L, C) {
-      const oak = MAT.oak(), x = 23.2, D = 0.65;
-      // Waschturm von Nord nach Süd: Putz 0,50 · Turm 1 · Körbe 0,45 · Turm 2 · Becken 0,65, oben durchgehend Schränke
-      put(g, Cab(0.5, 0.6, 2.0, oak, { door: 0.5, handle: 'grip' }), x, 9.15, 0.6, 0.5, 'E');
-      for (const z of [9.66, 10.83]) {
-        put(g, Cab(0.7, D, 0.3, oak, { door: 0.7, handle: 'grip' }), x, z, D, 0.7, 'E');
-        for (const [y, c] of [[0.3, '#f4f4f2'], [1.15, '#f4f4f2']]) {
-          boxA(g, x + 0.02, y, z + 0.03, x + 0.62, y + 0.85, z + 0.67, MAT.col(c, 0.35));
-          const ring = new THREE.Mesh(new THREE.TorusGeometry(0.19, 0.025, 10, 32), MAT.steel()); ring.rotation.y = Math.PI / 2; ring.position.set(x + 0.625, y + 0.45, z + 0.35); g.add(ring);
-          const gl = new THREE.Mesh(new THREE.CircleGeometry(0.18, 32), MAT.col('#3a4650', 0.15)); gl.rotation.y = Math.PI / 2; gl.position.set(x + 0.622, y + 0.45, z + 0.35); g.add(gl);
-          boxA(g, x + 0.62, y + 0.72, z + 0.06, x + 0.625, y + 0.8, z + 0.3, MAT.col('#c9ccd0', 0.4));
-        }
-        boxA(g, x, 1.15 - 0.02, z, x + D, 1.15, z + 0.7, oak); boxA(g, x, 2.0, z, x + D, 2.02, z + 0.7, oak);
-        boxA(g, x, 0, z - 0.005, x + D, 2.0, z, oak); boxA(g, x, 0, z + 0.7, x + D, 2.0, z + 0.705, oak);
+      // 25.11. v2: Waschturm deckenhoch (2,55 m, Aufsatz 109 / Klappschrank 48), ohne Blende. Farbe per Knopf (window.HWR_FARBE).
+      // Von Nord (Fenster) nach Süd (Tür): Hochschrank 45 Putzschrank · WM · Waschtrockner · Trockner · Hochschrank 60 mit Roboter-Nische
+      const BE = std('#c6c4b4', { roughness: 0.55 }), BEd = std('#bab8a8', { roughness: 0.6 });
+      window.HWR_MATS = [BE, BEd];
+      const x = 23.19, D = 0.65, xf = x + D, H = Math.min(2.55, C - 0.005);
+      const grip = MAT.col('#b9b2a7', 0.35);
+      const front = (z0, z1, y0, y1, griff = 'oben') => {
+        boxA(g, xf - 0.02, y0 + 0.0015, z0 + 0.0015, xf, y1 - 0.0015, z1 - 0.0015, BE);
+        const gy = griff === 'oben' ? y1 - 0.06 : griff === 'unten' ? y0 + 0.08 : (y0 + y1) / 2;
+        if (griff === 'quer') boxA(g, xf, gy - 0.006, (z0 + z1) / 2 - 0.09, xf + 0.02, gy + 0.006, (z0 + z1) / 2 + 0.09, grip);
+        else boxA(g, xf, Math.max(y0 + 0.05, gy - 0.1), z1 - 0.045, xf + 0.02, Math.min(y1 - 0.03, gy + 0.1), z1 - 0.033, grip);
+      };
+      const geraet = (z, txt) => {
+        const y = 0.6, zc = z + 0.335;
+        boxA(g, x + 0.04, y, zc - 0.3, x + 0.62, y + 0.85, zc + 0.3, MAT.col('#f4f4f2', 0.35)).userData = { name: txt };
+        const ring = new THREE.Mesh(new THREE.TorusGeometry(0.19, 0.025, 10, 32), MAT.steel()); ring.rotation.y = Math.PI / 2; ring.position.set(x + 0.625, y + 0.43, zc); g.add(ring);
+        const gl = new THREE.Mesh(new THREE.CircleGeometry(0.18, 32), MAT.col('#3a4650', 0.15)); gl.rotation.y = Math.PI / 2; gl.position.set(x + 0.622, y + 0.43, zc); g.add(gl);
+        boxA(g, x + 0.62, y + 0.74, zc - 0.27, x + 0.625, y + 0.82, zc - 0.02, MAT.col('#c9ccd0', 0.4));
+      };
+      const z0 = 9.165, zs = [z0, z0 + 0.45, z0 + 1.12, z0 + 1.79, z0 + 2.46, z0 + 3.06];
+      boxA(g, x, 0, zs[0], x + 0.02, H, zs[5], BEd);
+      for (const z of zs) boxA(g, x, 0, z - 0.009, xf, H, z + 0.009, BE);
+      boxA(g, x, H - 0.018, zs[0], xf, H, zs[5], BE);
+      boxA(g, x, 0, zs[0], xf - 0.02, 0.08, zs[5], BE);                                // Sockelblende bündig, keine Füße sichtbar
+      // 1) Hochschrank 45 am Fenster: Putzschrank bodentief (Staubsauger, Mopp), oben Klappschrank 48
+      { const pz0 = zs[0], pz1 = zs[1];
+        boxA(g, x + 0.02, 1.75, pz0, xf - 0.03, 1.768, pz1, BEd);
+        g.add(cyl(0.012, 0.012, 1.2, MAT.col('#3b3f44', 0.4), x + 0.3, 0.68, (pz0 + pz1) / 2 - 0.08, 10));   // Akkusauger
+        boxA(g, x + 0.22, 0.08, (pz0 + pz1) / 2 - 0.16, x + 0.42, 0.3, (pz0 + pz1) / 2, MAT.col('#3b3f44', 0.4));
+        boxA(g, x + 0.02, 1.0, pz1 - 0.1, x + 0.05, 1.08, pz1 - 0.04, MAT.white());                          // Ladesteckdose
+        front(pz0, pz1, 0.08, 2.07); boxA(g, x, 2.07, pz0, xf, 2.088, pz1, BE); front(pz0, pz1, 2.088, H, 'unten'); }
+      // 2–4) drei Waschtürme: Auszug + Schublade, Gerät auf 0,60 m, Aufsatzschrank 109
+      [[zs[1], 'Waschmaschine'], [zs[2], 'Waschtrockner'], [zs[3], 'Trockner (Wärmepumpe)']].forEach(([z, t]) => {
+        const z1 = z + 0.67;
+        front(z, z1, 0.08, 0.47, 'quer'); front(z, z1, 0.47, 0.585, 'quer');
+        boxA(g, x, 0.585, z, xf, 0.6, z1, BE); boxA(g, x, 1.45, z, xf, 1.46, z1, BE);
+        geraet(z, t);
+        front(z, z1, 1.46, H, 'unten');
+      });
+      // 5) Hochschrank 60 an der Tür: unten Roboter-Nische (65 cm, offen), darüber 3 Wäschekippen (eine offen), oben Klappschrank 48
+      const rz0 = zs[4], rz1 = zs[5];
+      boxA(g, x, 0.65, rz0, xf, 0.668, rz1, BE);
+      const ky = [0.668, 1.13, 1.6, 2.07];
+      for (let i = 0; i < 3; i++) {
+        const y0 = ky[i], y1 = ky[i + 1], offen = i === 1;
+        if (!offen) { front(rz0, rz1, y0, y1, 'quer'); boxA(g, xf, y1 - 0.07, (rz0 + rz1) / 2 - 0.09, xf + 0.003, y1 - 0.035, (rz0 + rz1) / 2 + 0.09, MAT.col('#3b3733', 0.8)); continue; }
+        const kip = new THREE.Group(); kip.position.set(xf, y0 + 0.01, 0); kip.rotation.z = -0.38; g.add(kip);
+        const B = (a, b, c, d2, e, f2, m) => boxA(kip, a - xf, b - y0 - 0.01, c, d2 - xf, e - y0 - 0.01, f2, m);
+        B(xf - 0.02, y0 + 0.01, rz0 + 0.004, xf, y1 - 0.004, rz1 - 0.004, BE);
+        B(xf - 0.36, y0 + 0.01, rz0 + 0.02, xf - 0.02, y0 + 0.03, rz1 - 0.02, BEd);
+        B(xf - 0.36, y0 + 0.01, rz0 + 0.02, xf - 0.02, y1 - 0.06, rz0 + 0.035, BEd); B(xf - 0.36, y0 + 0.01, rz1 - 0.035, xf - 0.02, y1 - 0.06, rz1 - 0.02, BEd);
+        kip.add(rbox(0.3, 0.2, 0.48, 0.04, MAT.fabric('#e8e1d6'), -0.18, 0.13, (rz0 + rz1) / 2));
       }
-      const kz = 10.37;                               // offene Fächer mit Körben
-      boxA(g, x, 0, kz, x + 0.6, 2.0, kz + 0.01, oak); boxA(g, x, 0, kz + 0.44, x + 0.6, 2.0, kz + 0.45, oak);
-      for (let i = 0; i < 5; i++) { const y = 0.08 + i * 0.38; boxA(g, x, y, kz, x + 0.6, y + 0.02, kz + 0.45, oak); g.add(rbox(0.5, 0.26, 0.38, 0.03, MAT.fabric(['#c9b28c', '#9aa38f', '#c9b28c', '#d9cdb8', '#9aa38f'][i]), x + 0.33, y + 0.15, kz + 0.225)); }
-      put(g, Cab(0.65, D, 0.88, oak, { door: 0.65, handle: 'grip' }), x, 11.54, D, 0.65, 'E');
-      boxA(g, x, 0.88, 11.54, x + D, 0.92, 12.19, MAT.col('#2b2a28', 0.4));
-      boxA(g, x + 0.12, 0.86, 11.64, x + 0.52, 0.921, 12.09, MAT.col('#d9d6d0', 0.3));
-      g.add(cyl(0.012, 0.012, 0.3, MAT.steel(), x + 0.08, 1.07, 11.865, 8)); boxA(g, x + 0.08, 1.2, 11.86, x + 0.26, 1.215, 11.875, MAT.steel());
+      boxA(g, x, 2.07, rz0, xf, 2.088, rz1, BE); front(rz0, rz1, 2.088, H, 'unten');
+      boxA(g, x, 0, rz0, xf - 0.02, 0.0801, rz1, MAT.col('#e9e6e1', 0.6));
+      boxA(g, x + 0.02, 0, rz0 + 0.06, x + 0.47, 0.5, rz1 - 0.1, MAT.col('#2f3134', 0.4)).userData = { name: 'Roboter-Station mit Frisch-/Abwasseranschluss' };
+      boxA(g, x + 0.47, 0.42, rz0 + 0.12, x + 0.475, 0.47, rz1 - 0.16, MAT.glow('#9fd3ff', 0.8), false);
+      g.add(cyl(0.175, 0.175, 0.1, MAT.col('#e9e9e6', 0.35), x + 0.62, 0.05, (rz0 + rz1) / 2 - 0.02, 32));
+      g.add(cyl(0.03, 0.03, 0.02, MAT.col('#3a3d40', 0.4), x + 0.62, 0.11, (rz0 + rz1) / 2 - 0.02, 16));
+      for (const [zz, c] of [[rz1 - 0.3, '#2f7fd0'], [rz1 - 0.22, '#7a7f85']]) g.add(cyl(0.02, 0.02, 0.03, MAT.col(c, 0.4), x + 0.035, 0.2, zz, 12).rotateZ(Math.PI / 2));
+      boxA(g, x + 0.02, 0.5, rz0 + 0.1, x + 0.05, 0.58, rz0 + 0.16, MAT.white());
+      for (const z of [zs[1], zs[2]]) for (const [y, c] of [[1.2, '#2f7fd0'], [1.0, '#7a7f85']]) g.add(cyl(0.025, 0.025, 0.03, MAT.col(c, 0.4), x + 0.035, y, z + 0.12, 12).rotateZ(Math.PI / 2));
+      // Wäscheständer auf freier Fläche (unter den Wandtrocknern, außerhalb des Türschwenks)
+      { const rx0 = 24.85, rx1 = 25.38, rz0s = 9.45, rz1s = 11.25, rm = MAT.steel();
+        for (const [a, b2] of [[rx0, rz0s], [rx1, rz0s], [rx0, rz1s], [rx1, rz1s]]) g.add(cyl(0.008, 0.008, 0.9, rm, a, 0.45, b2, 6));
+        for (let i = 0; i < 6; i++) { const xx = rx0 + 0.03 + i * 0.094; const bar = cyl(0.004, 0.004, rz1s - rz0s, rm, xx, 0.9, (rz0s + rz1s) / 2, 6); bar.rotation.x = Math.PI / 2; g.add(bar); }
+        for (const [xx, zz, c, l, w] of [[24.95, 9.8, '#f4efe6', 0.4, 0.5], [25.14, 10.5, '#8fb3c9', 0.35, 0.45], [25.3, 10.9, '#c97b63', 0.3, 0.4]]) boxA(g, xx - 0.004, 0.9 - l, zz - w / 2, xx + 0.004, 0.9, zz + w / 2, MAT.fabric(c), true);
+      }
       HKV(g, 25.445, 11.45, 25.46, 12.12, 0.2, 1.0);   // 02.11.: HKV4 (Neuroth, 7 Kreise, UP 67 cm) an der Ostwand unter den Wandtrocknern
-      put(g, Cab(3.04, 0.4, C - 2.02 - 0.01, oak, { y0: 2.02, door: 0.5, handle: 'grip', led: true }), x, 9.15, 0.4, 3.04, 'E');
+
       // Zwei Wandtrockner, einer ausgeklappt mit Wäsche
       for (const [z, open] of [[9.3, true], [10.4, false]]) {
         boxA(g, 25.4, 1.35, z, 25.46, 1.85, z + 1.0, MAT.white());
@@ -941,8 +1056,8 @@ const ROOMS = {
           for (const [zz, c, l] of [[z + 0.22, '#8fb3c9', 0.45], [z + 0.5, '#f4efe6', 0.6], [z + 0.78, '#c97b63', 0.35]]) boxA(g, 24.95, 1.62 - l, zz - 0.004, 25.3, 1.62, zz + 0.004, MAT.fabric(c), true);
         }
       }
-      g.add(cyl(0.2, 0.17, 0.42, MAT.fabric('#c9b28c'), 24.9, 0.21, 11.75, 20));
-      Spot(g, 24.3, 9.8, C); Spot(g, 24.3, 11.3, C); tagLP(boxA(g, 23.25, 2.0, 9.2, 23.27, 2.01, 12.15, MAT.glow('#ffd9a0', 1.2), false), { name: 'LED unter den Oberschränken' });
+
+      Spot(g, 24.3, 9.8, C); Spot(g, 24.3, 11.3, C);
       const p = new THREE.PointLight('#fff1dc', 1.6, 6, 2); p.position.set(24.5, 2.2, 10.7); g.add(p);
     },
   },
@@ -1110,9 +1225,10 @@ export function buildRoom(_data, rid) {
   const g = new THREE.Group(), built = { group: g, walls: [], ceilings: [], room: { id: rid, name: R.name, fl: R.fl }, C, center: [(bx0 + bx1) / 2, (bz0 + bz1) / 2], size: [bx1 - bx0, bz1 - bz0] };
   shell(g, R, C, built);
   LBR = LB[rid] || null; R.build(g, built, { n: 0 }, C);
-  if (LBR) { for (const [x, z] of LBR.spots) Spot(g, x, z, C, true); for (const [x, z] of LBR.decke) DeckeFlach(g, x, z, C); for (const [x, z, l] of LBR.schienen || []) Schiene(g, x, z, C, l); }
+  if (LBR) { const sg = rid === 'wohnen' ? Var(g, 'bestand') : g; for (const [x, z] of LBR.spots) Spot(sg, x, z, C, true); for (const [x, z] of LBR.decke) DeckeFlach(g, x, z, C); for (const [x, z, l] of LBR.schienen || []) Schiene(g, x, z, C, l); }
   LBR = null;
   for (const [sd, ln, at, y, t] of DOSEN[rid] || []) Dose(g, sd, ln, at, y, t);
+  if (GILLIS[rid]) GILLIS[rid](Var(g, 'gillis'), C, built, g);   // 26.11.: Vorschläge Innenarchitektin (abschaltbar)
   // Hohe Möbel und Wandteile direkt an einer Wand gehören zu ihr: in der Ansicht von oben verschwinden sie mit
   const wallSet = new Set(built.walls.map(w => w.grp)), bb = new THREE.Box3();
   for (const w of built.walls) w.extra = [];
