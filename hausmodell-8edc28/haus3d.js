@@ -3,12 +3,12 @@
 // Die Teilmodelle bleiben, wie sie sind (raum3d.js, kueche3d.js, baeder3d.js, garten3d.js); hier werden sie nur verschoben.
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import * as R3 from './raum3d.js?v=14';
-import * as K3 from './kueche3d.js?v=5';
-import * as B3 from './baeder3d.js?v=3';
+import * as R3 from './raum3d.js?v=15';
+import * as K3 from './kueche3d.js?v=6';
+import * as B3 from './baeder3d.js?v=5';
 import { buildGarden } from './garten3d.js?v=8';
 import { buildVents } from './lueftung.js?v=1';
-import { buildGillisAussen, GILLIS_INFO } from './gillis.js?v=1';
+import { buildGillisAussen, GILLIS_INFO } from './gillis.js?v=2';
 
 export const EG_Y = 0.10;                          // Fußboden EG über Gelände (Terrasse liegt bei +0,16 → bündig genug)
 export const OG_Y = EG_Y + R3.CEIL.EG + 0.30;      // 3,25 = OK FFB OG laut Bauantrag
@@ -105,6 +105,7 @@ export function buildHouse(scene) {
       const list = buckets[key].get(m.material) || []; list.push(g); buckets[key].set(m.material, list);
     });
     for (const d of mine) {
+      if (inVar(d)) { d.userData.fl = fl; d.userData.inVar = true; doors.push(d); continue; }   // 27.11.: Schranktüren einer Variante bleiben in ihrer Gruppe (sonst schweben Griffe des ausgeblendeten Bestands)
       if (!d.userData.door.cab) { d.parent.remove(d); continue; }   // 02.11.: alle Türblätter weg (Zimmer, Haustür innen, Speisekammer, Geheimtür), damit man frei durchgeht; Schranktüren bleiben
       scene.attach(d); d.userData.fl = fl; doors.push(d);
     }
@@ -135,7 +136,7 @@ export function buildHouse(scene) {
   }
   { const a = buildGillisAussen(); scene.add(a); varianten.push(a); }   // außen: Leuchte, Briefkasten, Paketbox
   const gillisInfo = GILLIS_INFO.map(i => { const [x, z] = i.fl === 'A' ? [i.x, i.z] : toWorld(i.fl, i.x, i.z); return { ...i, w: [x, (i.fl === 'OG' ? OG_Y : EG_Y) + i.y, z] }; });
-  for (const d of doors) { const key = d.userData.fl + '|body'; (layers[key] || scene).attach(d); d.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); }
+  for (const d of doors) { if (d.userData.inVar) continue; const key = d.userData.fl + '|body'; (layers[key] || scene).attach(d); d.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); }
   return { rooms, layers, garden, G, doors, varianten, gillisInfo };
 }
 
