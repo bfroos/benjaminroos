@@ -543,6 +543,12 @@ function elternbad() {
 }
 
 // =============================================================================
+// 26.11.: Variante (Vorschlag Gillis / Bestand) – alles, was fn() an b.root anhängt, kommt in eine eigene Gruppe
+function wrapVar(b, name, fn) {
+  const n = b.root.children.length; fn();
+  const v = new THREE.Group(); v.userData.variante = name; v.userData.keep = true;
+  for (const c of b.root.children.slice(n)) v.add(c); b.root.add(v); return v;
+}
 function kinder964() {
   const W = 2.51, H = 4.01, b = new Bath('k964', 'Kinderbad OG · 9,64 m²');
   b.bounds = [0, 0, W, H];
@@ -574,7 +580,8 @@ function kinder964() {
   b.paper(2.51, 0.75, NX); b.brushUP(1.50, 0.20, PY);        // Bürste in der Vorwand
   b.spot(1.90, 0.9);
   // Handtuchwärmer am Duschausgang, 75 cm
-  b.towel(0, 2.25, PX, 0.75);
+  wrapVar(b, 'bestand', () => b.towel(0, 2.25, PX, 0.75));
+  wrapVar(b, 'gillis', () => b.towel(0, 2.25, PX, 0.60));   // 26.11. Gillis: Heizkörper 60 cm, offen zum Einfädeln (weniger Spritzwasser)
   // Waschtisch 120 cm, 2 Becken, Achsen y 2,60 / 3,20
   b.vorwand(0, 2.30, 0.15, 1.20, CEIL, false);
   b.clad(0.15, 2.30, 0.15, 3.50, 0.85, 1.20, 1, 0);
@@ -610,8 +617,8 @@ function kinder1060() {
   // Dusche 115 x 115 mit Glas
   b.clad(0, 0.64, 0, 1.79, 0, CEIL, 1, 0);
   b.clad(0, 0.64, 1.155, 0.64, 0, CEIL, 0, 1);
-  b.glass(0, 1.79, 1.15, 1.79);
-  b.glass(1.15, 1.79, 1.15, 1.49);
+  wrapVar(b, 'bestand', () => { b.glass(0, 1.79, 1.15, 1.79); b.glass(1.15, 1.79, 1.15, 1.49); });
+  wrapVar(b, 'gillis', () => b.glass(0, 1.79, 1.15, 1.79, 2.2));   // 26.11. Gillis/Reser: eine feste, durchgehende Scheibe, Ausstieg zur Raummitte
   b.rinne(0.07, 0.72, 0.07, 1.72);
   b.thermo(0.90, 1.05, 0.64, PY, true);
   b.head(0.55, 0.64, PY);
@@ -637,13 +644,20 @@ function kinder1060() {
   b.thermo(W, 0.75, H - 0.40, NX);
   b.niche(W, 2.95, W, 3.55, -1, 0, 0.72);                   // Nische an der Wanne
   b.towel(1.155, 0.58, PX, 0.50);                           // Handtuchwärmer direkt am Duschausgang
-  b.cab(W - 0.35, 1.85, 0.35, 0.80, 0.30, 2.25, 'W', 2);    // Hochschrank hängend, 1,95 hoch
-  b.bar(W - 0.33, 2.65, PY, 0.30, 0.95);                    // Wannenhandtuch an der Schrankseite
-  b.hooks(W - 0.08, 1.848, NY, 2, 0.17, 1.20); b.hooks(W - 0.08, 1.848, NY, 2, 0.17, 1.65);   // Haken zur Tür hin, Kinder unten
+  wrapVar(b, 'bestand', () => b.cab(W - 0.35, 1.85, 0.35, 0.80, 0.30, 2.25, 'W', 2));    // Hochschrank hängend, 1,95 hoch
+  wrapVar(b, 'gillis', () => b.cab(W - 0.40, 1.85, 0.40, 0.80, 0.25, 0.75, 'W', 2));      // 26.11. Gillis: Lowboard statt Hochschrank (Raumproportion)
+  wrapVar(b, 'bestand', () => {   // Handtuchstange und Haken hängen an der Seite des Hochschranks
+    b.bar(W - 0.33, 2.65, PY, 0.30, 0.95);                    // Wannenhandtuch an der Schrankseite
+    b.hooks(W - 0.08, 1.848, NY, 2, 0.17, 1.20); b.hooks(W - 0.08, 1.848, NY, 2, 0.17, 1.65);   // Haken zur Tür hin, Kinder unten
+    b.underLight(W - 0.35, 1.85, 0.35, 0.80, 0.30);
+  });
+  wrapVar(b, 'gillis', () => {     // 27.11.: ohne Hochschrank Haken an die Wand, Licht unter dem Lowboard
+    b.hooks(W, 2.05, NX, 2, 0.17, 1.20); b.hooks(W, 2.05, NX, 2, 0.17, 1.65);
+    b.underLight(W - 0.40, 1.85, 0.40, 0.80, 0.25);
+  });
   [[1.8, 0.4], [0.55, 1.15]].forEach(p => b.spot(...p));
   b.track(1.35, 1.95, 1.35, 4.25, [[2.3, 2.2, 1.2], [0.4, 2.7, 1.0], [2.1, 3.6, 0.6], [0.4, 4.0, 0.9]]);
   b.glow(0.14, 1.87, 0.62, 1.56);
-  b.underLight(W - 0.35, 1.85, 0.35, 0.80, 0.30);
   b.underLight(0, 3.50, 0.30, 0.70, 1.60, 1.205);
   b.view('Blick von der Tür', [1.95, 0.25, 1.62], [0.4, 3.0, 1.0], 70);
   b.view('Blick zur Wanne', [0.85, 1.95, 1.62], [2.2, 4.3, 0.75], 64);

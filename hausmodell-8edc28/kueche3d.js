@@ -313,6 +313,16 @@ function pendant(r, x, z, yBottom, d) {
   const canopy = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.02, 20), M.bronze); canopy.position.set(x, CEIL - 0.01, z); r.add(canopy);
 }
 
+// 26.11.: Variante (Vorschlag Gillis / Bestand) – alles, was fn() an r.root anhängt, kommt in eine eigene Gruppe
+function wrapVar(r, name, fn) {
+  const n = r.root.children.length; fn();
+  const v = new THREE.Group(); v.userData.variante = name; v.userData.keep = true;
+  for (const c of r.root.children.slice(n)) v.add(c); r.root.add(v); return v;
+}
+function aufSpot(r, x, z) {                     // Aufbaustrahler Ø 8 cm, 12 cm hoch
+  const c = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.12, 20), new THREE.MeshStandardMaterial({ color: '#f2f0eb', roughness: 0.45 })); c.position.set(x, CEIL - 0.06, z); r.add(c);
+  const d = new THREE.Mesh(new THREE.CircleGeometry(0.03, 16), new THREE.MeshStandardMaterial({ color: '#fff4dc', emissive: '#fff4dc', emissiveIntensity: 2.4 })); d.rotation.x = Math.PI / 2; d.position.set(x, CEIL - 0.121, z); r.add(d);
+}
 function track(r, x1, z1, x2, z2, spots) {   // 48-V-Magnetschiene, eingelassen, mit Strahlern
   const len = Math.hypot(x2 - x1, z2 - z1);
   const rail = new THREE.Mesh(new THREE.BoxGeometry(len, 0.02, 0.035), M.blackMetal);
@@ -394,11 +404,19 @@ export function kitchen() {
   if (!OPTS.haus) r.wall(-1.491, 6.296, 7.79, 0.365, 'S', [r.win(-0.512, 3.699, 0, 2.51, [0.54, 1.59, 2.64]), r.win(4.183, 6.299, 0, 2.51, [5.24])]);
   // Terrasse und Garten vor der Glasfront
   if (!OPTS.haus) { r.box(-1.6, 6.661, 8.0, 2.2, -0.02, 0, M.terrace); r.box(-6, 8.86, 18, 10, -0.03, -0.01, M.grass); }
-  tallWall(r); island(r); station(r); pantry(r); if (!OPTS.haus) { dining(r); stair(r); }
+  tallWall(r);
+  wrapVar(r, 'bestand', () => island(r));
+  {   // 26.11. Gillis: Insel in gebrochenem Weiß, nur die Schrankwand in Holz
+    const alt = { poly: M.poly, kaschmir: M.kaschmir };
+    M.poly = new THREE.MeshPhysicalMaterial({ color: '#efebe3', roughness: 0.3, clearcoat: 0.4, clearcoatRoughness: 0.25 }); M.kaschmir = new THREE.MeshStandardMaterial({ color: '#e6e1d7', roughness: 0.75 });
+    wrapVar(r, 'gillis', () => island(r)); Object.assign(M, alt);
+  }
+  station(r); pantry(r); if (!OPTS.haus) { dining(r); stair(r); }
   // Licht: zwei Pendel über der Insel (Auslass F18.2), zwei über dem Tisch (F18.1), Schiene vor der Schrankwand, LED-Fuge
   pendant(r, ISL.x + 0.62, ISL.z + ISL.d / 2, 1.62, 0.34); pendant(r, ISL.x + ISL.w - 0.62, ISL.z + ISL.d / 2, 1.62, 0.34);
   if (!OPTS.haus) { pendant(r, 0.99, 4.82, 1.55, 0.44); pendant(r, 2.09, 4.82, 1.55, 0.44); }
-  track(r, 0.30, 1.05, 3.60, 1.05, [[0.6, 1.05, 0.6, 0.6, 1.2], [1.55, 1.05, 1.55, 0.6, 1.1], [2.5, 1.05, 2.2, 0.6, 1.3], [3.35, 1.05, 3.6, 0.6, 1.2]]);
+  wrapVar(r, 'bestand', () => track(r, 0.30, 1.05, 3.60, 1.05, [[0.6, 1.05, 0.6, 0.6, 1.2], [1.55, 1.05, 1.55, 0.6, 1.1], [2.5, 1.05, 2.2, 0.6, 1.3], [3.35, 1.05, 3.6, 0.6, 1.2]]));
+  wrapVar(r, 'gillis', () => { for (const sx of [0.55, 1.45, 2.35, 3.25]) aufSpot(r, sx, 0.95); });   // 26.11. Gillis: Aufbaustrahler über den Schränken statt Schiene
   // Anschlüsse (Nummern wie in der Rohbau-Liste)
   r.mark(1.55, 0.30, 2.00, 'E', 'E1'); r.mark(1.75, 0.30, 2.00, 'E', 'E2'); r.mark(2.17, 0.30, 2.05, 'E', 'E3');
   r.mark(3.60, 0.55, 0.15, 'E', 'E4'); r.mark(0.30, 0.55, 2.72, 'L', 'L3'); r.mark(1.9, 1.05, CEIL - 0.05, 'L', 'L2');
