@@ -3,11 +3,12 @@
 // Die Teilmodelle bleiben, wie sie sind (raum3d.js, kueche3d.js, baeder3d.js, garten3d.js); hier werden sie nur verschoben.
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import * as R3 from './raum3d.js?v=8';
+import * as R3 from './raum3d.js?v=14';
 import * as K3 from './kueche3d.js?v=5';
 import * as B3 from './baeder3d.js?v=3';
 import { buildGarden } from './garten3d.js?v=8';
 import { buildVents } from './lueftung.js?v=1';
+import { buildGillisAussen, GILLIS_INFO } from './gillis.js?v=1';
 
 export const EG_Y = 0.10;                          // Fußboden EG über Gelände (Terrasse liegt bei +0,16 → bündig genug)
 export const OG_Y = EG_Y + R3.CEIL.EG + 0.30;      // 3,25 = OK FFB OG laut Bauantrag
@@ -79,12 +80,15 @@ export function buildHouse(scene) {
   const doors = [];                                // Türen bleiben einzeln, damit sie sich drehen lassen
   const mirror = new THREE.MeshStandardMaterial({ color: '#c6d0d3', roughness: 0.12, metalness: 0.25, envMapIntensity: 1.4, side: THREE.DoubleSide });   // hell statt Vollmetall: Vollmetall spiegelt hier nur Dunkles
   const inDoor = o => { for (let p = o; p; p = p.parent) if (p.userData.door) return true; return false; };
+  const inVar = o => { for (let p = o; p; p = p.parent) if (p.userData.variante) return true; return false; };
+  const varianten = [];                            // 26.11.: Vorschlag Gillis / Bestand, einzeln behalten, damit man sie umschalten kann
   for (const { fl, obj, ceilings } of parts) {
     const ceilMeshes = new Set(); ceilings.forEach(c => c && c.traverse(m => ceilMeshes.add(m)));
     const mine = [];
     obj.traverse(m => { if (m.userData.door) mine.push(m); });
+    const vars = []; obj.traverse(m => { if (m.userData.variante && !inVar(m.parent)) vars.push(m); });
     obj.traverse(m => {
-      if (!visibleChain(m) || inDoor(m)) return;
+      if (!visibleChain(m) || inDoor(m) || inVar(m)) return;
       if (m.isMesh && m.material && m.material.type === 'ShaderMaterial' && m.material.uniforms && m.material.uniforms.tDiffuse) m.material = mirror;
       if (m.isMesh && m.material && m.material.metalness > 0.9 && m.material.roughness < 0.1) m.material = mirror;   // Vollmetall-Spiegel (MAT.mirror) wirkt hier ebenfalls schwarz   // Reflector-Spiegel: im Gesamtmodell als Metallspiegel (sonst schwarz)
       if (m.isLine || m.isSprite || m.isInstancedMesh || m.isPoints) { keep.push({ fl, m }); return; }
@@ -104,6 +108,7 @@ export function buildHouse(scene) {
       if (!d.userData.door.cab) { d.parent.remove(d); continue; }   // 02.11.: alle Türblätter weg (Zimmer, Haustür innen, Speisekammer, Geheimtür), damit man frei durchgeht; Schranktüren bleiben
       scene.attach(d); d.userData.fl = fl; doors.push(d);
     }
+    for (const v of vars) { scene.attach(v); v.userData.fl = fl; varianten.push(v); }
     obj.parent.remove(obj);
   }
   const layers = {};                               // 'EG|body' → Group
@@ -123,8 +128,15 @@ export function buildHouse(scene) {
   }
   for (const fl of ['EG', 'OG']) if (!layers[fl + '|body']) { layers[fl + '|body'] = Object.assign(new THREE.Group(), { name: fl + '|body' }); scene.add(layers[fl + '|body']); }
   buildVents({ EG: layers['EG|body'], OG: layers['OG|body'] }, toWorld, { EG: EG_Y, OG: OG_Y }, R3.CEIL);   // 02.11.: Lüftungsventile (Vorschlag)
+  for (const v of varianten) {
+    const key = v.userData.fl + '|' + (v.userData.schicht || 'body');
+    if (!layers[key]) { layers[key] = Object.assign(new THREE.Group(), { name: key }); scene.add(layers[key]); }
+    layers[key].attach(v); v.traverse(m => { if (m.isMesh) { m.castShadow = !m.material.transparent; m.receiveShadow = true; } });
+  }
+  { const a = buildGillisAussen(); scene.add(a); varianten.push(a); }   // außen: Leuchte, Briefkasten, Paketbox
+  const gillisInfo = GILLIS_INFO.map(i => { const [x, z] = i.fl === 'A' ? [i.x, i.z] : toWorld(i.fl, i.x, i.z); return { ...i, w: [x, (i.fl === 'OG' ? OG_Y : EG_Y) + i.y, z] }; });
   for (const d of doors) { const key = d.userData.fl + '|body'; (layers[key] || scene).attach(d); d.traverse(m => { if (m.isMesh) { m.castShadow = true; m.receiveShadow = true; } }); }
-  return { rooms, layers, garden, G, doors };
+  return { rooms, layers, garden, G, doors, varianten, gillisInfo };
 }
 
 // Raum an einem Punkt finden (für Antippen und Rundgang)

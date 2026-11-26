@@ -46,6 +46,7 @@ select { font: 500 13px var(--ui); color: var(--ink); background: var(--panel); 
 .marke:hover { border-color: var(--accent); }
 .schalter { background: var(--panel); border: 1px solid var(--line); }
 .schalter[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.marke.gillis { background: #fff4e6; border-color: #e0893d; color: #7a3d0c; }
 .marke.technik { background: #b9502f; color: #fff; border-color: #8f3a20; font-weight: 600; }
 .fb { position: fixed; z-index: 8; right: max(16px, env(safe-area-inset-right, 0px)); top: calc(64px + env(safe-area-inset-top, 0px)); width: min(380px, calc(100% - 32px));
   background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; display: grid; gap: 8px; box-shadow: 0 8px 30px rgba(0,0,0,.12); }
@@ -73,6 +74,7 @@ select { font: 500 13px var(--ui); color: var(--ink); background: var(--panel); 
   <select id="raum" aria-label="In einen Raum gehen"><option value="">In einen Raum gehen …</option></select>
   <select id="achse" aria-label="Sichtachse"><option value="">Sichtachse …</option></select>
   <button class="knopf schalter" id="b-feedback" title="Anmerkung zu dieser Ansicht an Benjamin schicken">Feedback</button>
+  <button class="knopf schalter" id="b-gillis" aria-pressed="true" title="Vorschläge der Innenarchitektin aus der Besprechung am 26.11. ein- oder ausblenden">Vorschlag Gillis 26.11.</button>
   <button class="knopf schalter" id="b-offen" aria-pressed="false" title="Außenwände ausblenden, durch die Fenster in die Räume sehen">Fenster offen</button>
 </div>
 <div class="karte" aria-live="polite">
@@ -110,7 +112,7 @@ select { font: 500 13px var(--ui); color: var(--ink); background: var(--panel); 
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
-import { buildHouse, roomAt, insidePoly, EG_Y, OG_Y, toWorld } from './haus3d.js?v=8';
+import { buildHouse, roomAt, insidePoly, EG_Y, OG_Y, toWorld } from './haus3d.js?v=14';
 
 const canvas = document.getElementById('szene');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: /shot/.test(location.search) });
@@ -133,7 +135,7 @@ const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true; controls.maxPolarAngle = Math.PI * 0.49; controls.minDistance = 3; controls.maxDistance = 120;
 
 const H = buildHouse(scene);
-const { rooms, layers, G, doors } = H;
+const { rooms, layers, G, doors, varianten, gillisInfo } = H;
 const HAUS = G.D.haus, MITTE = new THREE.Vector3(10, 2, 8.5);
 const L = k => layers[k] || { visible: false };
 document.getElementById('laden').hidden = true;
@@ -203,7 +205,28 @@ const technikSchilder = (G.technik || []).map(t => {
   el.addEventListener('click', () => karte('Außen · Technik', t.name, t.text)); markenBox.appendChild(el);
   return { el, p: new THREE.Vector3(t.x, t.h, t.z) };
 });
+// 26.11.: Vorschlag Gillis ein/aus (Bestand wird dafür ausgeblendet), Schilder mit Erklärung
+let gillisAn = !/[?&]bestand\b/.test(location.search);
+const gillisSchilder = gillisInfo.map(i => {
+  const el = document.createElement('button'); el.className = 'marke gillis'; el.textContent = '★ ' + i.name; el.hidden = true;
+  el.addEventListener('click', () => karte('Vorschlag Gillis 26.11.', i.name, i.text)); markenBox.appendChild(el);
+  return { i, el, p: new THREE.Vector3(...i.w) };
+});
+function setzeGillis(an) {
+  gillisAn = an; $('b-gillis').setAttribute('aria-pressed', String(an));
+  for (const v of varianten) v.visible = v.userData.variante === 'gillis' ? an : !an;
+  marken();
+}
+$('b-gillis').addEventListener('click', () => {
+  setzeGillis(!gillisAn);
+  if (gillisAn) karte('Vorschlag Gillis 26.11.', 'Vorschläge eingeblendet', 'Orange Schilder erklären die Änderungen. Tippe darauf. Ausschalten zeigt den bisherigen Stand.');
+});
 function marken() {
+  { const ebene = modus === 'og' ? 'OG' : modus === 'eg' ? 'EG' : modus === 'aussen' ? 'A' : null, w = innerWidth, h = innerHeight, v = new THREE.Vector3();
+    for (const s of gillisSchilder) {
+      if (!gillisAn || s.i.fl !== ebene) { s.el.hidden = true; continue; }
+      v.copy(s.p).project(camera); s.el.hidden = v.z > 1; s.el.style.left = ((v.x + 1) / 2 * w) + 'px'; s.el.style.top = ((1 - v.y) / 2 * h) + 'px';
+    } }
   const ebene = modus === 'og' ? 'OG' : modus === 'eg' ? 'EG' : null, w = innerWidth, h = innerHeight, v = new THREE.Vector3();
   for (const s of technikSchilder) {
     if (modus !== 'aussen') { s.el.hidden = true; continue; }
@@ -432,6 +455,38 @@ if (vL) {
   const a = oL[1].split(','), n = a.slice(0, 6).map(Number), m = ['aussen', 'og', 'eg'].includes(a[6]) ? a[6] : 'aussen';
   setzeModus(m, true); camera.position.set(n[0], n[1], n[2]); controls.target.set(n[3], n[4], n[5]); controls.update(); marken();
 } else { setzeModus(start || 'aussen', !start); if (!start) sichtbar(); }
+setzeGillis(gillisAn);
 requestAnimationFrame(schleife);
-window.__haus = { camera, controls, setzeModus, geheIn, fokus, ACHSEN, achse, doors, tuerKlick, rooms, renderer, scene, stelle, flieg: (p, z) => { camera.position.set(...p); controls.target.set(...z); controls.update(); } };
+window.__haus = { setzeGillis, varianten, camera, controls, setzeModus, geheIn, fokus, ACHSEN, achse, doors, tuerKlick, rooms, renderer, scene, stelle, flieg: (p, z) => { camera.position.set(...p); controls.target.set(...z); controls.update(); } };
+</script>
+<style>
+.hwrfarbe { position: fixed; z-index: 6; right: max(16px, env(safe-area-inset-right, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font: 500 12px var(--ui); color: var(--ink); max-width: min(330px, calc(100% - 32px)); }
+.hwrfarbe .reihe { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.hwrfarbe button.sw { width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--line); cursor: pointer; padding: 0; }
+.hwrfarbe button.sw[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 2px var(--panel), 0 0 0 4px var(--accent); }
+.hwrfarbe .kopf { display: flex; justify-content: space-between; gap: 10px; align-items: center; }
+.hwrfarbe .los { font: 600 12px var(--ui); background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 6px; padding: 5px 9px; cursor: pointer; }
+.hwrfarbe a { color: var(--accent); }
+@media (max-width: 640px) { .hwrfarbe { bottom: auto; top: calc(110px + env(safe-area-inset-top, 0px)); } }
+</style>
+<div class="hwrfarbe" role="group" aria-label="Farbe Hauswirtschaftsraum">
+  <div class="kopf"><span>HWR-Farbe: <b id="hwrname">Salbeigrün</b></span><button class="los" id="hwrlos">Zum HWR</button></div>
+  <div class="reihe" id="hwrsw"></div>
+  <div style="margin-top:6px;font-weight:400;color:var(--muted)">Echte Waschturm-Bilder: <a href="farben.html">alle 10 Farben</a></div>
+</div>
+<script>
+(() => {
+  const F = [['Weiß', '#f1f0ec'], ['Beige', '#d9d1c6'], ['Natur Eiche', '#8f7967'], ['Schwarze Eiche', '#2e2c2b'], ['Dunkel Taupe', '#7c7260'],
+    ['Walnuss Holz', '#53402f'], ['Salbeigrün', '#c6c4b4'], ['Steingrau', '#d3d3d0'], ['Anthrazit Grau', '#404143'], ['Dunkelgrün', '#3e4d41']];
+  const box = document.getElementById('hwrsw'), nm = document.getElementById('hwrname');
+  const setze = (i) => {
+    const [n, c] = F[i]; nm.textContent = n;
+    (window.HWR_MATS || []).forEach((m, k) => { m.color.set(c); if (k === 1) m.color.multiplyScalar(0.94); m.needsUpdate = true; });
+    [...box.children].forEach((b, k) => b.setAttribute('aria-pressed', String(k === i)));
+  };
+  F.forEach(([n, c], i) => { const b = document.createElement('button'); b.className = 'sw'; b.style.background = c; b.title = n; b.setAttribute('aria-label', n); b.onclick = () => setze(i); box.appendChild(b); });
+  box.children[6].setAttribute('aria-pressed', 'true');
+  document.getElementById('hwrlos').onclick = () => { const h = window.__haus; const r = h && h.rooms.find(r => r.id === 'hwr'); if (r) h.geheIn(r); };
+})();
 </script>
